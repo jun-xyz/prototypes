@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarisON · 판매상품관리 프로토타입</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#1a1d24; --panel2:#232730; --line:#2e333d;
+    --text:#e7eaf0; --muted:#9aa3b2; --accent:#3d7eff; --inferred:#7a6cff; --sidebar-w:268px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;
+    background:var(--bg);color:var(--text);display:flex;overflow:hidden}
+
+  /* Sidebar */
+  #sidebar{width:var(--sidebar-w);flex-shrink:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);padding:16px 0}
+  #sidebar h1{font-size:14px;font-weight:700;padding:4px 18px 2px;letter-spacing:-.2px}
+  #sidebar .sub{font-size:11px;color:var(--muted);padding:0 18px 14px;border-bottom:1px solid var(--line)}
+  .group{margin-top:10px}
+  .group > .ghead{font-size:11px;color:var(--muted);font-weight:600;padding:8px 18px 4px;letter-spacing:.3px}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;cursor:pointer;
+    font-size:12.5px;color:#c7cdd9;border-left:3px solid transparent}
+  .nav-item:hover{background:var(--panel2)}
+  .nav-item.active{background:#202632;border-left-color:var(--accent);color:#fff;font-weight:600}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:#48506055;flex-shrink:0}
+  .nav-item.active .dot{background:var(--accent)}
+  .nav-item .tag{margin-left:auto;font-size:9.5px;padding:1px 6px;border-radius:8px;background:#2b3140;color:#8b94a6}
+  .nav-item .tag.state{background:#3a2f2a;color:#d6a679}
+  .nav-item .tag.dialog{background:#2f2a3a;color:#b29fe0}
+  .nav-item .tag.toast{background:#27352c;color:#7fc79a}
+
+  /* Stage */
+  #main{flex:1;height:100vh;display:flex;flex-direction:column;min-width:0}
+  #topbar{height:52px;flex-shrink:0;display:flex;align-items:center;gap:12px;
+    padding:0 18px;background:var(--panel);border-bottom:1px solid var(--line)}
+  #topbar .crumb{font-size:11px;color:var(--muted)}
+  #topbar .title{font-size:14px;font-weight:700}
+  #topbar .navbtns{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .tb-btn{font-size:12px;color:#c7cdd9;background:var(--panel2);border:1px solid var(--line);
+    border-radius:7px;padding:6px 11px;cursor:pointer}
+  .tb-btn:hover{background:#2c313c}
+  .tb-btn:disabled{opacity:.4;cursor:default}
+  .toggle{display:flex;align-items:center;gap:7px;font-size:12px;color:#c7cdd9;cursor:pointer;
+    padding:5px 11px;border:1px solid var(--line);border-radius:7px;background:var(--panel2)}
+  .toggle .sw{width:30px;height:17px;border-radius:9px;background:#3a4150;position:relative;transition:.15s}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;
+    background:#fff;transition:.15s}
+  body.show-hot .toggle .sw{background:var(--accent)}
+  body.show-hot .toggle .sw::after{left:15px}
+
+  #stage{flex:1;overflow:auto;background:#0b0d11;
+    background-image:radial-gradient(#1a1f28 1px,transparent 1px);background-size:22px 22px;
+    display:flex;justify-content:center;padding:28px 28px 80px}
+  #screenWrap{position:relative;display:inline-block;align-self:flex-start;
+    box-shadow:0 12px 40px #0009;border-radius:10px;overflow:hidden;background:#fff}
+  #screenImg{display:block;width:1440px;height:auto}
+
+  /* Hotspots */
+  .hotspot{position:absolute;cursor:pointer;border-radius:7px;transition:background .1s,box-shadow .1s;z-index:5}
+  .hotspot:hover{background:rgba(61,126,255,.22);box-shadow:0 0 0 2px var(--accent)}
+  .hotspot.inferred:hover{background:rgba(122,108,255,.22);box-shadow:0 0 0 2px var(--inferred)}
+  body.show-hot .hotspot{background:rgba(61,126,255,.13);box-shadow:0 0 0 1.5px rgba(61,126,255,.65)}
+  body.show-hot .hotspot.inferred{background:rgba(122,108,255,.13);box-shadow:0 0 0 1.5px rgba(122,108,255,.65)}
+  .hotspot .hlabel{display:none;position:absolute;top:-9px;left:6px;font-size:10px;font-weight:600;
+    background:var(--accent);color:#fff;padding:2px 7px;border-radius:6px;white-space:nowrap;
+    box-shadow:0 2px 8px #0006}
+  .hotspot.inferred .hlabel{background:var(--inferred)}
+  body.show-hot .hotspot .hlabel{display:block}
+  .hotspot.fullclick{border-radius:0}
+
+  /* Flow panel */
+  #flow{position:fixed;right:22px;bottom:22px;width:286px;max-height:60vh;overflow:auto;
+    background:rgba(20,23,30,.96);backdrop-filter:blur(8px);border:1px solid var(--line);
+    border-radius:14px;padding:13px;box-shadow:0 16px 50px #000a;z-index:30}
+  #flow h3{font-size:11px;color:var(--muted);letter-spacing:.3px;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  #flow h3 .live{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 #3d7eff66}70%{box-shadow:0 0 0 8px #3d7eff00}100%{box-shadow:0 0 0 0 #3d7eff00}}
+  .flow-btn{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+    background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:6px;cursor:pointer;color:var(--text)}
+  .flow-btn:hover{background:#2c313c;border-color:#3a4150}
+  .flow-btn .ico{width:20px;height:20px;border-radius:6px;flex-shrink:0;display:grid;place-items:center;font-size:11px;background:var(--accent);color:#fff}
+  .flow-btn.inferred .ico{background:var(--inferred)}
+  .flow-btn .lab{font-size:12px;font-weight:600;line-height:1.2}
+  .flow-btn .dst{font-size:10px;color:var(--muted);margin-top:2px}
+  .flow-empty{font-size:11.5px;color:var(--muted);padding:5px 2px;line-height:1.5}
+  #flow .legend{margin-top:7px;padding-top:9px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);display:flex;gap:13px}
+  #flow .legend span{display:flex;align-items:center;gap:5px}
+  #flow .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#2c313c;border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+  <aside id="sidebar">
+    <h1>판매상품관리</h1>
+    <div class="sub">BarisON · 클릭 프로토타입 (Figma 기반)</div>
+    <div id="navList"></div>
+  </aside>
+
+  <div id="main">
+    <div id="topbar">
+      <div>
+        <div class="crumb" id="crumb">—</div>
+        <div class="title" id="title">—</div>
+      </div>
+      <div class="navbtns">
+        <div class="toggle" id="hotToggle"><span class="sw"></span> 핫스팟 표시</div>
+        <button class="tb-btn" id="backBtn">← 뒤로</button>
+        <button class="tb-btn" id="resetBtn">처음으로</button>
+      </div>
+    </div>
+    <div id="stage">
+      <div id="screenWrap">
+        <img id="screenImg" alt="">
+        <div id="hotLayer"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="flow">
+    <h3><span class="live"></span> 이 화면에서 할 수 있는 동작</h3>
+    <div id="flowList"></div>
+    <div class="legend">
+      <span><i style="background:#3d7eff"></i>Figma 화살표</span>
+      <span><i style="background:#7a6cff"></i>추정 연결</span>
+    </div>
+  </div>
+
+<script>
+// ---------- Screen registry ----------
+const S = [
+  {id:"2804-41394", name:"판매상품 목록", variant:"기본", group:"01. 판매상품 목록", kind:""},
+  {id:"6118-10943", name:"판매상품 목록", variant:"로딩", group:"01. 판매상품 목록", kind:"state"},
+  {id:"5850-9519",  name:"판매상품 목록", variant:"빈 상태", group:"01. 판매상품 목록", kind:"state"},
+  {id:"5850-9523",  name:"판매상품 목록", variant:"검색결과 없음", group:"01. 판매상품 목록", kind:"state"},
+  {id:"5850-9521",  name:"판매상품 목록", variant:"오류", group:"01. 판매상품 목록", kind:"state"},
+  {id:"2804-41436", name:"상품 등록", variant:"기본(유형선택)", group:"02. 판매상품 등록", kind:""},
+  {id:"2804-41448", name:"상품 등록", variant:"단일상품", group:"02. 판매상품 등록", kind:""},
+  {id:"2804-41484", name:"상품 등록", variant:"세트상품", group:"02. 판매상품 등록", kind:""},
+  {id:"2804-41558", name:"판매상품 목록", variant:"등록완료 토스트", group:"02. 판매상품 등록", kind:"toast"},
+  {id:"4122-46582", name:"상품 수정", variant:"단일상품", group:"03. 판매상품 수정", kind:""},
+  {id:"4122-46596", name:"상품 수정", variant:"세트상품", group:"03. 판매상품 수정", kind:""},
+  {id:"5850-9527",  name:"상품 수정", variant:"삭제 다이얼로그", group:"03. 판매상품 수정", kind:"dialog"},
+  {id:"2804-41864", name:"판매상품 목록", variant:"수정완료 토스트", group:"03. 판매상품 수정", kind:"toast"},
+  {id:"5850-9529",  name:"판매상품 목록", variant:"삭제완료 토스트", group:"03. 판매상품 수정", kind:"toast"},
+  {id:"2804-41955", name:"카테고리 목록", variant:"기본", group:"04. 카테고리 목록", kind:""},
+  {id:"5851-9519",  name:"카테고리 목록", variant:"빈 상태", group:"04. 카테고리 목록", kind:"state"},
+  {id:"5851-9521",  name:"카테고리 목록", variant:"오류", group:"04. 카테고리 목록", kind:"state"},
+  {id:"2804-42095", name:"카테고리 추가", variant:"모달", group:"05. 카테고리 추가", kind:"dialog"},
+  {id:"2804-42192", name:"카테고리 목록", variant:"추가완료 토스트", group:"05. 카테고리 추가", kind:"toast"},
+  {id:"2804-42278", name:"카테고리 수정", variant:"모달", group:"06. 카테고리 수정", kind:"dialog"},
+  {id:"5851-9525",  name:"카테고리 수정", variant:"삭제 다이얼로그", group:"06. 카테고리 수정", kind:"dialog"},
+  {id:"2804-42451", name:"카테고리 목록", variant:"수정완료 토스트", group:"06. 카테고리 수정", kind:"toast"},
+  {id:"5851-9527",  name:"카테고리 목록", variant:"삭제완료 토스트", group:"06. 카테고리 수정", kind:"toast"},
+  {id:"2804-42375", name:"순서 설정", variant:"모달 기본", group:"07. 카테고리 순서설정", kind:"dialog"},
+  {id:"4128-63829", name:"순서 설정", variant:"모달 변경됨", group:"07. 카테고리 순서설정", kind:"dialog"},
+  {id:"2804-42235", name:"카테고리 목록", variant:"순서저장 토스트", group:"07. 카테고리 순서설정", kind:"toast"},
+  {id:"2804-41894", name:"판매 설정", variant:"기본", group:"08. 판매설정", kind:""},
+  {id:"2804-41601", name:"판매 설정", variant:"저장 토스트", group:"08. 판매설정", kind:"toast"},
+  {id:"5851-9529",  name:"판매 설정", variant:"오류", group:"08. 판매설정", kind:"state"},
+  {id:"5241-25663", name:"나가기 다이얼로그", variant:"등록/수정 공통", group:"00. 공통", kind:"dialog"},
+];
+const byId = Object.fromEntries(S.map(s=>[s.id,s]));
+
+// ---------- Flow panel transitions (Figma arrows + inferred) ----------
+const T = {
+  "2804-41394":[{to:"2804-41436",label:"상품 등록",inferred:true},{to:"4122-46582",label:"상품 클릭(수정)",inferred:true},{to:"2804-41955",label:"카테고리 탭",inferred:true},{to:"2804-41894",label:"판매설정 탭",inferred:true},{to:"6118-10943",label:"로딩 상태",inferred:true},{to:"5850-9519",label:"빈 상태",inferred:true},{to:"5850-9521",label:"오류 상태",inferred:true}],
+  "2804-41436":[{to:"2804-41448",label:"상품 선택(단일)",inferred:false},{to:"2804-41484",label:"세트상품",inferred:true},{to:"5241-25663",label:"나가기",inferred:false}],
+  "2804-41448":[{to:"2804-41558",label:"등록",inferred:false},{to:"5241-25663",label:"나가기",inferred:true}],
+  "2804-41484":[{to:"2804-41558",label:"등록",inferred:true},{to:"5241-25663",label:"나가기",inferred:true}],
+  "2804-41558":[{to:"2804-41394",label:"목록으로",inferred:true}],
+  "4122-46582":[{to:"2804-41864",label:"저장(수정완료)",inferred:false},{to:"5850-9527",label:"삭제",inferred:false},{to:"5241-25663",label:"나가기",inferred:false},{to:"4122-46596",label:"세트상품 수정",inferred:true}],
+  "4122-46596":[{to:"2804-41864",label:"저장(수정완료)",inferred:true},{to:"5850-9527",label:"삭제",inferred:true},{to:"5241-25663",label:"나가기",inferred:true}],
+  "5850-9527":[{to:"5850-9529",label:"삭제 확인",inferred:false}],
+  "2804-41864":[{to:"2804-41394",label:"목록으로",inferred:true}],
+  "5850-9529":[{to:"2804-41394",label:"목록으로",inferred:true}],
+  "2804-41955":[{to:"2804-42095",label:"카테고리 추가",inferred:false},{to:"2804-42278",label:"카테고리 수정",inferred:false},{to:"2804-42375",label:"순서 설정",inferred:false},{to:"2804-41394",label:"판매상품 탭",inferred:true},{to:"2804-41894",label:"판매설정 탭",inferred:true},{to:"5851-9519",label:"빈 상태",inferred:true},{to:"5851-9521",label:"오류 상태",inferred:true}],
+  "2804-42095":[{to:"2804-42192",label:"확인(추가)",inferred:false},{to:"2804-41955",label:"취소/닫기",inferred:true}],
+  "2804-42192":[{to:"2804-41955",label:"목록으로",inferred:true}],
+  "2804-42278":[{to:"2804-42451",label:"확인(수정)",inferred:false},{to:"5851-9525",label:"삭제",inferred:false},{to:"2804-41955",label:"취소/닫기",inferred:true}],
+  "5851-9525":[{to:"5851-9527",label:"삭제 확인",inferred:false}],
+  "2804-42451":[{to:"2804-41955",label:"목록으로",inferred:true}],
+  "5851-9527":[{to:"2804-41955",label:"목록으로",inferred:true}],
+  "2804-42375":[{to:"4128-63829",label:"순서 변경",inferred:false},{to:"2804-41955",label:"취소/닫기",inferred:true}],
+  "4128-63829":[{to:"2804-42235",label:"저장(순서)",inferred:false},{to:"2804-41955",label:"취소/닫기",inferred:true}],
+  "2804-42235":[{to:"2804-41955",label:"목록으로",inferred:true}],
+  "2804-41894":[{to:"2804-41601",label:"저장",inferred:false},{to:"2804-41394",label:"판매상품 탭",inferred:true},{to:"2804-41955",label:"카테고리 탭",inferred:true}],
+  "2804-41601":[{to:"2804-41894",label:"설정 화면으로",inferred:true}],
+  "5241-25663":[{to:"2804-41394",label:"나가기(목록)",inferred:true},{to:"__back__",label:"취소(이전 화면)",inferred:true}],
+};
+
+// ---------- Hotspots: real button overlays (x,y,w,h in % of image) ----------
+const FULL = (to,label)=>[{x:0,y:0,w:100,h:100,to,label,inferred:true,full:true}];
+const H = {
+  "2804-41394":[
+    {x:90.3,y:9.8,w:9,h:4.4,to:"2804-41436",label:"상품 등록"},
+    {x:25.3,y:10.8,w:7.2,h:3,to:"2804-41955",label:"카테고리",inferred:true},
+    {x:32.6,y:10.8,w:7.2,h:3,to:"2804-41894",label:"판매설정",inferred:true},
+    {x:21,y:27.2,w:60,h:5.2,to:"4122-46582",label:"상품 클릭(수정)",inferred:true},
+  ],
+  "2804-41436":[
+    {x:22.8,y:35.5,w:25,h:4.6,to:"2804-41448",label:"상품 선택"},
+    {x:77.3,y:81.2,w:8.7,h:4.6,to:"5241-25663",label:"취소(나가기)"},
+    {x:86.6,y:81.2,w:9.2,h:4.6,to:"2804-41558",label:"저장",inferred:true},
+  ],
+  "2804-41448":[
+    {x:77.3,y:89.2,w:8.7,h:2.7,to:"5241-25663",label:"취소(나가기)"},
+    {x:86.6,y:89.2,w:9.2,h:2.7,to:"2804-41558",label:"저장"},
+  ],
+  "2804-41484":[
+    {x:76.8,y:89.3,w:8.9,h:2.5,to:"5241-25663",label:"취소(나가기)"},
+    {x:86.3,y:89.3,w:9.2,h:2.5,to:"2804-41558",label:"저장"},
+  ],
+  "2804-41558":FULL("2804-41394","화면 클릭 → 목록"),
+  "4122-46582":[
+    {x:86.6,y:10,w:8.7,h:3,to:"5850-9527",label:"삭제"},
+    {x:77.3,y:92.6,w:8.7,h:2.7,to:"5241-25663",label:"취소(나가기)"},
+    {x:86.6,y:92.6,w:9.2,h:2.7,to:"2804-41864",label:"저장"},
+  ],
+  "4122-46596":[
+    {x:86.8,y:9.2,w:8.9,h:2.5,to:"5850-9527",label:"삭제"},
+    {x:76.8,y:89.3,w:8.9,h:2.5,to:"5241-25663",label:"취소(나가기)"},
+    {x:86.3,y:89.3,w:9.2,h:2.5,to:"2804-41864",label:"저장"},
+  ],
+  "2804-41864":FULL("2804-41394","화면 클릭 → 목록"),
+  "5850-9529":FULL("2804-41394","화면 클릭 → 목록"),
+  "5850-9527":[
+    {x:37.8,y:51.8,w:11.8,h:5.2,to:"__back__",label:"취소"},
+    {x:50.4,y:51.8,w:11.8,h:5.2,to:"5850-9529",label:"삭제"},
+  ],
+  "2804-41955":[
+    {x:88.6,y:10.2,w:10.2,h:4.2,to:"2804-42095",label:"카테고리 추가"},
+    {x:18.3,y:11,w:7.2,h:3,to:"2804-41394",label:"판매상품",inferred:true},
+    {x:32.6,y:11,w:7.2,h:3,to:"2804-41894",label:"판매설정",inferred:true},
+    {x:21,y:28,w:60,h:5.2,to:"2804-42278",label:"카테고리 클릭(수정)",inferred:true},
+  ],
+  "2804-42095":[
+    {x:65.7,y:23.8,w:3.2,h:3.6,to:"2804-41955",label:"닫기"},
+    {x:50.7,y:69.7,w:8.8,h:5.2,to:"2804-41955",label:"취소"},
+    {x:59.8,y:69.7,w:8.8,h:5.2,to:"2804-42192",label:"확인(추가)"},
+  ],
+  "2804-42192":FULL("2804-41955","화면 클릭 → 목록"),
+  "2804-42278":[
+    {x:65.7,y:23.8,w:3.2,h:3.6,to:"2804-41955",label:"닫기"},
+    {x:30.8,y:69.7,w:8.8,h:5.2,to:"5851-9525",label:"삭제"},
+    {x:50.7,y:69.7,w:8.8,h:5.2,to:"2804-41955",label:"취소"},
+    {x:59.8,y:69.7,w:8.8,h:5.2,to:"2804-42451",label:"확인(수정)"},
+  ],
+  "5851-9525":[
+    {x:37.8,y:51.8,w:11.8,h:5.2,to:"__back__",label:"취소"},
+    {x:50.4,y:51.8,w:11.8,h:5.2,to:"5851-9527",label:"삭제"},
+  ],
+  "2804-42451":FULL("2804-41955","화면 클릭 → 목록"),
+  "5851-9527":FULL("2804-41955","화면 클릭 → 목록"),
+  "2804-42375":[
+    {x:83.3,y:13.2,w:3.4,h:3.8,to:"2804-41955",label:"닫기"},
+    {x:13.5,y:27.5,w:35,h:31,to:"4128-63829",label:"순서 변경(드래그)",inferred:true},
+    {x:68.8,y:79,w:7.4,h:5.6,to:"2804-41955",label:"취소"},
+    {x:77.2,y:79,w:8.2,h:5.6,to:"4128-63829",label:"저장",inferred:true},
+  ],
+  "4128-63829":[
+    {x:83.3,y:13.2,w:3.4,h:3.8,to:"2804-41955",label:"닫기"},
+    {x:68.8,y:79,w:7.4,h:5.6,to:"2804-41955",label:"취소"},
+    {x:77.2,y:79,w:8.2,h:5.6,to:"2804-42235",label:"저장(순서)"},
+  ],
+  "2804-42235":FULL("2804-41955","화면 클릭 → 목록"),
+  "2804-41894":[
+    {x:86.6,y:80.7,w:9.2,h:4.4,to:"2804-41601",label:"저장"},
+    {x:18.3,y:10.8,w:7.2,h:3,to:"2804-41394",label:"판매상품",inferred:true},
+    {x:25.3,y:10.8,w:7.2,h:3,to:"2804-41955",label:"카테고리",inferred:true},
+  ],
+  "2804-41601":FULL("2804-41894","화면 클릭 → 설정"),
+  "5241-25663":[
+    {x:37.8,y:51.8,w:11.8,h:5.2,to:"__back__",label:"취소"},
+    {x:50.4,y:51.8,w:11.8,h:5.2,to:"2804-41394",label:"나가기(목록)"},
+  ],
+};
+
+// ---------- Sidebar ----------
+const navList=document.getElementById("navList");
+let curId=null, hist=[];
+const groups=[...new Set(S.map(s=>s.group))].sort();
+for(const g of groups){
+  const wrap=document.createElement("div"); wrap.className="group";
+  const h=document.createElement("div"); h.className="ghead"; h.textContent=g; wrap.appendChild(h);
+  for(const s of S.filter(x=>x.group===g)){
+    const it=document.createElement("div"); it.className="nav-item"; it.dataset.id=s.id;
+    const lbl={state:'상태',dialog:'팝업',toast:'토스트'}[s.kind]||'기본';
+    it.innerHTML=`<span class="dot"></span><span>${s.variant}</span><span class="tag ${s.kind}">${lbl}</span>`;
+    it.onclick=()=>go(s.id,true);
+    wrap.appendChild(it);
+  }
+  navList.appendChild(wrap);
+}
+
+// ---------- Navigation ----------
+const img=document.getElementById("screenImg"), hotLayer=document.getElementById("hotLayer");
+const titleEl=document.getElementById("title"), crumbEl=document.getElementById("crumb");
+const flowList=document.getElementById("flowList"), stage=document.getElementById("stage");
+
+function navTo(to){ if(to==="__back__"){ back(); return; } go(to,true); }
+function back(){ if(hist.length){ go(hist.pop(),false); } }
+
+function go(id, push){
+  const s=byId[id]; if(!s) return;
+  if(push && curId && curId!==id) hist.push(curId);
+  curId=id;
+  img.src="screens/"+id+".png";
+  titleEl.textContent=s.name+" · "+s.variant;
+  crumbEl.textContent=s.group;
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.id===id));
+  const act=document.querySelector(".nav-item.active"); if(act) act.scrollIntoView({block:"nearest"});
+
+  // hotspots
+  hotLayer.innerHTML="";
+  (H[id]||[]).forEach(h=>{
+    const d=document.createElement("div");
+    d.className="hotspot"+(h.inferred?" inferred":"")+(h.full?" fullclick":"");
+    d.style.left=h.x+"%"; d.style.top=h.y+"%"; d.style.width=h.w+"%"; d.style.height=h.h+"%";
+    const dst=byId[h.to]; d.title=h.label+(dst?" → "+dst.name+" "+dst.variant:"");
+    d.innerHTML=`<span class="hlabel">${h.label}</span>`;
+    d.onclick=()=>navTo(h.to);
+    hotLayer.appendChild(d);
+  });
+
+  // flow panel
+  flowList.innerHTML="";
+  const outs=T[id]||[];
+  if(!outs.length){ flowList.innerHTML='<div class="flow-empty">정의된 다음 동작이 없습니다. 좌측 목록에서 이동하세요.</div>'; }
+  else outs.forEach(o=>{
+    const d=byId[o.to];
+    const b=document.createElement("button");
+    b.className="flow-btn"+(o.inferred?" inferred":"");
+    b.innerHTML=`<span class="ico">→</span><span><span class="lab">${o.label}</span><span class="dst">${o.to==="__back__"?"이전 화면":(d?d.name+" · "+d.variant:o.to)}</span></span>`;
+    b.onclick=()=>navTo(o.to);
+    flowList.appendChild(b);
+  });
+  document.getElementById("backBtn").disabled = hist.length===0;
+  stage.scrollTop=0;
+  location.hash=id;
+}
+
+document.getElementById("backBtn").onclick=back;
+document.getElementById("resetBtn").onclick=()=>{ hist=[]; go("2804-41394",false); };
+document.getElementById("hotToggle").onclick=()=>document.body.classList.toggle("show-hot");
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") back(); if(e.key==="h") document.body.classList.toggle("show-hot"); });
+
+const start=(location.hash||"").replace("#","");
+go(byId[start]?start:"2804-41394", false);
+</script>
+</body>
+</html>

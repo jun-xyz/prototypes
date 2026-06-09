@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototypes</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;
+    background:#0f1115;color:#e7eaf0;min-height:100vh;padding:64px 24px;
+    display:flex;flex-direction:column;align-items:center}
+  .wrap{width:100%;max-width:720px}
+  h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
+  .sub{font-size:13px;color:#9aa3b2;margin-top:6px;margin-bottom:32px}
+  a.card{display:block;text-decoration:none;color:inherit;background:#1a1d24;
+    border:1px solid #2e333d;border-radius:14px;padding:20px 22px;margin-bottom:14px;
+    transition:border-color .12s,background .12s}
+  a.card:hover{background:#202632;border-color:#3d7eff66}
+  .card .t{font-size:15px;font-weight:700}
+  .card .d{font-size:12.5px;color:#9aa3b2;margin-top:5px;line-height:1.5}
+  .card .meta{font-size:11px;color:#677082;margin-top:10px}
+  .foot{font-size:11px;color:#4f5666;margin-top:28px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Prototypes</h1>
+    <div class="sub">Figma 디자인 기반 클릭 프로토타입 모음</div>
+
+    <a class="card" href="barison/">
+      <div class="t">BarisON · 판매상품관리</div>
+      <div class="d">상품·카테고리·판매설정 어드민 화면 30개. 실제 버튼 핫스팟으로 흐름을 클릭해 따라갈 수 있습니다.</div>
+      <div class="meta">9개 섹션 · 화면 30개 · 클릭 프로토타입</div>
+    </a>
+
+    <div class="foot">새 프로토타입은 <code>prototypes/&lt;프로젝트명&gt;/</code>으로 추가하고 여기에 카드를 한 줄 더하세요.</div>
+  </div>
+</body>
+</html>
