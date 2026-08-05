@@ -1,0 +1,26 @@
+{
+  "id": "/signage/robot-building",
+  "name": "RBMS 로봇 빌딩",
+  "short_name": "로봇 빌딩",
+  "lang": "ko",
+  "start_url": "/signage/robot-building",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0E0F11",
+  "theme_color": "#0E0F11",
+  "icons": [
+    {
+      "src": "/icon-robot-building-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-robot-building-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
