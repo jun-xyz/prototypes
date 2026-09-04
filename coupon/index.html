@@ -277,12 +277,12 @@ let coupons = [
    merchants:["마포프론트원"],benefitType:"정률",scope:"특정 카테고리",
    tiers:[tier([catKey("커피","마포프론트원")],40), tier([catKey("논커피","마포프론트원")],20)],minOrder:null,maxDiscount:5000,
    issueType:"개별",code:"",issueLimit:200,issueCount:200,active:true,channels:["앱","키오스크"],
-   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+   validType:"기간 지정",validRange:"2026-06-30 ~ 2026-07-30",validDays:null,useLimitType:"횟수 제한",useLimit:1},
 
   {id:"CP-20260715-004",sid:"ST04",name:"아메리카노 무료 증정",desc:"프로모션용 아메리카노 무료 쿠폰.",
    merchants:["서울갤러리","성수점","강남점"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
    issueType:"개별",code:"",issueLimit:1000,issueCount:1000,active:true,channels:["앱","키오스크"],
-   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+   validType:"기간 지정",validRange:"2026-07-15 ~ 2026-08-14",validDays:null,useLimitType:"횟수 제한",useLimit:1},
 
   {id:"CP-20260729-005",sid:"ST05",name:"장마철 지원 5천원",desc:"장마철 방문 지원 정액 쿠폰.",
    merchants:MERCHANTS.slice(),benefitType:"정액",scope:"주문 전체",tiers:[tier([],5000)],minOrder:null,
@@ -292,18 +292,18 @@ let coupons = [
   {id:"CP-20260824-006",sid:"ST06",name:"라운지엑스 1만원권",desc:"제휴 배포용 1만원 정액권.",
    merchants:MERCHANTS.slice(),benefitType:"정액",scope:"주문 전체",tiers:[tier([],10000)],minOrder:null,
    issueType:"개별",code:"",issueLimit:300,issueCount:300,active:true,channels:["앱","키오스크"],
-   validType:"발급일로부터 N일",validRange:"",validDays:90,useLimitType:"횟수 제한",useLimit:1},
+   validType:"기간 지정",validRange:"2026-08-24 ~ 2026-11-22",validDays:null,useLimitType:"횟수 제한",useLimit:1},
 
   {id:"CP-20260827-007",sid:"ST07",name:"CS 미수령 보상",desc:"미수령 건 보상용. 현재는 옛 도구에서 대상자를 지정해 발급한다.",
    merchants:["성수점"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
    issueType:"개별",code:"",issueLimit:1,issueCount:1,active:true,channels:["키오스크"],
-   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+   validType:"기간 지정",validRange:"2026-08-27 ~ 2026-09-26",validDays:null,useLimitType:"횟수 제한",useLimit:1},
 
   {id:"CP-20260901-008",sid:"ST08",name:"가락IT벤처타워 주민 할인",desc:"주민 대상 자동 발급. 커피 40%, 논커피 20% 차등.",
    merchants:["가락 IT"],benefitType:"정률",scope:"특정 카테고리",
    tiers:[tier([catKey("커피","가락 IT")],40), tier([catKey("논커피","가락 IT")],20)],minOrder:null,maxDiscount:5000,
    issueType:"개별",code:"",issueLimit:null,issueCount:120,active:true,channels:["앱"],
-   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+   validType:"기간 지정",validRange:"2026-09-01 ~ 2026-10-01",validDays:null,useLimitType:"횟수 제한",useLimit:1},
 
   {id:"CP-20260901-009",sid:"ST09",name:"무신사 뷰티 홍대점 오픈 기념",desc:"오픈 기념 아메리카노 1잔 무료.",
    merchants:["무신사 뷰티(홍대)"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
@@ -337,11 +337,22 @@ function couponBenefit(c){
 }
 function couponScope(c){ return c.scope || "—"; }
 function couponIssue(c){ return c.issueType==="개별" ? "개별 코드" : "공용 코드"; }
+function validParts(c){
+  const p=(c.validRange||"").split("~").map(x=>(x||"").trim());
+  return {start:p[0]||"", end:p[1]||""};
+}
+function isExpired(c){
+  if(c.validType!=="기간 지정") return false;
+  const e=validParts(c).end;
+  return e ? new Date(e+"T23:59:59") < today : false;
+}
 function validShort(c){
   if(c.validType==="무기한") return "무기한";
   if(c.validType==="발급일로부터 N일") return `발급 후 ${c.validDays||0}일`;
-  const end=(c.validRange||"").split("~")[1];
-  return end ? "~"+end.trim().replace(/-/g,".") : "기간 지정";
+  const {start,end}=validParts(c);
+  // 시작일이 아직 안 왔으면 만료일 대신 시작일을 적는다
+  if(start && new Date(start+"T00:00:00") > today) return start.replace(/-/g,".").replace(/^\d{4}\./,"")+"부터";
+  return end ? "~"+end.replace(/-/g,".") : "기간 지정";
 }
 function validFull(c){
   if(c.validType==="무기한") return "무기한";
@@ -378,7 +389,7 @@ function blankForm(){
   return {name:"",desc:"",merchants:[],
     benefitType:"정액",scope:"특정 상품",tiers:[tier([],null)],
     maxDiscount:"",minOrder:"",issueType:"공용",code:"",issueLimit:"",issueCount:"",
-    active:true,channels:["앱","키오스크"],
+    active:false,channels:["앱","키오스크"],
     validType:"무기한",validRangeStart:"",validRangeEnd:"",validDays:"",
     useLimitType:"횟수 제한",useLimit:"1"};
 }
@@ -471,14 +482,13 @@ function listView(){
   const tabHTML=tabs.map(t=>`<button class="tab ${state.listTab===t?"active":""}" data-action="tab" data-tab="${t}">${t}</button>`).join("");
   const rowHTML = rows.length ? rows.map(c=>`
     <tr class="clickable" data-action="open-detail" data-id="${c.id}">
-      <td>${esc(c.sid)}</td>
       <td class="cell-name">${esc(c.name)}</td>
       <td>${esc(couponBenefit(c))}</td>
       <td>${esc(couponScope(c))}</td>
       <td>${esc(couponIssue(c))}</td>
       <td>${esc(validShort(c))}</td>
       <td><button class="switch ${c.active?"on":""}" data-action="toggle-active" data-id="${c.id}" data-stop="1"></button></td>
-    </tr>`).join("") : `<tr><td colspan="7" class="empty">해당하는 쿠폰이 없습니다.</td></tr>`;
+    </tr>`).join("") : `<tr><td colspan="6" class="empty">해당하는 쿠폰이 없습니다.</td></tr>`;
 
   return `
   <div class="page-head">
@@ -493,7 +503,7 @@ function listView(){
     <div class="data-count">총 ${rows.length}건</div>
     <table>
       <thead><tr>
-        <th>쿠폰 ID</th><th>쿠폰명</th><th>혜택</th><th>적용 범위</th><th>발급 방식</th><th>유효기간</th><th>활성화</th>
+        <th>쿠폰명</th><th>혜택</th><th>적용 범위</th><th>발급 방식</th><th>유효기간</th><th>활성화</th>
       </tr></thead>
       <tbody>${rowHTML}</tbody>
     </table>
@@ -632,7 +642,7 @@ function createView(){
   }else if(f.validType==="발급일로부터 N일"){
     validExtra=`<div class="field"><div class="flabel">유효 일수 <span class="req">*</span></div>
       <div class="inp-suffix"><input class="inp ${e.valid?"err":""}" inputmode="numeric" placeholder="30" value="${esc(f.validDays)}" data-field="validDays"><span class="suffix">일</span></div>
-      <div class="help ${e.valid?"err":""}">${e.valid||"공용 코드면 회원이 등록한 날부터 셉니다."}</div></div>`;
+      <div class="help ${e.valid?"err":""}">${e.valid||"회원이 앱에 등록한 날부터 셉니다."}</div></div>`;
   }else{
     validExtra=`<div class="field"></div>`;
   }
@@ -712,8 +722,8 @@ function createView(){
       <div class="rule-divider"></div>
       <div class="grid2">
         <div class="field"><div class="flabel">유효기간 설정</div>
-          ${radioGroup("validType",["무기한","기간 지정","발급일로부터 N일"],f.validType,"")}
-          <div class="help">유효기간 설정 시, 해당 기간 내에만 사용할 수 있습니다.</div></div>
+          ${radioGroup("validType",["무기한","기간 지정",{val:"발급일로부터 N일",lab:"발급일로부터 N일",disabled:f.issueType==="개별"}],f.validType,"")}
+          <div class="help">유효기간 설정 시, 해당 기간 내에만 사용할 수 있습니다.${f.issueType==="개별"?" '발급일로부터 N일'은 공용 코드에서만 쓸 수 있습니다.":""}</div></div>
         ${validExtra}
       </div>
       <div class="rule-divider"></div>
@@ -730,10 +740,11 @@ function createView(){
 /* ---------- Detail view ---------- */
 function genCodes(c){
   const n=Math.min(c.issueCount||0,10);
-  const states=["미사용","미사용","미사용","미사용","등록","등록","등록","사용 완료","사용 완료","만료"];
+  const base=["미사용","미사용","미사용","미사용","등록","등록","등록","사용 완료","사용 완료","미사용"];
+  const expired=isExpired(c);   // 만료일은 쿠폰 공통이라 코드 한 장만 만료될 수 없다
   const out=[];
   for(let i=0;i<n;i++){
-    const st=states[i%states.length];
+    const st=expired ? "만료" : base[i%base.length];
     out.push({code:`${c.sid}-${pad(i+1)}${pad(i+1)}${pad(i+1)}`.slice(0,12),
       short:`CODE-${pad(i+1)}`, status:st,
       issued:"2026-07-0"+((i%3)+1),
@@ -894,7 +905,10 @@ app.addEventListener("change",ev=>{
     else if(name==="scope"){ f.scope=val;
       f.tiers = (val==="주문 전체") ? [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}] : [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}];
       Object.keys(state.errors).forEach(k=>{ if(k.startsWith("tier")) delete state.errors[k]; }); }
-    else if(name==="issueType") f.issueType=val;
+    else if(name==="issueType"){ f.issueType=val;
+      if(val==="개별" && f.validType==="발급일로부터 N일"){
+        f.validType="기간 지정"; f.validDays=""; delete state.errors.valid;
+        showToast("개별 코드는 '발급일로부터 N일'을 쓸 수 없어 '기간 지정'으로 바꿨습니다"); } }
     else if(name==="validType") f.validType=val;
     else if(name==="useLimitType") f.useLimitType=val;
     clearErrForRadio(name,ri); render(); return;
