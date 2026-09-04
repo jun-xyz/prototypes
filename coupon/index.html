@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>쿠폰 시스템 프로토타입 · Barisbrew</title>
+<style>
+:root{
+  --bg:#F4F5F7; --surface:#FFFFFF; --surface-sub:#F9FAFB;
+  --border:#E5E8EB; --border-strong:#D5D9DF; --border-input:#DCE0E5;
+  --text:#191F28; --text-sub:#4E5968; --text-muted:#8B95A1; --text-placeholder:#B0B8C1;
+  --primary:#3182F6; --primary-hover:#1B64DA; --primary-weak:#E8F1FE; --primary-weak-hover:#DBE9FE;
+  --danger:#F04452; --danger-weak:#FDECEE;
+  --success:#12B76A;
+  --chip-active:#2B2E33; --chip-inactive:#F2F4F6;
+  --thead:#EEF3FB;
+  --radius-card:16px; --radius-input:8px; --radius-btn:8px;
+  --shadow-card:0 1px 2px rgba(0,0,0,.04);
+  --shadow-pop:0 6px 24px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Segoe UI",sans-serif;
+  background:var(--bg); color:var(--text); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:14px;color:var(--text)}
+input:focus,textarea:focus{outline:none}
+::placeholder{color:var(--text-placeholder)}
+
+/* ---------- Layout ---------- */
+#app{display:flex;min-height:100vh}
+.sidebar{width:250px;flex:0 0 250px;background:var(--surface);border-right:1px solid var(--border);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding-bottom:24px}
+.side-logo{height:90px;display:flex;align-items:center;padding:0 24px;font-size:26px;letter-spacing:-.5px}
+.side-logo b{font-weight:800}
+.side-logo i{font-style:italic;font-weight:500}
+.side-sec{padding:14px 24px 4px;font-size:11px;color:var(--text-muted);font-weight:600}
+.side-item{display:flex;align-items:center;gap:12px;padding:12px 24px;color:var(--text-sub);font-size:14px;cursor:pointer}
+.side-item:hover{background:var(--surface-sub)}
+.side-item.active{color:var(--primary);font-weight:700;background:var(--primary-weak)}
+.side-item .ic{width:18px;height:18px;flex:0 0 18px;opacity:.85}
+.side-item.muted{color:var(--text-muted);cursor:default}
+.side-item.muted:hover{background:none}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:90px;flex:0 0 90px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:20}
+.branch-sel{display:flex;align-items:center;justify-content:space-between;gap:10px;width:210px;height:44px;
+  border:1px solid var(--border-input);border-radius:var(--radius-input);padding:0 14px;color:var(--text-sub);background:var(--surface)}
+.topbar .spacer{flex:1}
+.badge-admin{background:var(--danger);color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px}
+.topbar .hello{color:var(--text-sub);font-size:13px}
+.topbar .ic-btn{color:var(--text-muted);font-size:16px;padding:6px}
+.btn-app{background:var(--primary-weak);color:var(--primary);font-weight:700;padding:9px 16px;border-radius:var(--radius-btn)}
+
+.content{flex:1;padding:32px}
+.footer{padding:20px 32px;color:var(--text-muted);font-size:12px}
+
+/* ---------- Common ---------- */
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 18px;
+  border-radius:var(--radius-btn);font-weight:700;font-size:14px;transition:background .12s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-primary:disabled{background:#C4D6F5;cursor:not-allowed}
+.btn-secondary{background:var(--primary-weak);color:var(--primary)}
+.btn-secondary:hover{background:var(--primary-weak-hover)}
+.btn-ghost{background:var(--surface);border:1px solid var(--border-input);color:var(--text-sub)}
+.btn-ghost:hover{background:var(--surface-sub)}
+.btn-danger-weak{background:var(--danger-weak);color:var(--danger)}
+.btn-sm{height:38px;padding:0 14px;font-size:13px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-card)}
+
+/* ---------- List ---------- */
+.list-card{padding:24px}
+.list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.tabs{display:flex;gap:8px}
+.tab{height:38px;padding:0 16px;border-radius:19px;background:var(--chip-inactive);color:var(--text-sub);font-weight:600;font-size:13px}
+.tab.active{background:var(--chip-active);color:#fff}
+.search{display:flex;align-items:center;width:340px;max-width:42vw}
+.search input{flex:1;height:44px;border:1px solid var(--border-input);border-right:none;
+  border-radius:var(--radius-input) 0 0 var(--radius-input);padding:0 14px}
+.search .sbtn{height:44px;width:48px;background:var(--primary);color:#fff;border-radius:0 var(--radius-input) var(--radius-input) 0;
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.data-count{font-size:13px;color:var(--text-muted);margin-bottom:10px}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--thead);color:var(--text-sub);font-weight:600;font-size:13px;text-align:center;
+  padding:14px 10px;white-space:nowrap}
+thead th:first-child{border-radius:8px 0 0 8px}
+thead th:last-child{border-radius:0 8px 8px 0}
+tbody td{padding:16px 10px;text-align:center;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+tbody tr:hover{background:var(--surface-sub)}
+tbody tr.clickable{cursor:pointer}
+.cell-name{font-weight:600}
+.pill{display:inline-block;padding:4px 10px;border-radius:14px;font-size:12px;font-weight:600}
+.pill-gray{background:#F2F4F6;color:var(--text-sub)}
+.pill-blue{background:var(--primary-weak);color:var(--primary)}
+.pill-green{background:#E3F9EE;color:#0F9D58}
+.pill-red{background:var(--danger-weak);color:var(--danger)}
+.pill-amber{background:#FEF3E0;color:#C77700}
+.empty{padding:60px;text-align:center;color:var(--text-muted)}
+
+/* switch */
+.switch{display:inline-block;width:44px;height:26px;border-radius:13px;background:#CDD3DA;position:relative;
+  transition:background .15s;vertical-align:middle;cursor:pointer;border:none;flex:0 0 44px}
+.switch.on{background:var(--primary)}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch.on::after{left:21px}
+
+/* pagination */
+.pagination{display:flex;gap:6px;justify-content:center;align-items:center;padding:22px 0 6px}
+.pagination button{min-width:32px;height:32px;border-radius:8px;color:var(--text-sub);font-size:13px}
+.pagination button.active{background:#EDEFF2;font-weight:700;color:var(--text)}
+.pagination button.nav{color:var(--text-muted)}
+
+/* ---------- Form ---------- */
+.form-wrap{max-width:1140px}
+.crumb{font-size:13px;color:var(--text-muted);margin-bottom:6px}
+.section-card{padding:32px;margin-bottom:20px}
+.section-title{font-size:18px;font-weight:800;margin-bottom:22px;letter-spacing:-.3px}
+.notice{display:inline-flex;align-items:center;gap:8px;background:#EBEDF0;color:var(--text-sub);
+  font-size:12.5px;padding:8px 14px;border-radius:8px;margin-bottom:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px 32px}
+.field{margin-bottom:22px}
+.field:last-child{margin-bottom:0}
+.grid2 .field{margin-bottom:0}
+.flabel{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:2px}
+.req{color:var(--danger);font-weight:700}
+.help{font-size:12.5px;color:var(--text-muted);margin-top:8px;line-height:1.45}
+.help.err{color:var(--danger)}
+.inp{width:100%;height:48px;border:1px solid var(--border-input);border-radius:var(--radius-input);padding:0 14px;background:var(--surface)}
+.inp:focus{border-color:var(--primary)}
+.inp.err{border-color:var(--danger)}
+.inp[disabled]{background:#F2F4F6;color:var(--text-muted)}
+textarea.inp{height:108px;padding:12px 14px;resize:none;line-height:1.5}
+.inp-suffix{display:flex;align-items:stretch}
+.inp-suffix .inp{border-radius:var(--radius-input) 0 0 var(--radius-input);border-right:none;text-align:right}
+.inp-suffix .suffix{display:flex;align-items:center;padding:0 14px;border:1px solid var(--border-input);
+  border-left:none;border-radius:0 var(--radius-input) var(--radius-input) 0;background:var(--surface-sub);color:var(--text-sub);font-size:13px}
+.textcount{text-align:right;font-size:12px;color:var(--text-muted);margin-top:6px}
+
+/* radio / checkbox */
+.radio-row{display:flex;flex-wrap:wrap;gap:8px 22px}
+.radio,.checkbox{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text)}
+.radio input,.checkbox input{display:none}
+.dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);display:inline-flex;
+  align-items:center;justify-content:center;flex:0 0 20px}
+.radio input:checked+.dot{border-color:var(--primary)}
+.radio input:checked+.dot::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--primary)}
+.box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border-strong);display:inline-flex;
+  align-items:center;justify-content:center;flex:0 0 20px;color:#fff;font-size:12px}
+.checkbox input:checked+.box{background:var(--primary);border-color:var(--primary)}
+.box.on{background:var(--primary);border-color:var(--primary)}
+.radio.disabled,.checkbox.disabled{opacity:.4;cursor:not-allowed}
+
+/* benefit rule block */
+.rule{border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;background:var(--surface-sub)}
+.rule-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.rule-head h4{font-size:15px;font-weight:700}
+.rule-divider{height:1px;background:var(--border);margin:20px 0}
+.link-danger{color:var(--danger);font-size:13px;font-weight:600}
+
+/* multiselect */
+.ms{position:relative}
+.ms-control{min-height:48px;border:1px solid var(--border-input);border-radius:var(--radius-input);
+  padding:7px 40px 7px 12px;background:var(--surface);cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ms-control.err{border-color:var(--danger)}
+.ms-control::after{content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.ms-ph{color:var(--text-placeholder)}
+.ms-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-weak);color:var(--primary);
+  border-radius:6px;padding:4px 8px;font-size:13px;font-weight:600}
+.ms-chip .x{cursor:pointer;opacity:.7}
+.ms-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;box-shadow:var(--shadow-pop);z-index:30;max-height:260px;overflow-y:auto;padding:6px}
+.tier-row{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--surface-sub)}
+.tier-head{display:flex;justify-content:flex-end;margin-bottom:4px}
+.btn-add-tier{width:100%;height:44px;border-radius:var(--radius-btn);background:var(--primary);color:#fff;font-weight:700;margin-bottom:8px}
+.btn-add-tier:hover{background:var(--primary-hover)}
+.tier-hint{font-size:12.5px;color:var(--text-muted);margin-bottom:14px}
+.ms-opt.dis{opacity:.45;cursor:not-allowed}
+.ms-taken{margin-left:auto;font-size:11.5px;color:var(--text-muted)}
+.detail-grid .sub{color:var(--text-sub);font-size:13px}
+.ms-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+.ms-opt:hover{background:var(--surface-sub)}
+.ms-opt .box{width:18px;height:18px;flex:0 0 18px}
+
+.form-actions{display:flex;justify-content:flex-end;gap:12px;padding:4px 0 12px}
+
+/* detail */
+.detail-grid{display:grid;grid-template-columns:150px 1fr;row-gap:20px;column-gap:16px;align-items:start}
+.detail-grid dt{color:var(--text-sub);font-weight:600}
+.detail-grid dd{color:var(--text);font-weight:500}
+
+/* ---------- Dialog ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,20,30,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+.dialog{background:var(--surface);border-radius:18px;width:420px;max-width:90vw;padding:32px;text-align:center;box-shadow:var(--shadow-pop)}
+.dialog h3{font-size:19px;font-weight:800;line-height:1.4;margin-bottom:12px;white-space:pre-line}
+.dialog p{color:var(--text-sub);font-size:14px;line-height:1.55;margin-bottom:26px}
+.dialog-actions{display:flex;gap:10px}
+.dialog-actions .btn{flex:1}
+
+/* toast */
+.toast{position:fixed;top:106px;left:50%;transform:translateX(-50%);z-index:200;
+  background:#111826;color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;
+  box-shadow:var(--shadow-pop);display:flex;align-items:center;gap:10px;animation:drop .25s ease}
+.toast .dot-s{width:8px;height:8px;border-radius:50%;background:var(--success)}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+"use strict";
+
+/* ============ Seed data ============
+   지점·쿠폰 사례는 실제 운영 데이터에 맞춘 값이다.
+   - 지점명: 노션 「🏬 지점명(Alias)」(로봇운영팀) 기준. 별칭표라 DB branch_nm_ko 와 다를 수 있다.
+   - 쿠폰: 슬랙 쿠폰 발급 요청 20건(2026-03~09) 중 대표 10건.
+   - 타입: 전체상품 마스터 속성 4종(PRD [2.0] 쿠폰 혜택 설정).
+   - 카테고리: 지점의 판매 카테고리라 지점마다 다르다.                              */
+const MERCHANTS = ["마포프론트원","가락 IT","도화 마포","무신사 뷰티(홍대)","서울갤러리",
+                   "성수점","강남점","을지로 돌담길","상암 DMC","위드포스코"];
+const PRODUCTS  = ["아메리카노","카페라떼","바닐라라떼","콜드브루","플랫화이트",
+                   "자몽에이드","녹차라떼","크로플","티라미수","드립백 세트"];
+const TYPES     = ["음료","푸드","굿즈","세트"];
+
+/* 지점별 판매 카테고리 — 같은 이름이라도 지점별 별개 항목이다 */
+const BRANCH_CATEGORIES = {
+  "마포프론트원":      ["커피","논커피"],
+  "가락 IT":           ["커피","논커피","디저트"],
+  "도화 마포":         ["커피","논커피"],
+  "무신사 뷰티(홍대)": ["커피","논커피","베이커리"],
+  "서울갤러리":        ["커피","논커피","디저트"],
+  "성수점":            ["커피","논커피","에이드/티","디저트"],
+  "강남점":            ["커피","논커피","에이드/티","디저트"],
+  "을지로 돌담길":     ["커피","논커피","디저트"],
+  "상암 DMC":          ["커피","논커피","디저트"],
+  "위드포스코":        ["커피","논커피"]
+};
+/* 카테고리 항목은 「이름 (지점)」으로 다룬다 — 표시용으로 지점을 떼는 건 shortTarget */
+const catKey = (cat, br) => `${cat} (${br})`;
+const shortTarget = s => String(s).replace(/\s*\([^()]*\)\s*$/, "");
+
+const today = new Date();
+const pad = n => String(n).padStart(2,"0");
+const fmtDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+let seqId = 10;
+function nextCouponId(){
+  seqId++;
+  const y=today.getFullYear(), m=pad(today.getMonth()+1), d=pad(today.getDate());
+  return `CP-${y}${m}${d}-${pad(seqId).slice(-3).padStart(3,"0")}`;
+}
+
+function tier(targets,value){return {targets:targets||[],value:value??null};}
+
+/* 슬랙 쿠폰 발급 요청 실사례 10건 */
+let coupons = [
+  {id:"CP-20260324-001",sid:"ST01",name:"전지점 APP 전용 아메리카노",desc:"앱 주문 전용. ICE 선택 시에도 부담 없게 정액을 옵션가까지 올려 잡았다.",
+   merchants:MERCHANTS.slice(),benefitType:"정액",scope:"특정 상품",tiers:[tier(["아메리카노"],3400)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:1000,issueCount:1000,active:true,channels:["앱"],
+   validType:"기간 지정",validRange:"2026-03-24 ~ 2026-12-31",validDays:null,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260601-002",sid:"ST02",name:"도화아파트먼트 마포점 입주민 할인",desc:"입주민 대상 전음료 10% 상시 할인.",
+   merchants:["도화 마포"],benefitType:"정률",scope:"특정 타입",tiers:[tier(["음료"],10)],minOrder:null,
+   issueType:"공용",code:"DOHWA10",issueLimit:null,issueCount:0,active:true,channels:["앱","키오스크"],
+   validType:"무기한",validRange:"",validDays:null,useLimitType:"무제한",useLimit:null},
+
+  {id:"CP-20260630-003",sid:"ST03",name:"마포프론트원 입주사 할인",desc:"입주사 임직원 대상. 커피와 논커피 할인율을 다르게 준다.",
+   merchants:["마포프론트원"],benefitType:"정률",scope:"특정 카테고리",
+   tiers:[tier([catKey("커피","마포프론트원")],40), tier([catKey("논커피","마포프론트원")],20)],minOrder:null,maxDiscount:5000,
+   issueType:"개별",code:"",issueLimit:200,issueCount:200,active:true,channels:["앱","키오스크"],
+   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260715-004",sid:"ST04",name:"아메리카노 무료 증정",desc:"프로모션용 아메리카노 무료 쿠폰.",
+   merchants:["서울갤러리","성수점","강남점"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:1000,issueCount:1000,active:true,channels:["앱","키오스크"],
+   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260729-005",sid:"ST05",name:"장마철 지원 5천원",desc:"장마철 방문 지원 정액 쿠폰.",
+   merchants:MERCHANTS.slice(),benefitType:"정액",scope:"주문 전체",tiers:[tier([],5000)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:500,issueCount:500,active:false,channels:["앱","키오스크"],
+   validType:"기간 지정",validRange:"2026-07-29 ~ 2026-08-31",validDays:null,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260824-006",sid:"ST06",name:"라운지엑스 1만원권",desc:"제휴 배포용 1만원 정액권.",
+   merchants:MERCHANTS.slice(),benefitType:"정액",scope:"주문 전체",tiers:[tier([],10000)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:300,issueCount:300,active:true,channels:["앱","키오스크"],
+   validType:"발급일로부터 N일",validRange:"",validDays:90,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260827-007",sid:"ST07",name:"CS 미수령 보상",desc:"미수령 건 보상용. 현재는 옛 도구에서 대상자를 지정해 발급한다.",
+   merchants:["성수점"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:1,issueCount:1,active:true,channels:["키오스크"],
+   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260901-008",sid:"ST08",name:"가락IT벤처타워 주민 할인",desc:"주민 대상 자동 발급. 커피 40%, 논커피 20% 차등.",
+   merchants:["가락 IT"],benefitType:"정률",scope:"특정 카테고리",
+   tiers:[tier([catKey("커피","가락 IT")],40), tier([catKey("논커피","가락 IT")],20)],minOrder:null,maxDiscount:5000,
+   issueType:"개별",code:"",issueLimit:null,issueCount:120,active:true,channels:["앱"],
+   validType:"발급일로부터 N일",validRange:"",validDays:30,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260901-009",sid:"ST09",name:"무신사 뷰티 홍대점 오픈 기념",desc:"오픈 기념 아메리카노 1잔 무료.",
+   merchants:["무신사 뷰티(홍대)"],benefitType:"증정",scope:"특정 상품",tiers:[tier(["아메리카노"],null)],minOrder:null,
+   issueType:"개별",code:"",issueLimit:300,issueCount:300,active:true,channels:["앱","키오스크"],
+   validType:"기간 지정",validRange:"2026-09-01 ~ 2026-09-30",validDays:null,useLimitType:"횟수 제한",useLimit:1},
+
+  {id:"CP-20260902-010",sid:"ST10",name:"XYZ 아카데미 교육생 할인",desc:"교육 기간 중 전 메뉴 30% 할인.",
+   merchants:["서울갤러리","성수점","강남점","을지로 돌담길"],benefitType:"정률",scope:"주문 전체",tiers:[tier([],30)],minOrder:null,maxDiscount:10000,
+   issueType:"공용",code:"XYZACADEMY",issueLimit:null,issueCount:0,active:false,channels:["앱","키오스크"],
+   validType:"기간 지정",validRange:"2026-09-01 ~ 2026-11-30",validDays:null,useLimitType:"무제한",useLimit:null},
+];
+
+/* ============ Derived labels ============ */
+function tierLabel(c,t){
+  const head = t.targets.length ? shortTarget(t.targets[0]) + (t.targets.length>1?` 외 ${t.targets.length-1}건`:"") : "대상 미지정";
+  if(c.benefitType==="증정") return `${head} 무료`;
+  if(c.benefitType==="정률") return `${head} ${t.value}%`;
+  return `${head} ${Number(t.value).toLocaleString()}원`;
+}
+function benefitLabel(c){
+  const v=c.tiers&&c.tiers[0]?c.tiers[0].value:null;
+  if(c.benefitType==="정률") return `정률 ${v}%`;
+  if(c.benefitType==="정액") return `정액 ${Number(v).toLocaleString()}원`;
+  return "무료 증정";
+}
+function couponBenefit(c){
+  if(!c.tiers || !c.tiers.length) return "—";
+  if(c.scope==="주문 전체" || c.benefitType==="증정") return benefitLabel(c);
+  const first = tierLabel(c,c.tiers[0]);
+  return c.tiers.length>1 ? `${first} 외 ${c.tiers.length-1}건` : first;
+}
+function couponScope(c){ return c.scope || "—"; }
+function couponIssue(c){ return c.issueType==="개별" ? "개별 코드" : "공용 코드"; }
+function validShort(c){
+  if(c.validType==="무기한") return "무기한";
+  if(c.validType==="발급일로부터 N일") return `발급 후 ${c.validDays||0}일`;
+  const end=(c.validRange||"").split("~")[1];
+  return end ? "~"+end.trim().replace(/-/g,".") : "기간 지정";
+}
+function validFull(c){
+  if(c.validType==="무기한") return "무기한";
+  if(c.validType==="발급일로부터 N일") return `발급일로부터 ${c.validDays||0}일`;
+  return c.validRange||"기간 지정";
+}
+function useCond(c){
+  const per = c.issueType==="개별" ? "개별 코드 1장당 1회"
+    : (c.useLimitType==="무제한" ? "1인 무제한" : `1인 ${c.useLimit||1}회`);
+  const min = c.minOrder ? `최소 주문 ${Number(c.minOrder).toLocaleString()}원` : "최소 주문 금액 없음";
+  return `${per} · ${min}`;
+}
+function usePlace(c){
+  const m = c.merchants.length>1 ? `${c.merchants[0]} 외 ${c.merchants.length-1}개 지점` : (c.merchants[0]||"—");
+  return `${m} · ${c.channels.join("/")||"—"}`;
+}
+
+/* ============ App state ============ */
+const state = {
+  view:"list",           // list | create | detail
+  listTab:"전체",
+  detailId:null,
+  editingId:null,
+  picker:null,           // {kind:'merchant'|'target', ruleIdx}
+  form:null,
+  dirty:false,
+  dialog:null,           // {type, ...}
+  toast:null,
+  errors:{},
+};
+let toastTimer=null;
+
+function blankForm(){
+  return {name:"",desc:"",merchants:[],
+    benefitType:"정액",scope:"특정 상품",tiers:[tier([],null)],
+    maxDiscount:"",minOrder:"",issueType:"공용",code:"",issueLimit:"",issueCount:"",
+    active:true,channels:["앱","키오스크"],
+    validType:"무기한",validRangeStart:"",validRangeEnd:"",validDays:"",
+    useLimitType:"횟수 제한",useLimit:"1"};
+}
+function formFromCoupon(c){
+  const rr=(c.validRange||"").split("~");
+  return {name:c.name,desc:c.desc,merchants:c.merchants.slice(),
+    benefitType:c.benefitType,scope:c.scope,
+    tiers:c.tiers.map(t=>({targets:t.targets.slice(),value:t.value})),
+    maxDiscount:c.maxDiscount??"",minOrder:c.minOrder??"",issueType:c.issueType,code:c.code||"",
+    issueLimit:c.issueLimit??"",issueCount:c.issueCount||"",
+    active:c.active,channels:c.channels.slice(),
+    validType:c.validType,validRangeStart:(rr[0]||"").trim(),validRangeEnd:(rr[1]||"").trim(),
+    validDays:c.validDays??"",useLimitType:c.useLimitType,useLimit:c.useLimit??""};
+}
+
+/* ============ Navigation ============ */
+function go(view,opts={}){
+  state.view=view; state.picker=null; state.errors={};
+  if(view==="create"){ state.editingId=opts.id||null; state.dirty=false;
+    state.form = opts.id ? formFromCoupon(coupons.find(c=>c.id===opts.id)) : blankForm(); }
+  if(view==="detail"){ state.detailId=opts.id; }
+  if(view==="list" && opts.tab){ state.listTab=opts.tab; }
+  window.scrollTo(0,0);
+  render();
+}
+function showToast(msg){
+  state.toast=msg; render();
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{state.toast=null;render();},2600);
+}
+
+/* ============ Render root ============ */
+const app=document.getElementById("app");
+function esc(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+
+function render(){
+  app.innerHTML = sidebar() +
+    `<div class="main">${topbar()}<div class="content">${viewHTML()}</div>
+     <div class="footer">2026 © XYZ corp.</div></div>` +
+    dialogHTML() + toastHTML();
+}
+function viewHTML(){
+  if(state.view==="list") return listView();
+  if(state.view==="create") return createView();
+  if(state.view==="detail") return detailView();
+  return "";
+}
+
+/* ---------- Sidebar / Topbar ---------- */
+function sidebar(){
+  const item=(txt,ic,active,muted)=>`<div class="side-item ${active?"active":""} ${muted?"muted":""}"
+    ${!muted?`data-action="nav-list"`:""}><span class="ic">${ic}</span>${txt}</div>`;
+  const couponActive = state.view!=="";
+  return `<aside class="sidebar">
+    <div class="side-logo"><b>Baris</b><i>brew</i></div>
+    <div class="side-item muted"><span class="ic">🤖</span>홈</div>
+    <div class="side-sec">로봇관리</div>
+    <div class="side-item muted"><span class="ic">🛠️</span>운영관리</div>
+    <div class="side-item muted"><span class="ic">📟</span>기기상태관리</div>
+    <div class="side-sec">매장관리</div>
+    <div class="side-item muted"><span class="ic">📦</span>재고관리</div>
+    <div class="side-item muted"><span class="ic">🧺</span>판매상품관리</div>
+    <div class="side-item ${couponActive?"active":""}" data-action="nav-list"><span class="ic">🎟️</span>쿠폰관리</div>
+    <div class="side-item muted"><span class="ic">🖥️</span>키오스크설정</div>
+    <div class="side-item muted"><span class="ic">🪧</span>DID관리</div>
+    <div class="side-item muted"><span class="ic">💳</span>결제관리</div>
+    <div class="side-sec">매출관리/분석</div>
+    <div class="side-item muted"><span class="ic">📅</span>매출달력</div>
+    <div class="side-item muted"><span class="ic">📈</span>매출분석</div>
+  </aside>`;
+}
+function topbar(){
+  return `<header class="topbar">
+    <div class="branch-sel">지점명 <span style="color:var(--text-muted)">▾</span></div>
+    <div class="spacer"></div>
+    <span class="badge-admin">Super Admin</span>
+    <span class="hello">사용자님 반가워요</span>
+    <span class="ic-btn">⚙️</span><span class="ic-btn">↦</span>
+    <button class="btn-app">APP관리</button>
+  </header>`;
+}
+
+/* ---------- List view ---------- */
+function statusPill(active){return active?`<span class="pill pill-blue">활성</span>`:`<span class="pill pill-gray">비활성</span>`;}
+function listView(){
+  const tabs=["전체","활성","비활성"];
+  let rows=coupons;
+  if(state.listTab==="활성") rows=coupons.filter(c=>c.active);
+  if(state.listTab==="비활성") rows=coupons.filter(c=>!c.active);
+  const tabHTML=tabs.map(t=>`<button class="tab ${state.listTab===t?"active":""}" data-action="tab" data-tab="${t}">${t}</button>`).join("");
+  const rowHTML = rows.length ? rows.map(c=>`
+    <tr class="clickable" data-action="open-detail" data-id="${c.id}">
+      <td>${esc(c.sid)}</td>
+      <td class="cell-name">${esc(c.name)}</td>
+      <td>${esc(couponBenefit(c))}</td>
+      <td>${esc(couponScope(c))}</td>
+      <td>${esc(couponIssue(c))}</td>
+      <td>${esc(validShort(c))}</td>
+      <td><button class="switch ${c.active?"on":""}" data-action="toggle-active" data-id="${c.id}" data-stop="1"></button></td>
+    </tr>`).join("") : `<tr><td colspan="7" class="empty">해당하는 쿠폰이 없습니다.</td></tr>`;
+
+  return `
+  <div class="page-head">
+    <h1 class="page-title">쿠폰 목록</h1>
+    <button class="btn btn-primary" data-action="nav-create">쿠폰 생성</button>
+  </div>
+  <div class="card list-card">
+    <div class="list-toolbar">
+      <div class="tabs">${tabHTML}</div>
+      <div class="search"><input placeholder="쿠폰명·ID 검색"><button class="sbtn">🔍</button></div>
+    </div>
+    <div class="data-count">총 ${rows.length}건</div>
+    <table>
+      <thead><tr>
+        <th>쿠폰 ID</th><th>쿠폰명</th><th>혜택</th><th>적용 범위</th><th>발급 방식</th><th>유효기간</th><th>활성화</th>
+      </tr></thead>
+      <tbody>${rowHTML}</tbody>
+    </table>
+    <div class="pagination">
+      <button class="nav">«</button><button class="nav">‹</button>
+      <button class="active">1</button><button>2</button><button>3</button>
+      <button class="nav">›</button><button class="nav">»</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- Create/Edit view ---------- */
+const BENEFIT_TYPES=["정액","정률","증정"];
+const BENEFIT_LABELS={"정액":"정액 할인","정률":"정률 할인","증정":"무료 증정"};
+const SCOPES=["특정 상품","특정 카테고리","특정 타입","주문 전체"];
+
+function radioGroup(name,options,current,attrs){
+  return `<div class="radio-row">`+options.map(o=>{
+    const val=typeof o==="string"?o:o.val, lab=typeof o==="string"?o:o.lab, dis=o.disabled;
+    return `<label class="radio ${dis?"disabled":""}">
+      <input type="radio" name="${name}" ${current===val?"checked":""} ${dis?"disabled":""}
+        data-action="radio" ${attrs||""} data-name="${name}" data-val="${esc(val)}">
+      <span class="dot"></span>${esc(lab)}</label>`;
+  }).join("")+`</div>`;
+}
+
+function targetOptions(scope){
+  if(scope==="특정 상품") return PRODUCTS;
+  if(scope==="특정 카테고리"){
+    // 사용 가능 매장을 먼저 정해야 카테고리를 고를 수 있다. 같은 이름이라도 지점별 별개 항목.
+    const brs = (state.form && state.form.merchants) ? state.form.merchants : [];
+    return brs.flatMap(br => (BRANCH_CATEGORIES[br]||[]).map(c => catKey(c, br)));
+  }
+  if(scope==="특정 타입") return TYPES;
+  return [];
+}
+function multiselect(kind,ruleIdx,selected,placeholder,err){
+  const open = state.picker && state.picker.kind===kind && state.picker.ruleIdx===ruleIdx;
+  let opts=[];
+  let taken=[];
+  if(kind==="merchant") opts=MERCHANTS;
+  else { opts=targetOptions(state.form.scope);
+    taken = state.form.tiers.flatMap((t,ti)=> ti===ruleIdx ? [] : t.targets); }
+  const chips = selected.length
+    ? selected.map(s=>`<span class="ms-chip">${esc(s)}<span class="x" data-action="ms-remove" data-kind="${kind}" data-ridx="${ruleIdx}" data-val="${esc(s)}" data-stop="1">✕</span></span>`).join("")
+    : `<span class="ms-ph">${esc(placeholder)}</span>`;
+  const panel = open ? `<div class="ms-panel" data-stop="1">`+
+    opts.map(o=>{ const dis=taken.includes(o);
+      return `<div class="ms-opt ${dis?"dis":""}" ${dis?"":`data-action="ms-toggle"`} data-kind="${kind}" data-ridx="${ruleIdx}" data-val="${esc(o)}" data-stop="1">
+      <span class="box ${selected.includes(o)?"on":""}">${selected.includes(o)?"✓":""}</span>${esc(o)}${dis?`<span class="ms-taken">다른 줄에서 사용</span>`:""}</div>`; }).join("")
+    +`</div>` : "";
+  return `<div class="ms">
+    <div class="ms-control ${err?"err":""}" data-action="ms-open" data-kind="${kind}" data-ridx="${ruleIdx}" data-stop="1">${chips}</div>
+    ${panel}</div>`;
+}
+
+function benefitFields(){
+  const f=state.form, e=state.errors;
+  const scopeOpts=SCOPES.map(sc=>({val:sc,lab:sc,disabled:(f.benefitType==="증정"&&sc==="주문 전체")}));
+  const single = f.scope==="주문 전체" || f.benefitType==="증정";
+  const unit = f.benefitType==="정률" ? "%" : "원";
+  const noBranch = f.scope==="특정 카테고리" && (!f.merchants || !f.merchants.length);
+  const ph = f.scope==="특정 상품" ? "상품을 선택해주세요"
+           : f.scope==="특정 카테고리" ? (noBranch ? "사용 가능 매장을 먼저 선택해주세요" : "카테고리를 선택해주세요")
+           : "타입을 선택해주세요";
+  const tgtHelp = f.scope==="특정 카테고리"
+    ? "선택한 매장의 판매 카테고리만 나옵니다. 같은 이름이라도 지점별 별개 항목입니다."
+    : f.scope==="특정 타입" ? "전체상품 마스터 속성 4종 기준입니다." : "복수 선택 가능.";
+
+  const rows = f.tiers.map((t,i)=>{
+    const valueField = f.benefitType==="증정" ? "" :
+      `<div class="field"><div class="flabel">${f.benefitType==="정률"?"할인율":"할인 금액"} <span class="req">*</span></div>
+        <div class="inp-suffix"><input class="inp ${e[`tier${i}val`]?"err":""}" inputmode="numeric" placeholder="${f.benefitType==="정률"?"10":"1,000"}"
+          value="${t.value??""}" data-action="tier-input" data-tidx="${i}"><span class="suffix">${unit}</span></div>
+        <div class="help ${e[`tier${i}val`]?"err":""}">${e[`tier${i}val`]||(f.benefitType==="정률"?"옵션 추가금은 할인에서 제외됩니다.":"정액으로 차감됩니다.")}</div></div>`;
+    if(f.scope==="주문 전체") return `<div class="tier-row">${valueField}</div>`;
+    const targetField = `<div class="field"><div class="flabel">대상 <span class="req">*</span></div>
+        ${multiselect("target",i,t.targets,ph,e[`tier${i}tgt`])}
+        <div class="help ${e[`tier${i}tgt`]?"err":""}">${e[`tier${i}tgt`]||tgtHelp}</div></div>`;
+    const del = (!single && f.tiers.length>1)
+      ? `<button class="link-danger" data-action="del-tier" data-tidx="${i}">삭제</button>` : "";
+    return `<div class="tier-row">${del?`<div class="tier-head">${del}</div>`:""}<div class="grid2">${targetField}${valueField}</div></div>`;
+  }).join("");
+
+  const addBtn = single ? "" :
+    `<button class="btn-add-tier" data-action="add-tier">＋ 대상 추가</button>
+     <div class="tier-hint">대상마다 값을 다르게 줄 수 있습니다. 같은 대상은 한 줄에만 담깁니다.</div>`;
+
+  return `
+    <div class="field"><div class="flabel">혜택 유형 <span class="req">*</span></div>
+      ${radioGroup("benefitType",BENEFIT_TYPES.map(v=>({val:v,lab:BENEFIT_LABELS[v]})),f.benefitType,"")}
+      <div class="help">쿠폰 하나에 유형 하나가 적용됩니다.</div></div>
+    ${f.benefitType!=="정률" ? "" : `<div class="field"><div class="flabel">최대 할인 금액</div>
+      <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="예: 5,000"
+        value="${f.maxDiscount??""}" data-field="maxDiscount"><span class="suffix">원</span></div>
+      <div class="help">정률의 최대 할인 상한. 쿠폰 공통으로 걸립니다(선택).</div></div>`}
+    <div class="field"><div class="flabel">적용 범위 <span class="req">*</span></div>
+      ${radioGroup("scope",scopeOpts,f.scope,"")}
+      <div class="help">범위는 쿠폰 단위로 하나입니다 — 상품과 카테고리를 섞을 수 없습니다.</div></div>
+    <div class="rule-divider"></div>
+    <div class="flabel" style="margin-bottom:10px">대상별 혜택 값</div>
+    ${rows}
+    ${addBtn}`;
+}
+
+function createView(){
+  const f=state.form, e=state.errors, editing=!!state.editingId;
+  // 발급·코드 분기
+  let issueFields="";
+  if(f.issueType==="공용"){
+    issueFields=`<div class="grid2">
+      <div class="field"><div class="flabel">쿠폰 코드 <span class="req">*</span></div>
+        <input class="inp ${e.code?"err":""}" placeholder="쿠폰 코드를 입력해주세요" value="${esc(f.code)}" data-field="code">
+        <div class="help ${e.code?"err":""}">${e.code||"여러 명이 공유하는 코드."}</div></div>
+      <div class="field"><div class="flabel">발급 한도</div>
+        <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="제한 없음" value="${esc(f.issueLimit)}" data-field="issueLimit"><span class="suffix">회</span></div>
+        <div class="help">코드 전체 사용 가능 횟수 · 미입력 시 무제한 (1인당 횟수와 독립).</div></div>
+    </div>`;
+  }else{
+    issueFields=`<div class="grid2">
+      <div class="field"><div class="flabel">발급 수량 <span class="req">*</span></div>
+        <div class="inp-suffix"><input class="inp ${e.issueCount?"err":""}" inputmode="numeric" placeholder="100" value="${esc(f.issueCount)}" data-field="issueCount"><span class="suffix">개</span></div>
+        <div class="help ${e.issueCount?"err":""}">${e.issueCount||"코드 1장으로 1회만 사용합니다. 여러 번 쓰게 하려면 수량을 늘려주세요."}</div></div>
+      <div class="field"></div>
+    </div>`;
+  }
+  // 유효기간 분기
+  let validExtra="";
+  if(f.validType==="기간 지정"){
+    validExtra=`<div class="field"><div class="flabel">유효 기간 <span class="req">*</span></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="inp ${e.valid?"err":""}" type="date" value="${esc(f.validRangeStart)}" data-field="validRangeStart" style="flex:1">
+        <span style="color:var(--text-muted)">~</span>
+        <input class="inp ${e.valid?"err":""}" type="date" value="${esc(f.validRangeEnd)}" data-field="validRangeEnd" style="flex:1"></div>
+      <div class="help ${e.valid?"err":""}">${e.valid||"지정한 시작 ~ 만료일에 유효합니다."}</div></div>`;
+  }else if(f.validType==="발급일로부터 N일"){
+    validExtra=`<div class="field"><div class="flabel">유효 일수 <span class="req">*</span></div>
+      <div class="inp-suffix"><input class="inp ${e.valid?"err":""}" inputmode="numeric" placeholder="30" value="${esc(f.validDays)}" data-field="validDays"><span class="suffix">일</span></div>
+      <div class="help ${e.valid?"err":""}">${e.valid||"공용 코드면 회원이 등록한 날부터 셉니다."}</div></div>`;
+  }else{
+    validExtra=`<div class="field"></div>`;
+  }
+  // 사용 횟수 분기
+  const useCountExtra = f.useLimitType==="횟수 제한"
+    ? `<div class="field"><div class="flabel">사용 가능 횟수 <span class="req">*</span></div>
+        <div class="inp-suffix"><input class="inp ${e.useLimit?"err":""}" inputmode="numeric" placeholder="1" value="${esc(f.useLimit)}" data-field="useLimit"><span class="suffix">회</span></div>
+        <div class="help ${e.useLimit?"err":""}">${e.useLimit||"1인당 사용 가능한 횟수."}</div></div>`
+    : `<div class="field"></div>`;
+
+  // 1인당 사용 횟수 — 공용 코드 전용 (개별 코드는 1코드 1회라 이 설정을 쓰지 않는다)
+  const perPersonBlock = f.issueType==="공용"
+    ? `<div class="grid2">
+        <div class="field"><div class="flabel">1인당 사용 횟수</div>
+          ${radioGroup("useLimitType",["횟수 제한","무제한"],f.useLimitType,"")}
+          <div class="help">키오스크 무기명 사용은 개인 확인이 안 돼 발급 한도로만 관리됩니다.</div></div>
+        ${useCountExtra}
+      </div>`
+    : `<div class="field"><div class="flabel">1인당 사용 횟수</div>
+        <div class="help">개별 코드는 코드 1장으로 1회만 사용합니다. 여러 번 쓰게 하려면 발급 수량을 늘려주세요.</div></div>`;
+
+  return `<div class="form-wrap">
+    <div class="crumb">쿠폰 목록 › ${editing?"쿠폰 수정":"쿠폰 생성"}</div>
+    <div class="page-head"><h1 class="page-title">${editing?"쿠폰 수정":"쿠폰 생성"}</h1></div>
+
+    <!-- ① 기본 정보 -->
+    <div class="card section-card">
+      <div class="section-title">기본 정보</div>
+      <div class="grid2">
+        <div class="field"><div class="flabel">쿠폰 이름 <span class="req">*</span></div>
+          <input class="inp ${e.name?"err":""}" placeholder="쿠폰 이름을 입력해주세요" value="${esc(f.name)}" data-field="name">
+          <div class="help ${e.name?"err":""}">${e.name||"사용자에게 노출되는 쿠폰 이름입니다."}</div></div>
+        <div class="field"><div class="flabel">쿠폰 ID</div>
+          <input class="inp" value="${editing?esc(state.editingId):""}" placeholder="자동 부여" disabled>
+          <div class="help">시스템에서 자동으로 부여됩니다.</div></div>
+      </div>
+      <div class="field"><div class="flabel">쿠폰 설명</div>
+        <textarea class="inp" maxlength="100" placeholder="쿠폰 설명을 입력해주세요" data-field="desc">${esc(f.desc)}</textarea>
+        <div class="textcount">${(f.desc||"").length} / 100</div></div>
+    </div>
+
+    <!-- ② 혜택 설정 -->
+    <div class="card section-card">
+      <div class="section-title">혜택 설정</div>
+      <div class="field"><div class="flabel">사용 가능 매장 <span class="req">*</span></div>
+        ${multiselect("merchant",-1,f.merchants,"매장을 선택해주세요",e.merchants)}
+        <div class="help ${e.merchants?"err":""}">${e.merchants||"선택한 매장에서만 사용 가능합니다."}</div></div>
+      ${benefitFields()}
+      <div class="field" style="max-width:520px"><div class="flabel">최소 주문 금액</div>
+        <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="0" value="${esc(f.minOrder)}" data-field="minOrder"><span class="suffix">원</span></div>
+        <div class="help">선택 입력 (미입력 시 제한 없음).</div></div>
+    </div>
+
+    <!-- ③ 발급·코드 -->
+    <div class="card section-card">
+      <div class="section-title">발급·코드</div>
+      <div class="field"><div class="flabel">발급 방식 <span class="req">*</span></div>
+        ${radioGroup("issueType",["공용","개별"].map(v=>({val:v,lab:v+" 코드"})),f.issueType,"")}
+        <div class="help">공용 코드 또는 개별 코드 중 선택해주세요.</div></div>
+      ${issueFields}
+    </div>
+
+    <!-- ④ 사용 규칙 -->
+    <div class="card section-card">
+      <div class="section-title">사용 규칙</div>
+      <div class="grid2">
+        <div class="field"><div class="flabel">활성화</div>
+          <div><button class="switch ${f.active?"on":""}" data-action="toggle-form-active"></button></div>
+          <div class="help">활성화 시 발급·등록 가능 (비활성화해도 보유분은 유효기간까지 사용).</div></div>
+        <div class="field"><div class="flabel">사용 채널 <span class="req">*</span></div>
+          <div class="radio-row">
+            ${["앱","키오스크"].map(ch=>`<label class="checkbox"><input type="checkbox" ${f.channels.includes(ch)?"checked":""}
+              data-action="channel" data-val="${ch}"><span class="box">${f.channels.includes(ch)?"✓":""}</span>${ch}</label>`).join("")}
+          </div>
+          <div class="help ${e.channels?"err":""}">${e.channels||"앱·키오스크 중 선택해주세요."}</div></div>
+      </div>
+      <div class="rule-divider"></div>
+      <div class="grid2">
+        <div class="field"><div class="flabel">유효기간 설정</div>
+          ${radioGroup("validType",["무기한","기간 지정","발급일로부터 N일"],f.validType,"")}
+          <div class="help">유효기간 설정 시, 해당 기간 내에만 사용할 수 있습니다.</div></div>
+        ${validExtra}
+      </div>
+      <div class="rule-divider"></div>
+      ${perPersonBlock}
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-secondary" data-action="cancel">취소</button>
+      <button class="btn btn-primary" data-action="save">저장</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- Detail view ---------- */
+function genCodes(c){
+  const n=Math.min(c.issueCount||0,10);
+  const states=["미사용","미사용","미사용","미사용","등록","등록","등록","사용 완료","사용 완료","만료"];
+  const out=[];
+  for(let i=0;i<n;i++){
+    const st=states[i%states.length];
+    out.push({code:`${c.sid}-${pad(i+1)}${pad(i+1)}${pad(i+1)}`.slice(0,12),
+      short:`CODE-${pad(i+1)}`, status:st,
+      issued:"2026-07-0"+((i%3)+1),
+      used: st==="사용 완료" ? "2026-07-0"+((i%3)+4) : "—"});
+  }
+  return out;
+}
+function codeStatusPill(s){
+  const map={"미사용":"pill-gray","등록":"pill-blue","사용 완료":"pill-green","만료":"pill-red"};
+  return `<span class="pill ${map[s]||"pill-gray"}">${s}</span>`;
+}
+function detailView(){
+  const c=coupons.find(x=>x.id===state.detailId);
+  if(!c) return `<div class="empty">쿠폰을 찾을 수 없습니다.</div>`;
+  let codeSection="";
+  if(c.issueType==="개별"){
+    const codes=genCodes(c);
+    const used=codes.filter(x=>x.status==="사용 완료").length;
+    const rate=codes.length?Math.round(used/codes.length*100):0;
+    codeSection=`<div class="card section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="section-title" style="margin:0">발급 코드</div>
+        <button class="btn btn-ghost btn-sm">CSV 다운로드</button></div>
+      <div class="data-count">발급 ${codes.length} · 사용 ${used} (${rate}%)</div>
+      <table>
+        <thead><tr><th>코드</th><th>쿠폰명</th><th>상태</th><th>발급일</th><th>사용일</th></tr></thead>
+        <tbody>${codes.map(x=>`<tr><td>${esc(x.short)}</td><td>${esc(c.name)}</td>
+          <td>${codeStatusPill(x.status)}</td><td>${x.issued}</td><td>${x.used}</td></tr>`).join("")}</tbody>
+      </table></div>`;
+  }else{
+    codeSection=`<div class="card section-card">
+      <div class="section-title">공용 코드</div>
+      <div class="detail-grid">
+        <dt>코드</dt><dd style="font-weight:700;letter-spacing:.5px">${esc(c.code)}</dd>
+        <dt>발급 한도</dt><dd>${c.issueLimit?Number(c.issueLimit).toLocaleString()+"회":"무제한"}</dd>
+        <dt>등록 현황</dt><dd>등록 128 · 사용 67</dd>
+      </div></div>`;
+  }
+  return `<div class="form-wrap">
+    <div class="crumb">쿠폰 목록 › 쿠폰 상세</div>
+    <div class="page-head"><h1 class="page-title">쿠폰 상세</h1>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-danger-weak" data-action="ask-delete" data-id="${c.id}">삭제</button>
+        <button class="btn btn-secondary" data-action="edit" data-id="${c.id}">수정</button>
+      </div></div>
+    <div class="card section-card">
+      <div class="section-title">쿠폰 정보</div>
+      <div class="detail-grid">
+        <dt>상태</dt><dd>${statusPill(c.active)}</dd>
+        <dt>쿠폰명</dt><dd>${esc(c.name)}</dd>
+        <dt>쿠폰 ID</dt><dd>${esc(c.id)}</dd>
+        <dt>혜택</dt><dd>${esc(couponBenefit(c))}${(c.tiers&&c.tiers.length>1)?"<br><span class=\"sub\">"+c.tiers.map(t=>esc(tierLabel(c,t))).join(" · ")+"</span>":""}</dd>
+        ${c.benefitType==="정률"&&c.maxDiscount?`<dt>최대 할인 금액</dt><dd>${Number(c.maxDiscount).toLocaleString()}원 (쿠폰 공통)</dd>`:""}
+        <dt>적용 범위</dt><dd>${esc(couponScope(c))}</dd>
+        <dt>발급 방식</dt><dd>${c.issueType==="개별"?`개별 코드 · ${c.issueCount}개 발급`:"공용 코드"}</dd>
+        <dt>유효기간</dt><dd>${esc(validFull(c))}</dd>
+        <dt>사용처</dt><dd>${esc(usePlace(c))}</dd>
+        <dt>사용 조건</dt><dd>${esc(useCond(c))}</dd>
+      </div>
+    </div>
+    ${codeSection}
+  </div>`;
+}
+
+/* ---------- Dialog ---------- */
+function dialogHTML(){
+  const d=state.dialog; if(!d) return "";
+  let title="",body="",confirmLabel="",confirmClass="btn-primary";
+  if(d.type==="exit"){title="작성을 중단할까요?";body="입력한 내용은 저장되지 않습니다.";confirmLabel="나가기";confirmClass="btn-primary";}
+  if(d.type==="deactivate"){title="쿠폰을\n비활성화할까요?";body="비활성화하면 새 발급·등록이 멈춥니다. 이미 회원이 가진 쿠폰은 유효기간까지 사용할 수 있습니다.";confirmLabel="비활성화";}
+  if(d.type==="delete"){title="쿠폰을 삭제할까요?";body="삭제하면 목록에서 제거됩니다. 이 작업은 되돌릴 수 없습니다.";confirmLabel="삭제";confirmClass="btn-primary";}
+  return `<div class="overlay" data-action="dialog-cancel">
+    <div class="dialog" data-stop="1">
+      <h3>${title}</h3><p>${body}</p>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" data-action="dialog-cancel">취소</button>
+        <button class="btn ${confirmClass}" data-action="dialog-confirm">${confirmLabel}</button>
+      </div></div></div>`;
+}
+function toastHTML(){
+  if(!state.toast) return "";
+  return `<div class="toast"><span class="dot-s"></span>${esc(state.toast)}</div>`;
+}
+
+/* ============ Validation & save ============ */
+function toNum(v){const n=parseInt(String(v).replace(/[^\d]/g,""),10);return isNaN(n)?null:n;}
+function validate(){
+  const f=state.form, e={};
+  if(!f.name.trim()) e.name="쿠폰 이름을 입력해주세요.";
+  if(!f.merchants.length) e.merchants="사용 가능 매장을 1개 이상 선택해주세요.";
+  if(f.benefitType==="증정" && f.scope==="주문 전체") e.scope="무료 증정은 주문 전체에 지정할 수 없습니다.";
+  f.tiers.forEach((t,i)=>{
+    if(f.benefitType==="정액"){ if(toNum(t.value)===null||toNum(t.value)<=0) e[`tier${i}val`]="할인 금액을 입력해주세요."; }
+    if(f.benefitType==="정률"){ const v=toNum(t.value); if(v===null||v<=0||v>100) e[`tier${i}val`]="할인율(1~100)을 입력해주세요."; }
+    if(f.scope!=="주문 전체" && !t.targets.length) e[`tier${i}tgt`]="대상을 1개 이상 선택해주세요.";
+  });
+  if(f.issueType==="공용"){ if(!f.code.trim()) e.code="쿠폰 코드를 입력해주세요."; }
+  else { if(toNum(f.issueCount)===null||toNum(f.issueCount)<=0) e.issueCount="발급 수량을 입력해주세요."; }
+  if(!f.channels.length) e.channels="사용 채널을 1개 이상 선택해주세요.";
+  if(f.validType==="기간 지정"){ if(!f.validRangeStart||!f.validRangeEnd) e.valid="시작일과 만료일을 지정해주세요."; }
+  if(f.validType==="발급일로부터 N일"){ if(toNum(f.validDays)===null||toNum(f.validDays)<=0) e.valid="유효 일수를 입력해주세요."; }
+  if(f.issueType==="공용" && f.useLimitType==="횟수 제한"){ if(toNum(f.useLimit)===null||toNum(f.useLimit)<=0) e.useLimit="사용 가능 횟수를 입력해주세요."; }
+  return e;
+}
+function buildCoupon(id,sid){
+  const f=state.form;
+  return {id,sid,name:f.name.trim(),desc:f.desc.trim(),merchants:f.merchants.slice(),
+    benefitType:f.benefitType,scope:f.scope,
+    tiers:f.tiers.map(t=>({targets:f.scope==="주문 전체"?[]:t.targets.slice(),
+      value:f.benefitType==="증정"?null:toNum(t.value)})),
+    maxDiscount:f.benefitType==="정률"?toNum(f.maxDiscount):null,
+    minOrder:toNum(f.minOrder),issueType:f.issueType,code:f.issueType==="공용"?f.code.trim():"",
+    issueLimit:f.issueType==="공용"?toNum(f.issueLimit):null,
+    issueCount:f.issueType==="개별"?toNum(f.issueCount):0,
+    active:f.active,channels:f.channels.slice(),
+    validType:f.validType,validRange:f.validType==="기간 지정"?`${f.validRangeStart} ~ ${f.validRangeEnd}`:"",
+    validDays:f.validType==="발급일로부터 N일"?toNum(f.validDays):null,
+    useLimitType:f.useLimitType,useLimit:f.useLimitType==="횟수 제한"?toNum(f.useLimit):null};
+}
+function save(){
+  const e=validate();
+  if(Object.keys(e).length){ state.errors=e; render();
+    const first=document.querySelector(".inp.err,.ms-control.err,.help.err");
+    if(first) first.scrollIntoView({behavior:"smooth",block:"center"});
+    showToast("입력값을 확인해주세요."); return; }
+  if(state.editingId){
+    const idx=coupons.findIndex(c=>c.id===state.editingId);
+    const old=coupons[idx];
+    coupons[idx]=buildCoupon(old.id,old.sid);
+    go("detail",{id:old.id}); showToast("쿠폰이 수정되었습니다");
+  }else{
+    const id=nextCouponId();
+    const sid="NEW"+pad(coupons.length+1);
+    coupons.unshift(buildCoupon(id,sid));
+    go("list",{tab:"전체"}); showToast("쿠폰이 생성되었습니다");
+  }
+}
+
+/* ============ Event handling ============ */
+document.addEventListener("input",ev=>{
+  const t=ev.target, field=t.getAttribute("data-field");
+  if(field){ state.form[field]=t.value; state.dirty=true;
+    if(field==="desc"){ const cnt=t.closest(".field").querySelector(".textcount");
+      if(cnt) cnt.textContent=`${t.value.length} / 100`; } return; }
+  if(t.getAttribute("data-action")==="tier-input"){
+    const i=+t.getAttribute("data-tidx"); state.form.tiers[i].value=t.value; delete state.errors[`tier${i}val`]; state.dirty=true; }
+});
+
+app.addEventListener("change",ev=>{
+  const t=ev.target, act=t.getAttribute("data-action");
+  if(act==="radio"){
+    const name=t.getAttribute("data-name"), val=t.getAttribute("data-val"), ri=t.getAttribute("data-ridx");
+    const f=state.form; state.dirty=true;
+    if(name==="benefitType"){ f.benefitType=val;
+      if(val==="증정"){ f.tiers=[{targets:f.tiers[0]?f.tiers[0].targets:[],value:null}];
+        if(f.scope==="주문 전체"){ f.scope="특정 상품"; f.tiers=[{targets:[],value:null}]; } }
+      f.tiers.forEach((t,i)=>{ delete state.errors[`tier${i}val`]; }); }
+    else if(name==="scope"){ f.scope=val;
+      f.tiers = (val==="주문 전체") ? [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}] : [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}];
+      Object.keys(state.errors).forEach(k=>{ if(k.startsWith("tier")) delete state.errors[k]; }); }
+    else if(name==="issueType") f.issueType=val;
+    else if(name==="validType") f.validType=val;
+    else if(name==="useLimitType") f.useLimitType=val;
+    clearErrForRadio(name,ri); render(); return;
+  }
+  if(act==="channel"){
+    const v=t.getAttribute("data-val"), f=state.form;
+    if(t.checked){ if(!f.channels.includes(v)) f.channels.push(v); }
+    else f.channels=f.channels.filter(x=>x!==v);
+    delete state.errors.channels; state.dirty=true; render(); return;
+  }
+});
+function clearErrForRadio(name,ri){
+  if(name==="benefitType"||name==="scope"){
+    delete state.errors.scope;
+    Object.keys(state.errors).forEach(k=>{ if(k.startsWith("tier")) delete state.errors[k]; });
+  }
+}
+
+app.addEventListener("click",ev=>{
+  const el=ev.target.closest("[data-action]");
+  // close picker on outside click
+  if(state.picker && !ev.target.closest("[data-stop]")){ state.picker=null; render(); }
+  if(!el) return;
+  const act=el.getAttribute("data-action");
+  const id=el.getAttribute("data-id");
+  if(el.getAttribute("data-stop")) ev.stopPropagation();
+
+  switch(act){
+    case "nav-list": if(guardLeave(()=>go("list"))) {} break;
+    case "nav-create": go("create"); break;
+    case "tab": go("list",{tab:el.getAttribute("data-tab")}); break;
+    case "open-detail": go("detail",{id}); break;
+    case "toggle-active": {
+      const c=coupons.find(x=>x.id===id);
+      if(c.active){ state.dialog={type:"deactivate",id}; render(); }
+      else { c.active=true; render(); showToast("활성화되었습니다"); }
+      break; }
+    case "toggle-form-active": state.form.active=!state.form.active; state.dirty=true; render(); break;
+    case "ms-open": {
+      const kind=el.getAttribute("data-kind"), ri=+el.getAttribute("data-ridx");
+      state.picker=(state.picker && state.picker.kind===kind && state.picker.ruleIdx===ri)?null:{kind,ruleIdx:ri};
+      render(); break; }
+    case "ms-toggle": { toggleTarget(el.getAttribute("data-kind"),+el.getAttribute("data-ridx"),el.getAttribute("data-val")); render(); break; }
+    case "ms-remove": { removeTarget(el.getAttribute("data-kind"),+el.getAttribute("data-ridx"),el.getAttribute("data-val")); render(); break; }
+    case "add-tier": state.form.tiers.push({targets:[],value:null}); state.dirty=true; render(); break;
+    case "del-tier": { const i=+el.getAttribute("data-tidx"); state.form.tiers.splice(i,1); state.dirty=true; render(); break; }
+    case "save": save(); break;
+    case "cancel": guardLeave(()=>go(state.editingId?"detail":"list",state.editingId?{id:state.editingId}:{})); break;
+    case "edit": go("create",{id}); break;
+    case "ask-delete": state.dialog={type:"delete",id}; render(); break;
+    case "dialog-cancel": state.dialog=null; render(); break;
+    case "dialog-confirm": confirmDialog(); break;
+  }
+});
+function toggleTarget(kind,ri,val){
+  state.dirty=true;
+  const arr = kind==="merchant" ? state.form.merchants : state.form.tiers[ri].targets;
+  const i=arr.indexOf(val); if(i>=0) arr.splice(i,1); else arr.push(val);
+  if(kind==="merchant"){ delete state.errors.merchants; pruneCategoryTargets(); }
+  else delete state.errors[`tier${ri}tgt`];
+}
+function removeTarget(kind,ri,val){
+  const arr = kind==="merchant" ? state.form.merchants : state.form.tiers[ri].targets;
+  const i=arr.indexOf(val); if(i>=0) arr.splice(i,1); state.dirty=true;
+  if(kind==="merchant") pruneCategoryTargets();
+}
+/* 매장에서 지점을 빼면 그 지점의 카테고리 선택은 자동 해제된다 (PRD [2.0] 쿠폰 혜택 설정) */
+function pruneCategoryTargets(){
+  const f=state.form;
+  if(!f || f.scope!=="특정 카테고리") return;
+  const ok = new Set(targetOptions("특정 카테고리"));
+  let dropped=0;
+  f.tiers.forEach(t=>{
+    const before=t.targets.length;
+    t.targets = t.targets.filter(v=>ok.has(v));
+    dropped += before - t.targets.length;
+  });
+  if(dropped) showToast(`선택 해제한 지점의 카테고리 ${dropped}건이 대상에서 빠졌습니다`);
+}
+function guardLeave(fn){
+  if(state.view==="create" && state.dirty){ state.dialog={type:"exit",onConfirm:fn}; render(); return false; }
+  fn(); return true;
+}
+function confirmDialog(){
+  const d=state.dialog; state.dialog=null;
+  if(d.type==="exit"){ state.dirty=false; render(); d.onConfirm&&d.onConfirm(); }
+  else if(d.type==="deactivate"){ const c=coupons.find(x=>x.id===d.id); if(c) c.active=false; render(); showToast("비활성화되었습니다"); }
+  else if(d.type==="delete"){ coupons=coupons.filter(x=>x.id!==d.id); go("list",{tab:"전체"}); showToast("쿠폰이 삭제되었습니다"); }
+}
+
+/* boot */
+render();
+</script>
+</body>
+</html>
