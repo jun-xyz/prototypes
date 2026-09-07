@@ -6,116 +6,133 @@
 <title>푸시 알림 관리 — 동작 프로토타입</title>
 <style>
 :root{
-  --bg:#f9fafa; --surface:#fff; --nav:#fff;
+  --bg:#f9fafa; --surface:#fff;
   --text:#17191c; --text2:#3b3f44; --text3:#787e87; --ph:#aeb2b8;
   --primary:#338bff; --primary-soft:#eaf3ff; --primary-dark:#1f75e8;
   --border:#e5e8eb; --border2:#eff1f4; --thead:#eff4fb;
   --danger:#e5484d; --danger-soft:#fdeeee; --muted:#6b7280;
   --r-sm:6px; --r:8px; --r-lg:12px;
-  --sp1:8px; --sp2:12px; --sp3:16px; --sp4:24px; --sp5:32px; --sp6:40px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{
-  background:var(--bg); color:var(--text);
+body{background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
-  font-size:14px; line-height:1.5; min-width:1440px;
-}
-button{font-family:inherit; cursor:pointer; border:none; background:none}
-input,select{font-family:inherit; font-size:16px; color:var(--text)}
+  font-size:14px;line-height:1.5;min-width:1440px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select{font-family:inherit;font-size:16px;color:var(--text)}
 input::placeholder{color:var(--ph)}
 
-/* shell */
-.shell{display:flex; min-height:100vh}
-.nav{width:250px; background:var(--nav); border-right:1px solid var(--border2); flex:none}
-.nav-head{height:90px; display:flex; align-items:center; gap:10px; padding:0 24px}
-.logo{font-family:Georgia,"Times New Roman",serif; font-size:22px; font-weight:600; letter-spacing:-.3px}
+.shell{display:flex;min-height:100vh}
+.nav{width:250px;background:var(--surface);border-right:1px solid var(--border2);flex:none}
+.nav-head{height:90px;display:flex;align-items:center;gap:10px;padding:0 24px}
+.logo{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:600;letter-spacing:-.3px}
 .logo i{font-style:italic}
-.nav-div{width:1px; height:16px; background:var(--border)}
-.nav-app{font-size:16px; font-weight:600; color:var(--text2)}
-.nav-item{display:flex; align-items:center; gap:10px; height:50px; padding:0 24px; font-size:14px; font-weight:600; background:var(--primary-soft); color:var(--text)}
-.main{flex:1; display:flex; flex-direction:column; min-width:0}
-.topbar{height:90px; background:var(--surface); border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:flex-end; gap:16px; padding:0 24px}
-.badge{background:var(--danger); color:#fff; font-size:14px; font-weight:600; padding:6px 12px; border-radius:var(--r-sm)}
-.hi{font-size:14px; font-weight:500; color:var(--text2)}
-.ghost{border:1px solid var(--primary); color:var(--primary); background:var(--primary-soft); font-size:14px; font-weight:600; padding:8px 14px; border-radius:var(--r-sm)}
-.content{flex:1; padding:40px}
-.foot{height:60px; display:flex; align-items:center; padding:0 40px; font-size:14px; font-weight:500; color:var(--text3)}
+.nav-div{width:1px;height:16px;background:var(--border)}
+.nav-app{font-size:16px;font-weight:600;color:var(--text2)}
+.nav-item{display:flex;align-items:center;gap:10px;height:50px;padding:0 24px;font-size:14px;font-weight:600;background:var(--primary-soft)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:90px;background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 24px}
+.badge{background:var(--danger);color:#fff;font-size:14px;font-weight:600;padding:6px 12px;border-radius:var(--r-sm)}
+.hi{font-size:14px;font-weight:500;color:var(--text2)}
+.ghost{border:1px solid var(--primary);color:var(--primary);background:var(--primary-soft);font-size:14px;font-weight:600;padding:8px 14px;border-radius:var(--r-sm)}
+.content{flex:1;padding:40px}
+.foot{height:60px;display:flex;align-items:center;padding:0 40px;font-size:14px;font-weight:500;color:var(--text3)}
 
-/* header */
-.page-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp4)}
-.page-title{font-size:24px; font-weight:600; margin:0}
-.btn{border-radius:var(--r); font-weight:500; transition:background .12s}
-.btn-primary{background:var(--primary); color:#fff; font-size:16px; padding:12px 20px}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:24px;font-weight:600;margin:0}
+.btn{border-radius:var(--r);font-weight:500;transition:background .12s}
+.btn-primary{background:var(--primary);color:#fff;font-size:16px;padding:12px 20px}
 .btn-primary:hover{background:var(--primary-dark)}
-.btn-soft{background:var(--primary-soft); color:var(--primary); font-size:16px; padding:12px 20px}
-.btn-sm{font-size:14px; padding:9px 16px}
+.btn-soft{background:var(--primary-soft);color:var(--primary);font-size:16px;padding:12px 20px}
+.btn-sm{font-size:14px;padding:9px 16px}
 
-/* card */
-.card{background:var(--surface); border-radius:var(--r-lg); padding:32px 40px; margin-bottom:var(--sp4)}
-.card-title{font-size:18px; font-weight:600; margin:0 0 var(--sp4)}
+.banner{background:var(--primary);color:#fff;border-radius:var(--r);padding:16px 20px;
+  font-size:14px;font-weight:500;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.card{background:var(--surface);border-radius:var(--r-lg);padding:32px 40px;margin-bottom:24px}
+.card-title{font-size:18px;font-weight:600;margin:0 0 24px}
 
-/* search */
-.search-row{display:flex; align-items:center; gap:var(--sp3)}
-.search-label{font-size:14px; font-weight:600; width:64px; flex:none}
-.field{border:1px solid var(--border); border-radius:var(--r); height:48px; padding:0 14px; font-size:16px; background:var(--surface); width:100%}
-.field:focus{outline:none; border-color:var(--primary)}
+.search-row{display:flex;align-items:center;gap:16px}
+.search-label{font-size:14px;font-weight:600;width:64px;flex:none}
+.field{border:1px solid var(--border);border-radius:var(--r);height:48px;padding:0 14px;font-size:16px;background:var(--surface);width:100%}
+.field:focus{outline:none;border-color:var(--primary)}
 .search-row .field{width:230px}
-.search-actions{margin-left:auto; display:flex; gap:var(--sp1)}
+.search-actions{margin-left:auto;display:flex;gap:8px}
 
-/* table */
-.count{font-size:13px; color:var(--text3); margin-bottom:var(--sp2)}
-table{width:100%; border-collapse:collapse}
-thead th{background:var(--thead); font-size:14px; font-weight:600; color:var(--text2); padding:14px 12px; text-align:center; white-space:nowrap}
+.count{font-size:13px;color:var(--text3);margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--thead);font-size:14px;font-weight:600;color:var(--text2);padding:14px 12px;text-align:center;white-space:nowrap}
 thead th:first-child{border-radius:var(--r) 0 0 var(--r)}
 thead th:last-child{border-radius:0 var(--r) var(--r) 0}
-tbody td{border-bottom:1px solid var(--border2); padding:18px 12px; text-align:center; font-size:14px; color:var(--text2)}
+tbody td{border-bottom:1px solid var(--border2);padding:18px 12px;text-align:center;font-size:14px;color:var(--text2)}
 tbody tr:hover td{background:#fbfcfd}
-.st{font-size:13px; font-weight:600}
+.st{font-size:13px;font-weight:600}
 .st-done{color:var(--text3)}
 .st-wait{color:var(--primary)}
-.st-cancel{color:var(--ph); text-decoration:line-through}
-.link-btn{color:var(--primary); font-size:13px; font-weight:600; text-decoration:underline; padding:2px 4px}
-.empty{text-align:center; color:var(--text3); padding:60px 0; font-size:14px}
-.pager{display:flex; justify-content:center; gap:6px; margin-top:var(--sp4)}
-.pager span,.pager b{width:30px; height:30px; display:grid; place-items:center; border-radius:var(--r-sm); font-size:13px; color:var(--text3); font-weight:400}
-.pager b{background:var(--border2); color:var(--text); font-weight:600}
+.st-cancel{color:var(--ph);text-decoration:line-through}
+.link-btn{color:var(--primary);font-size:13px;font-weight:600;text-decoration:underline;padding:2px 4px}
+.empty{text-align:center;color:var(--text3);padding:60px 0}
+.pager{display:flex;justify-content:center;gap:6px;margin-top:24px}
+.pager span,.pager b{width:30px;height:30px;display:grid;place-items:center;border-radius:var(--r-sm);font-size:13px;color:var(--text3);font-weight:400}
+.pager b{background:var(--border2);color:var(--text);font-weight:600}
 
-/* form sections */
-.sec{margin-bottom:var(--sp5)}
-.sec-head{display:flex; align-items:center; padding-bottom:var(--sp2); border-bottom:1px solid var(--border); margin-bottom:var(--sp3)}
-.sec-title{font-size:20px; font-weight:600; margin:0}
-.radio-row{display:flex; gap:var(--sp4); margin-bottom:var(--sp3)}
-.radio{display:inline-flex; align-items:center; gap:8px; font-size:16px; cursor:pointer}
-.radio input{width:20px; height:20px; accent-color:var(--primary); margin:0; cursor:pointer}
-.f-label{display:block; font-size:12px; font-weight:500; color:var(--text3); margin-bottom:8px}
-.f-wrap{margin-bottom:var(--sp3)}
-.f-wrap.narrow{max-width:338px}
-.f-err .field{border-color:var(--danger); background:var(--danger-soft)}
-.err-msg{color:var(--danger); font-size:12px; margin-top:6px}
-select.field{appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M5 8l5 5 5-5' fill='none' stroke='%23787e87' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 12px center; padding-right:38px}
-select.field:disabled{background-color:#f5f6f8; color:var(--ph); cursor:not-allowed}
+.sec{margin-bottom:32px}
+.sec-head{padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sec-title{font-size:20px;font-weight:600;margin:0}
+.radio-row{display:flex;gap:24px;margin-bottom:16px}
+.radio{display:inline-flex;align-items:center;gap:8px;font-size:16px;cursor:pointer}
+.radio input{width:20px;height:20px;accent-color:var(--primary);margin:0;cursor:pointer}
+.grid{display:flex;flex-wrap:wrap;gap:12px 24px}
+.f{margin-bottom:4px}
+.f.w3{width:338px}
+.f.full{width:100%}
+.f-label{display:block;font-size:12px;font-weight:500;color:var(--text3);margin-bottom:8px}
+.req{color:var(--danger);margin-left:2px}
+.f-help{font-size:12px;color:var(--text3);margin-top:6px}
+.f-err .field,.f-err .ms-field{border-color:var(--danger);background:var(--danger-soft)}
+.err-msg{color:var(--danger);font-size:12px;margin-top:6px}
+select.field{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M5 8l5 5 5-5' fill='none' stroke='%23787e87' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
 
-/* preview */
-.pv{width:420px; border:1px solid var(--border); border-radius:var(--r-lg); padding:14px 16px; background:var(--surface)}
-.pv-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px}
-.pv-app{font-size:13px; font-weight:600; color:var(--text2)}
-.pv-when{font-size:12px; color:var(--ph)}
-.pv-title{font-size:14px; font-weight:600; color:var(--text2); margin-bottom:4px; word-break:break-all}
-.pv-body{font-size:13px; color:var(--text2); margin-bottom:4px; word-break:break-all; white-space:pre-wrap}
-.pv-foot{font-size:11px; color:var(--ph)}
+.ms{position:relative}
+.ms-field{border:1px solid var(--border);border-radius:var(--r);min-height:48px;padding:7px 38px 7px 10px;
+  background:var(--surface);cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:relative}
+.ms-field.on{border-color:var(--primary)}
+.ms-caret{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px}
+.ms-ph{color:var(--ph);font-size:16px;padding-left:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-soft);color:var(--text2);
+  border-radius:var(--r-sm);padding:5px 8px;font-size:14px}
+.chip b{font-weight:500}
+.chip .x{color:var(--text3);font-size:13px;line-height:1}
+.ms-pop{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.1);
+  max-height:260px;overflow:auto;z-index:20;padding:6px 0}
+.ms-group{padding:10px 14px 6px;font-size:13px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer}
+.ms-group:hover{background:#f7f9fc}
+.ms-opt{padding:8px 14px 8px 30px;font-size:14px;color:var(--text2);display:flex;align-items:center;gap:8px;cursor:pointer}
+.ms-opt:hover{background:#f7f9fc}
+.ms-opt input,.ms-group input{width:16px;height:16px;accent-color:var(--primary);margin:0;pointer-events:none}
+.ms-sel{margin-top:12px}
+.ms-sel .t{font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px}
+.ms-sel .v{font-size:13px;color:var(--text2);line-height:1.6}
+
+.pv{width:420px;border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;background:var(--surface)}
+.pv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.pv-app{font-size:13px;font-weight:600;color:var(--text2)}
+.pv-when{font-size:12px;color:var(--ph)}
+.pv-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;word-break:break-all}
+.pv-body{font-size:13px;color:var(--text2);margin-bottom:4px;word-break:break-all}
+.pv-foot{font-size:11px;color:var(--ph)}
 .pv-dim{color:var(--ph)}
 
-.form-actions{display:flex; justify-content:flex-end; gap:var(--sp1); margin-top:var(--sp4)}
-.note{font-size:14px; color:var(--muted); padding:0 40px; margin-top:-8px; margin-bottom:var(--sp4)}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
+.note{font-size:14px;color:var(--muted);padding:0 40px;margin-top:-8px;margin-bottom:24px}
 
-/* dialog + toast */
-.dim{position:fixed; inset:0; background:rgba(23,25,28,.45); display:grid; place-items:center; z-index:50}
-.dlg{background:var(--surface); border-radius:var(--r-lg); padding:32px; width:420px; box-shadow:0 12px 40px rgba(0,0,0,.18)}
-.dlg h3{font-size:18px; font-weight:600; margin:0 0 var(--sp2)}
-.dlg p{font-size:14px; color:var(--text3); margin:0 0 var(--sp4)}
-.dlg-actions{display:flex; justify-content:flex-end; gap:var(--sp1)}
-.toast{position:fixed; left:50%; top:88px; transform:translateX(-50%); background:rgba(23,25,28,.92); color:#fff; font-size:14px; font-weight:500; padding:12px 22px; border-radius:var(--r); z-index:60}
+.dim{position:fixed;inset:0;background:rgba(23,25,28,.45);display:grid;place-items:center;z-index:50}
+.dlg{background:var(--surface);border-radius:var(--r-lg);padding:32px;width:420px;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.dlg h3{font-size:18px;font-weight:600;margin:0 0 12px}
+.dlg p{font-size:14px;color:var(--text3);margin:0 0 24px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px}
+.toast{position:fixed;left:50%;top:88px;transform:translateX(-50%);background:rgba(23,25,28,.92);
+  color:#fff;font-size:14px;font-weight:500;padding:12px 22px;border-radius:var(--r);z-index:60}
 </style>
 </head>
 <body>
@@ -123,341 +140,346 @@ select.field:disabled{background-color:#f5f6f8; color:var(--ph); cursor:not-allo
 <script>
 "use strict";
 
-var PREFIX = "(광고)[라운지엑스] ";
-var FOOTER = "[무료수신거부: 설정>프로모션·이벤트 알림 수신]";
-var ALL_TARGET = 1204;
-var NIGHT_TARGET = 312;
-var STORES = ["성수점"];
+const FOOTER = "[무료수신거부: 설정>프로모션·이벤트 알림 수신]";
+const ALL_TARGET = 1204, NIGHT_TARGET = 312;
+const LINKS = ["홈", "쿠폰함", "공지사항·이벤트"];
 
-var state = {
+// 지점 그룹 — 그룹 기준은 설계에 없어 브랜드 계열로 가정했다. 지점명은 branches 실제 값
+const STORE_GROUPS = [
+  { group: "바리스브루", stores: ["성수점", "서울시청", "서울갤러리", "상암 DMC", "가락 IT"] },
+  { group: "라운지엑스", stores: ["라운지와이", "시대인재 1호점"] }
+];
+
+const state = {
   view: "list",
+  brand: "라운지엑스",
   items: [
     {id:1, at:"2026-08-12 10:00", title:"성수점 신메뉴 출시", target:"성수점", reach:"1,204", status:"발송완료"},
     {id:2, at:"2026-08-14 21:30", title:"야간 한정 할인",   target:"전체",   reach:"—",     status:"예약"},
     {id:3, at:"2026-08-10 14:00", title:"리워드 두 배 적립", target:"전체",   reach:"8,932", status:"발송완료"}
   ],
-  q: "",
-  from: "",
-  to: "",
-  form: null,
-  errors: {},
-  dialog: null,
-  toast: null
+  q:"", from:"", to:"",
+  form:null, errors:{}, dialog:null, toast:null, storeOpen:false
 };
-var seq = 4;
+let seq = 4;
 
-function blankForm(){
-  return {target:"all", store:"", title:"", body:"", link:"쿠폰함", when:"now", at:""};
-}
-function esc(s){
-  return String(s == null ? "" : s)
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-function isNight(v){
-  if(!v) return false;
-  var m = /T(\d{2}):/.exec(v);
-  if(!m) return false;
-  var h = parseInt(m[1],10);
-  return h >= 21 || h < 8;
-}
-function targetCount(f){
-  return (f.when === "schedule" && isNight(f.at)) ? NIGHT_TARGET : ALL_TARGET;
-}
-function fmtNum(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-function fmtAt(v){ return v ? v.replace("T"," ") : ""; }
-function nowStamp(){
-  var d = new Date(), p = function(x){ return String(x).padStart(2,"0"); };
-  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
-}
+const prefix = () => `(광고)[${state.brand}] `;
+const blankForm = () => ({target:"all", stores:[], title:"", body:"", link:"쿠폰함", when:"now", at:""});
+const esc = s => String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmtNum = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const fmtAt = v => v ? v.replace("T", " ") : "";
+const isNight = v => { const m = /T(\d{2}):/.exec(v || ""); if(!m) return false; const h = +m[1]; return h >= 21 || h < 8; };
+const targetCount = f => (f.when === "schedule" && isNight(f.at)) ? NIGHT_TARGET : ALL_TARGET;
+const nowStamp = () => { const d = new Date(), p = x => String(x).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 
-/* ---------- list ---------- */
-function filtered(){
-  return state.items.filter(function(it){
-    if(state.q && it.title.indexOf(state.q) === -1) return false;
-    var d = it.at.slice(0,10);
-    if(state.from && d < state.from) return false;
-    if(state.to && d > state.to) return false;
-    return true;
-  });
-}
+const filtered = () => state.items.filter(it => {
+  if (state.q && it.title.indexOf(state.q) === -1) return false;
+  const d = it.at.slice(0,10);
+  if (state.from && d < state.from) return false;
+  if (state.to && d > state.to) return false;
+  return true;
+});
+
 function rowsHtml(){
-  var rows = filtered();
-  if(!rows.length) return '<tr><td colspan="6"><div class="empty">표시할 데이터가 없습니다.</div></td></tr>';
-  return rows.map(function(it){
-    var cls = it.status === "발송완료" ? "st-done" : it.status === "예약" ? "st-wait" : "st-cancel";
-    var cancel = it.status === "예약"
-      ? '<button class="link-btn" data-action="ask-cancel" data-id="'+it.id+'">취소</button>' : "";
-    return '<tr>'
-      + '<td>'+esc(it.at)+'</td>'
-      + '<td style="text-align:left">'+esc(PREFIX + it.title)+'</td>'
-      + '<td>'+esc(it.target)+'</td>'
-      + '<td>'+esc(it.reach)+'</td>'
-      + '<td><span class="st '+cls+'">'+esc(it.status)+'</span></td>'
-      + '<td>'+cancel+'</td>'
-      + '</tr>';
+  const rows = filtered();
+  if (!rows.length) return `<tr><td colspan="6"><div class="empty">표시할 데이터가 없습니다.</div></td></tr>`;
+  return rows.map(it => {
+    const cls = it.status === "발송완료" ? "st-done" : it.status === "예약" ? "st-wait" : "st-cancel";
+    const cancel = it.status === "예약"
+      ? `<button class="link-btn" data-action="ask-cancel" data-id="${it.id}">취소</button>` : "";
+    return `<tr>
+      <td>${esc(it.at)}</td>
+      <td style="text-align:left">${esc(prefix() + it.title)}</td>
+      <td>${esc(it.target)}</td>
+      <td>${esc(it.reach)}</td>
+      <td><span class="st ${cls}">${esc(it.status)}</span></td>
+      <td>${cancel}</td></tr>`;
   }).join("");
 }
-function listView(){
-  return ''
-  + '<div class="page-head">'
-  +   '<h1 class="page-title">푸시 알림 관리</h1>'
-  +   '<button class="btn btn-primary" data-action="go-create">푸시 알림 만들기</button>'
-  + '</div>'
-  + '<div class="card">'
-  +   '<h2 class="card-title">발송 검색</h2>'
-  +   '<div class="search-row">'
-  +     '<span class="search-label">발송기간</span>'
-  +     '<input class="field" type="date" data-field="from" value="'+esc(state.from)+'">'
-  +     '<span style="color:var(--text3)">~</span>'
-  +     '<input class="field" type="date" data-field="to" value="'+esc(state.to)+'">'
-  +     '<span class="search-label" style="margin-left:24px">제목</span>'
-  +     '<input class="field" type="text" data-field="q" placeholder="제목 검색어 입력" value="'+esc(state.q)+'">'
-  +     '<div class="search-actions">'
-  +       '<button class="btn btn-soft btn-sm" data-action="reset">초기화</button>'
-  +       '<button class="btn btn-primary btn-sm" data-action="search">검색</button>'
-  +     '</div>'
-  +   '</div>'
-  + '</div>'
-  + '<div class="card">'
-  +   '<div class="count">전체 발송 '+filtered().length+'개</div>'
-  +   '<table><thead><tr>'
-  +     '<th style="width:180px">발송일시</th><th>제목</th><th style="width:120px">대상</th>'
-  +     '<th style="width:120px">도달 수</th><th style="width:110px">상태</th><th style="width:70px"></th>'
-  +   '</tr></thead><tbody>'+rowsHtml()+'</tbody></table>'
-  +   '<div class="pager"><b>1</b><span>2</span><span>3</span><span>4</span><span>5</span>'
-  +     '<span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>'
-  + '</div>';
+
+const listView = () => `
+  <div class="page-head">
+    <h1 class="page-title">푸시 알림 관리</h1>
+    <button class="btn btn-primary" data-action="go-create">푸시 알림 만들기</button>
+  </div>
+  <div class="card">
+    <h2 class="card-title">발송 검색</h2>
+    <div class="search-row">
+      <span class="search-label">발송기간</span>
+      <input class="field" type="date" data-field="from" value="${esc(state.from)}">
+      <span style="color:var(--text3)">~</span>
+      <input class="field" type="date" data-field="to" value="${esc(state.to)}">
+      <span class="search-label" style="margin-left:24px">제목</span>
+      <input class="field" type="text" data-field="q" placeholder="제목 검색어 입력" value="${esc(state.q)}">
+      <div class="search-actions">
+        <button class="btn btn-soft btn-sm" data-action="reset">초기화</button>
+        <button class="btn btn-primary btn-sm" data-action="search">검색</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="count">전체 발송 ${filtered().length}개</div>
+    <table><thead><tr>
+      <th style="width:180px">발송일시</th><th>제목</th><th style="width:120px">대상</th>
+      <th style="width:120px">도달 수</th><th style="width:110px">상태</th><th style="width:70px"></th>
+    </tr></thead><tbody>${rowsHtml()}</tbody></table>
+    <div class="pager"><b>1</b>${[2,3,4,5,6,7,8,9,10].map(n => `<span>${n}</span>`).join("")}</div>
+  </div>`;
+
+function storeSelect(f){
+  const chips = f.stores.length
+    ? f.stores.map(s => `<span class="chip"><b>${esc(s)}</b><span class="x" data-action="drop-store" data-store="${esc(s)}">✕</span></span>`).join("")
+    : `<span class="ms-ph">지점을 선택해주세요</span>`;
+  const pop = !state.storeOpen ? "" : `<div class="ms-pop">${
+    STORE_GROUPS.map(g => {
+      const all = g.stores.every(s => f.stores.indexOf(s) >= 0);
+      const opts = g.stores.map(s => `<div class="ms-opt" data-action="pick-store" data-store="${esc(s)}">
+        <input type="checkbox" ${f.stores.indexOf(s) >= 0 ? "checked" : ""}><span>${esc(s)}</span></div>`).join("");
+      return `<div class="ms-group" data-action="pick-group" data-group="${esc(g.group)}">
+        <input type="checkbox" ${all ? "checked" : ""}><span>${esc(g.group)}</span></div>${opts}`;
+    }).join("")}</div>`;
+  const sel = f.stores.length
+    ? `<div class="ms-sel"><div class="t">선택됨</div><div class="v">${esc(f.stores.join(", "))}</div></div>` : "";
+  return `<div class="ms" data-stop>
+      <div class="ms-field ${state.storeOpen ? "on" : ""}" data-action="toggle-store">${chips}<span class="ms-caret">▾</span></div>
+      ${pop}
+    </div>${sel}`;
 }
 
-/* ---------- create ---------- */
 function previewInner(f){
-  var t = f.title ? esc(PREFIX + f.title) : '<span class="pv-dim">'+esc(PREFIX)+'제목을 입력하세요</span>';
-  var b = f.body ? esc(f.body) : '<span class="pv-dim">본문을 입력하세요</span>';
-  var when = f.when === "schedule" && f.at ? esc(fmtAt(f.at).slice(5)) : "지금";
-  return '<div class="pv-head"><span class="pv-app">lounge(x)</span><span class="pv-when">'+when+'</span></div>'
-    + '<div class="pv-title">'+t+'</div>'
-    + '<div class="pv-body">'+b+'</div>'
-    + '<div class="pv-foot">'+esc(FOOTER)+'</div>';
+  const t = f.title ? esc(prefix() + f.title) : `<span class="pv-dim">${esc(prefix())}제목을 입력하세요</span>`;
+  const b = f.body ? esc(f.body) : `<span class="pv-dim">본문을 입력하세요</span>`;
+  const when = (f.when === "schedule" && f.at) ? esc(fmtAt(f.at).slice(5)) : "지금";
+  return `<div class="pv-head"><span class="pv-app">lounge(x)</span><span class="pv-when">${when}</span></div>
+    <div class="pv-title">${t}</div><div class="pv-body">${b}</div><div class="pv-foot">${esc(FOOTER)}</div>`;
 }
-function fieldErr(key){
-  return state.errors[key] ? '<div class="err-msg">'+esc(state.errors[key])+'</div>' : "";
-}
+const errOf = k => state.errors[k] ? `<div class="err-msg">${esc(state.errors[k])}</div>` : "";
+
 function createView(){
-  var f = state.form;
-  var night = f.when === "schedule" && isNight(f.at);
-  return ''
-  + '<div class="page-head"><h1 class="page-title">푸시 알림 만들기</h1></div>'
-  + '<div class="card">'
+  const f = state.form;
+  const night = f.when === "schedule" && isNight(f.at);
+  return `
+  <div class="page-head"><h1 class="page-title">푸시 알림 만들기</h1></div>
+  <div class="banner">🙂 광고 수신에 동의한 회원에게만 발송되며, 제목에 (광고)가 자동으로 붙습니다.</div>
+  <div class="card">
 
-  +   '<div class="sec">'
-  +     '<div class="sec-head"><h2 class="sec-title">발송 대상</h2></div>'
-  +     '<div class="radio-row">'
-  +       '<label class="radio"><input type="radio" name="target" value="all" data-field="target"'+(f.target==="all"?" checked":"")+'> 전체</label>'
-  +       '<label class="radio"><input type="radio" name="target" value="store" data-field="target"'+(f.target==="store"?" checked":"")+'> 매장 선택</label>'
-  +     '</div>'
-  +     '<div class="f-wrap narrow'+(state.errors.store?" f-err":"")+'">'
-  +       '<label class="f-label">발송매장</label>'
-  +       '<select class="field" data-field="store"'+(f.target==="store"?"":" disabled")+'>'
-  +         '<option value="">'+(f.target==="store"?"매장을 선택하세요":"전체")+'</option>'
-  +         STORES.map(function(s){ return '<option value="'+esc(s)+'"'+(f.store===s?" selected":"")+'>'+esc(s)+'</option>'; }).join("")
-  +       '</select>'
-  +       fieldErr("store")
-  +     '</div>'
-  +   '</div>'
+    <div class="sec">
+      <div class="sec-head"><h2 class="sec-title">공통 설정</h2></div>
+      <div class="f w3 ${state.errors.brand ? "f-err" : ""}">
+        <label class="f-label">브랜드명<span class="req">*</span></label>
+        <input class="field" type="text" data-field="brand" value="${esc(state.brand)}" placeholder="라운지엑스">
+        <div class="f-help">제목의 (광고) 뒤에 붙습니다. 모든 발송에 같은 값이 적용됩니다.</div>
+        ${errOf("brand")}
+      </div>
+    </div>
 
-  +   '<div class="sec">'
-  +     '<div class="sec-head"><h2 class="sec-title">발송 내용</h2></div>'
-  +     '<div class="f-wrap'+(state.errors.title?" f-err":"")+'">'
-  +       '<label class="f-label">제목</label>'
-  +       '<input class="field" type="text" data-field="title" value="'+esc(f.title)+'" placeholder="(광고)[라운지엑스]가 앞에 자동으로 붙습니다">'
-  +       fieldErr("title")
-  +     '</div>'
-  +     '<div class="f-wrap'+(state.errors.body?" f-err":"")+'">'
-  +       '<label class="f-label">본문</label>'
-  +       '<input class="field" type="text" data-field="body" value="'+esc(f.body)+'" placeholder="본문 입력 — 끝에 발신자·수신거부 안내가 자동으로 붙습니다">'
-  +       fieldErr("body")
-  +     '</div>'
-  +     '<div class="f-wrap">'
-  +       '<label class="f-label">페이지이동</label>'
-  +       '<select class="field" data-field="link">'
-  +         ["쿠폰함","홈","이벤트","주문내역"].map(function(o){ return '<option'+(f.link===o?" selected":"")+'>'+o+'</option>'; }).join("")
-  +       '</select>'
-  +     '</div>'
-  +   '</div>'
+    <div class="sec">
+      <div class="sec-head"><h2 class="sec-title">발송 대상</h2></div>
+      <div class="radio-row">
+        <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
+        <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
+      </div>
+      ${f.target === "store" ? `<div class="f ${state.errors.stores ? "f-err" : ""}" style="width:501px">
+        <label class="f-label">발송매장<span class="req">*</span></label>
+        ${storeSelect(f)}
+        <div class="f-help">앱에 노출되는 지점만 표시됩니다. 여러 곳을 고를 수 있습니다.</div>
+        ${errOf("stores")}
+      </div>` : ""}
+    </div>
 
-  +   '<div class="sec">'
-  +     '<div class="sec-head"><h2 class="sec-title">발송 시점</h2></div>'
-  +     '<div class="radio-row">'
-  +       '<label class="radio"><input type="radio" name="when" value="now" data-field="when"'+(f.when==="now"?" checked":"")+'> 즉시</label>'
-  +       '<label class="radio"><input type="radio" name="when" value="schedule" data-field="when"'+(f.when==="schedule"?" checked":"")+'> 예약</label>'
-  +     '</div>'
-  +     (f.when==="schedule" ? '<div class="f-wrap narrow'+(state.errors.at?" f-err":"")+'"><label class="f-label">예약일시</label><input class="field" type="datetime-local" data-field="at" value="'+esc(f.at)+'">'+fieldErr("at")+'</div>' : "")
-  +   '</div>'
+    <div class="sec">
+      <div class="sec-head"><h2 class="sec-title">발송 내용</h2></div>
+      <div class="grid">
+        <div class="f full ${state.errors.title ? "f-err" : ""}">
+          <label class="f-label">제목<span class="req">*</span></label>
+          <input class="field" type="text" data-field="title" value="${esc(f.title)}" placeholder="${esc(prefix())}가 앞에 자동으로 붙습니다">
+          ${errOf("title")}
+        </div>
+        <div class="f full ${state.errors.body ? "f-err" : ""}">
+          <label class="f-label">본문<span class="req">*</span></label>
+          <input class="field" type="text" data-field="body" value="${esc(f.body)}" placeholder="본문 입력">
+          <div class="f-help">끝에 발신자·수신거부 안내가 자동으로 붙습니다.</div>
+          ${errOf("body")}
+        </div>
+        <div class="f w3">
+          <label class="f-label">페이지이동</label>
+          <select class="field" data-field="link">
+            ${LINKS.map(o => `<option ${f.link===o?"selected":""}>${o}</option>`).join("")}
+          </select>
+          <div class="f-help">푸시를 누르면 이 화면으로 들어갑니다.</div>
+        </div>
+      </div>
+    </div>
 
-  +   '<div class="sec">'
-  +     '<div class="sec-head"><h2 class="sec-title">미리보기</h2></div>'
-  +     '<div class="pv" id="pv">'+previewInner(f)+'</div>'
-  +   '</div>'
+    <div class="sec">
+      <div class="sec-head"><h2 class="sec-title">발송 시점</h2></div>
+      <div class="radio-row">
+        <label class="radio"><input type="radio" name="when" value="now" data-field="when" ${f.when==="now"?"checked":""}> 즉시</label>
+        <label class="radio"><input type="radio" name="when" value="schedule" data-field="when" ${f.when==="schedule"?"checked":""}> 예약</label>
+      </div>
+      ${f.when === "schedule" ? `<div class="f w3 ${state.errors.at ? "f-err" : ""}">
+        <label class="f-label">예약일시<span class="req">*</span></label>
+        <input class="field" type="datetime-local" data-field="at" value="${esc(f.at)}">
+        ${errOf("at")}
+      </div>` : ""}
+    </div>
 
-  +   '<div class="form-actions">'
-  +     '<button class="btn btn-soft" data-action="cancel-create">취소</button>'
-  +     '<button class="btn btn-primary" data-action="ask-send">발송하기</button>'
-  +   '</div>'
-  + '</div>'
-  + (night
-     ? '<div class="note">예약 시각이 21:00~08:00이면 야간 광고 수신에 동의한 회원에게만 발송됩니다. 대상 '
-       + fmtNum(ALL_TARGET) + '명 → ' + fmtNum(NIGHT_TARGET) + '명</div>'
-     : "");
+    <div class="sec">
+      <div class="sec-head"><h2 class="sec-title">미리보기</h2></div>
+      <div class="pv" id="pv">${previewInner(f)}</div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-soft" data-action="cancel-create">취소</button>
+      <button class="btn btn-primary" data-action="ask-send">발송하기</button>
+    </div>
+  </div>
+  ${night ? `<div class="note">예약 시각이 21:00~08:00이면 야간 광고 수신에 동의한 회원에게만 발송됩니다. 대상 ${fmtNum(ALL_TARGET)}명 → ${fmtNum(NIGHT_TARGET)}명</div>` : ""}`;
 }
 
-/* ---------- overlays ---------- */
-function dialogView(){
-  var d = state.dialog;
-  if(!d) return "";
-  return '<div class="dim" data-action="dim"><div class="dlg" data-stop>'
-    + '<h3>'+esc(d.title)+'</h3><p>'+esc(d.desc)+'</p>'
-    + '<div class="dlg-actions">'
-    +   '<button class="btn btn-soft btn-sm" data-action="close-dialog">취소</button>'
-    +   '<button class="btn btn-primary btn-sm" data-action="'+d.confirm+'">'+esc(d.ok)+'</button>'
-    + '</div></div></div>';
-}
-function toastView(){
-  return state.toast ? '<div class="toast">'+esc(state.toast)+'</div>' : "";
-}
+const dialogView = () => {
+  const d = state.dialog;
+  if (!d) return "";
+  return `<div class="dim" data-action="dim"><div class="dlg" data-stop>
+    <h3>${esc(d.title)}</h3><p>${esc(d.desc)}</p>
+    <div class="dlg-actions">
+      <button class="btn btn-soft btn-sm" data-action="close-dialog">취소</button>
+      <button class="btn btn-primary btn-sm" data-action="${d.confirm}">${esc(d.ok)}</button>
+    </div></div></div>`;
+};
+const toastView = () => state.toast ? `<div class="toast">${esc(state.toast)}</div>` : "";
 
-/* ---------- render ---------- */
 function render(){
-  document.getElementById("app").innerHTML = ''
-  + '<div class="shell">'
-  +   '<aside class="nav">'
-  +     '<div class="nav-head"><span class="logo">lounge<i>(x)</i></span>'
-  +       '<span class="nav-div"></span><span class="nav-app">앱 관리</span></div>'
-  +     '<div class="nav-item">🔔 푸시 알림 관리</div>'
-  +   '</aside>'
-  +   '<div class="main">'
-  +     '<div class="topbar"><span class="badge">Super Admin</span>'
-  +       '<span class="hi">사용자님 반가워요</span><button class="ghost">BBS관리</button></div>'
-  +     '<div class="content">'+(state.view === "list" ? listView() : createView())+'</div>'
-  +     '<div class="foot">2026 © XYZ corp.</div>'
-  +   '</div>'
-  + '</div>'
-  + dialogView() + toastView();
+  document.getElementById("app").innerHTML = `
+  <div class="shell">
+    <aside class="nav">
+      <div class="nav-head"><span class="logo">lounge<i>(x)</i></span>
+        <span class="nav-div"></span><span class="nav-app">앱 관리</span></div>
+      <div class="nav-item">🔔 푸시 알림 관리</div>
+    </aside>
+    <div class="main">
+      <div class="topbar"><span class="badge">Super Admin</span>
+        <span class="hi">사용자님 반가워요</span><button class="ghost">BBS관리</button></div>
+      <div class="content">${state.view === "list" ? listView() : createView()}</div>
+      <div class="foot">2026 © XYZ corp.</div>
+    </div>
+  </div>${dialogView()}${toastView()}`;
 }
 
-/* ---------- events ---------- */
-var app = document.getElementById("app");
+const app = document.getElementById("app");
+const repaintPreview = () => { const pv = document.getElementById("pv"); if (pv) pv.innerHTML = previewInner(state.form); };
 
-app.addEventListener("input", function(e){
-  var el = e.target, key = el.getAttribute("data-field");
-  if(!key) return;
-  if(state.view === "list"){ state[key] = el.value; return; }
-  state.form[key] = el.value;
-  if(key === "title" || key === "body"){
-    var pv = document.getElementById("pv");
-    if(pv) pv.innerHTML = previewInner(state.form);
-    return;
-  }
-  if(key === "at"){ render(); }
+app.addEventListener("input", e => {
+  const key = e.target.getAttribute("data-field");
+  if (!key) return;
+  if (state.view === "list") { state[key] = e.target.value; return; }
+  if (key === "brand") { state.brand = e.target.value; repaintPreview(); return; }
+  state.form[key] = e.target.value;
+  if (key === "title" || key === "body") { repaintPreview(); return; }
+  if (key === "at") render();
 });
 
-app.addEventListener("change", function(e){
-  var el = e.target, key = el.getAttribute("data-field");
-  if(!key || state.view !== "create") return;
-  if(key === "target"){
-    state.form.target = el.value;
-    if(el.value === "all") state.form.store = "";
-    delete state.errors.store;
-    render(); return;
+app.addEventListener("change", e => {
+  const key = e.target.getAttribute("data-field");
+  if (!key || state.view !== "create") return;
+  if (key === "target") {
+    state.form.target = e.target.value;
+    if (e.target.value === "all") state.form.stores = [];
+    delete state.errors.stores; state.storeOpen = false; render(); return;
   }
-  if(key === "when"){
-    state.form.when = el.value;
-    if(el.value === "now") state.form.at = "";
-    delete state.errors.at;
-    render(); return;
+  if (key === "when") {
+    state.form.when = e.target.value;
+    if (e.target.value === "now") state.form.at = "";
+    delete state.errors.at; render(); return;
   }
-  if(key === "store" || key === "link"){
-    state.form[key] = el.value;
-    if(key === "store" && state.errors.store){ delete state.errors.store; render(); return; }
-    var pv = document.getElementById("pv");
-    if(pv) pv.innerHTML = previewInner(state.form);
-  }
+  if (key === "link") { state.form.link = e.target.value; repaintPreview(); }
 });
 
-app.addEventListener("click", function(e){
-  var t = e.target.closest("[data-action]");
-  if(!t) return;
-  var a = t.getAttribute("data-action");
-  if(a === "dim" && e.target !== t) return;
+app.addEventListener("click", e => {
+  const t = e.target.closest("[data-action]");
+  if (state.storeOpen && !e.target.closest("[data-stop]")) { state.storeOpen = false; render(); return; }
+  if (!t) return;
+  const a = t.getAttribute("data-action");
+  if (a === "dim" && e.target !== t) return;
 
-  if(a === "go-create"){ state.form = blankForm(); state.errors = {}; state.view = "create"; render(); return; }
-  if(a === "cancel-create"){ state.view = "list"; state.form = null; state.errors = {}; render(); return; }
-  if(a === "search"){ render(); return; }
-  if(a === "reset"){ state.q = ""; state.from = ""; state.to = ""; render(); return; }
-  if(a === "close-dialog" || a === "dim"){ state.dialog = null; render(); return; }
+  if (a === "go-create") { state.form = blankForm(); state.errors = {}; state.storeOpen = false; state.view = "create"; render(); return; }
+  if (a === "cancel-create") { state.view = "list"; state.form = null; state.errors = {}; render(); return; }
+  if (a === "search") { render(); return; }
+  if (a === "reset") { state.q = ""; state.from = ""; state.to = ""; render(); return; }
+  if (a === "close-dialog" || a === "dim") { state.dialog = null; render(); return; }
 
-  if(a === "ask-send"){
-    if(!validate()){ render(); scrollToError(); return; }
-    var n = targetCount(state.form);
-    state.dialog = {
-      title: "이 내용으로 발송할까요?",
-      desc: "광고 수신에 동의한 회원 " + fmtNum(n) + "명에게 발송됩니다.",
-      ok: "발송하기", confirm: "do-send"
-    };
+  if (a === "toggle-store") { state.storeOpen = !state.storeOpen; render(); return; }
+  if (a === "pick-store") {
+    const s = t.getAttribute("data-store"), i = state.form.stores.indexOf(s);
+    if (i >= 0) state.form.stores.splice(i, 1); else state.form.stores.push(s);
+    delete state.errors.stores; render(); return;
+  }
+  if (a === "pick-group") {
+    const g = STORE_GROUPS.find(x => x.group === t.getAttribute("data-group"));
+    const all = g.stores.every(s => state.form.stores.indexOf(s) >= 0);
+    state.form.stores = all
+      ? state.form.stores.filter(s => g.stores.indexOf(s) === -1)
+      : state.form.stores.concat(g.stores.filter(s => state.form.stores.indexOf(s) === -1));
+    delete state.errors.stores; render(); return;
+  }
+  if (a === "drop-store") {
+    const s = t.getAttribute("data-store");
+    state.form.stores = state.form.stores.filter(x => x !== s);
     render(); return;
   }
-  if(a === "do-send"){ doSend(); return; }
 
-  if(a === "ask-cancel"){
-    state.dialog = {
-      title: "예약을 취소할까요?", desc: "취소하면 이 예약은 발송되지 않습니다.",
-      ok: "예약 취소", confirm: "do-cancel", id: Number(t.getAttribute("data-id"))
-    };
+  if (a === "ask-send") {
+    if (!validate()) { render(); const el = document.querySelector(".f-err"); if (el) el.scrollIntoView({behavior:"smooth", block:"center"}); return; }
+    state.dialog = { title:"이 내용으로 발송할까요?",
+      desc:`광고 수신에 동의한 회원 ${fmtNum(targetCount(state.form))}명에게 발송됩니다.`,
+      ok:"발송하기", confirm:"do-send" };
     render(); return;
   }
-  if(a === "do-cancel"){
-    var id = state.dialog.id;
-    state.items = state.items.map(function(it){
-      return it.id === id ? Object.assign({}, it, {status:"취소", reach:"—"}) : it;
-    });
+  if (a === "do-send") { doSend(); return; }
+  if (a === "ask-cancel") {
+    state.dialog = { title:"예약을 취소할까요?", desc:"취소하면 이 예약은 발송되지 않습니다.",
+      ok:"예약 취소", confirm:"do-cancel", id:+t.getAttribute("data-id") };
+    render(); return;
+  }
+  if (a === "do-cancel") {
+    const id = state.dialog.id;
+    state.items = state.items.map(it => it.id === id ? Object.assign({}, it, {status:"취소", reach:"—"}) : it);
     state.dialog = null; showToast("예약이 취소되었습니다."); render(); return;
   }
 });
 
 function validate(){
-  var f = state.form, e = {};
-  if(!f.title.trim()) e.title = "제목을 입력해 주세요.";
-  if(!f.body.trim()) e.body = "본문을 입력해 주세요.";
-  if(f.target === "store" && !f.store) e.store = "발송할 매장을 선택해 주세요.";
-  if(f.when === "schedule"){
-    if(!f.at) e.at = "예약 일시를 지정해 주세요.";
-    else if(new Date(f.at).getTime() <= Date.now()) e.at = "현재 시각 이후만 지정할 수 있습니다.";
+  const f = state.form, e = {};
+  if (!state.brand.trim()) e.brand = "브랜드명을 입력해 주세요.";
+  if (!f.title.trim()) e.title = "제목을 입력해 주세요.";
+  if (!f.body.trim()) e.body = "본문을 입력해 주세요.";
+  if (f.target === "store" && !f.stores.length) e.stores = "발송할 지점을 하나 이상 선택해 주세요.";
+  if (f.when === "schedule") {
+    if (!f.at) e.at = "예약 일시를 지정해 주세요.";
+    else if (new Date(f.at).getTime() <= Date.now()) e.at = "현재 시각 이후만 지정할 수 있습니다.";
   }
   state.errors = e;
   return Object.keys(e).length === 0;
 }
-function scrollToError(){
-  var el = document.querySelector(".f-err");
-  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
-}
+
 function doSend(){
-  var f = state.form, sched = f.when === "schedule";
-  state.items.unshift({
-    id: seq++,
-    at: sched ? fmtAt(f.at) : nowStamp(),
-    title: f.title.trim(),
-    target: f.target === "store" ? f.store : "전체",
-    reach: sched ? "—" : fmtNum(targetCount(f)),
-    status: sched ? "예약" : "발송완료"
-  });
+  const f = state.form, sched = f.when === "schedule";
+  const target = f.target === "store"
+    ? (f.stores.length > 1 ? `${f.stores[0]} 외 ${f.stores.length - 1}곳` : f.stores[0])
+    : "전체";
+  state.items.unshift({ id: seq++, at: sched ? fmtAt(f.at) : nowStamp(), title: f.title.trim(),
+    target, reach: sched ? "—" : fmtNum(targetCount(f)), status: sched ? "예약" : "발송완료" });
   state.dialog = null; state.form = null; state.errors = {}; state.view = "list";
   showToast(sched ? "예약이 등록되었습니다." : "발송이 완료되었습니다.");
   render();
 }
-var toastTimer = null;
+
+let toastTimer = null;
 function showToast(msg){
   state.toast = msg;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ state.toast = null; render(); }, 2600);
+  toastTimer = setTimeout(() => { state.toast = null; render(); }, 2600);
 }
 
 render();
