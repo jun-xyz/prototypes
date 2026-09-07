@@ -10,7 +10,7 @@
   --text:#17191c; --text2:#3b3f44; --text3:#787e87; --ph:#aeb2b8;
   --primary:#338bff; --primary-soft:#eaf3ff; --primary-dark:#1f75e8;
   --border:#e5e8eb; --border2:#eff1f4; --thead:#eff4fb;
-  --danger:#e5484d; --danger-soft:#fdeeee; --muted:#6b7280;
+  --danger:#e5484d; --danger-soft:#fdeeee; --muted:#6b7280; --card-line:#e3e6e9;
   --r-sm:6px; --r:8px; --r-lg:12px;
 }
 *{box-sizing:border-box}
@@ -48,7 +48,7 @@ input::placeholder{color:var(--ph)}
 
 .banner{background:var(--primary);color:#fff;border-radius:var(--r);padding:16px 20px;
   font-size:14px;font-weight:500;margin-bottom:24px;display:flex;align-items:center;gap:10px}
-.card{background:var(--surface);border-radius:var(--r-lg);padding:32px 40px;margin-bottom:24px}
+.card{background:var(--surface);border-radius:16px;padding:40px;margin-bottom:24px}
 .card-title{font-size:18px;font-weight:600;margin:0 0 24px}
 
 .search-row{display:flex;align-items:center;gap:16px}
@@ -75,16 +75,18 @@ tbody tr:hover td{background:#fbfcfd}
 .pager span,.pager b{width:30px;height:30px;display:grid;place-items:center;border-radius:var(--r-sm);font-size:13px;color:var(--text3);font-weight:400}
 .pager b{background:var(--border2);color:var(--text);font-weight:600}
 
-.sec{margin-bottom:32px}
-.sec-head{padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:16px}
-.sec-title{font-size:20px;font-weight:600;margin:0}
-.radio-row{display:flex;gap:24px;margin-bottom:16px}
+.fcard{border:1px solid var(--card-line);border-radius:16px;padding:32px;margin-bottom:40px}
+.fcard:last-of-type{margin-bottom:0}
+.fcard-title{font-size:20px;font-weight:600;margin:0 0 32px}
+.radio-row{display:flex;gap:24px}
 .radio{display:inline-flex;align-items:center;gap:8px;font-size:16px;cursor:pointer}
 .radio input{width:20px;height:20px;accent-color:var(--primary);margin:0;cursor:pointer}
 .grid{display:flex;flex-wrap:wrap;gap:12px 24px}
 .f{margin-bottom:4px}
-.f.w3{width:338px}
+.f.w483{width:483px}
 .f.full{width:100%}
+.f + .f{margin-top:32px}
+textarea.field{height:80px;padding:12px 14px;resize:vertical;line-height:1.5}
 .f-label{display:block;font-size:12px;font-weight:500;color:var(--text3);margin-bottom:8px}
 .req{color:var(--danger);margin-left:2px}
 .f-help{font-size:12px;color:var(--text3);margin-top:6px}
@@ -261,12 +263,11 @@ function createView(){
   const night = f.when === "schedule" && isNight(f.at);
   return `
   <div class="page-head"><h1 class="page-title">푸시 알림 만들기</h1></div>
-  <div class="banner">🙂 광고 수신에 동의한 회원에게만 발송되며, 제목에 (광고)가 자동으로 붙습니다.</div>
   <div class="card">
 
-    <div class="sec">
-      <div class="sec-head"><h2 class="sec-title">공통 설정</h2></div>
-      <div class="f w3 ${state.errors.brand ? "f-err" : ""}">
+    <div class="fcard">
+      <h2 class="fcard-title">공통 설정</h2>
+      <div class="f w483 ${state.errors.brand ? "f-err" : ""}">
         <label class="f-label">브랜드명<span class="req">*</span></label>
         <input class="field" type="text" data-field="brand" value="${esc(state.brand)}" placeholder="라운지엑스">
         <div class="f-help">제목의 (광고) 뒤에 붙습니다. 모든 발송에 같은 값이 적용됩니다.</div>
@@ -274,11 +275,14 @@ function createView(){
       </div>
     </div>
 
-    <div class="sec">
-      <div class="sec-head"><h2 class="sec-title">발송 대상</h2></div>
-      <div class="radio-row">
-        <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
-        <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
+    <div class="fcard">
+      <h2 class="fcard-title">발송 대상</h2>
+      <div class="f w483">
+        <label class="f-label">발송 대상<span class="req">*</span></label>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
+          <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
+        </div>
       </div>
       ${f.target === "store" ? `<div class="f full ${state.errors.stores ? "f-err" : ""}">
         <label class="f-label">발송매장<span class="req">*</span></label>
@@ -288,51 +292,54 @@ function createView(){
       </div>` : ""}
     </div>
 
-    <div class="sec">
-      <div class="sec-head"><h2 class="sec-title">발송 내용</h2></div>
-      <div class="grid">
-        <div class="f full ${state.errors.title ? "f-err" : ""}">
-          <label class="f-label">제목<span class="req">*</span></label>
-          <input class="field" type="text" data-field="title" value="${esc(f.title)}" placeholder="${esc(prefix())}가 앞에 자동으로 붙습니다">
-          ${errOf("title")}
-        </div>
-        <div class="f full ${state.errors.body ? "f-err" : ""}">
-          <label class="f-label">본문<span class="req">*</span></label>
-          <input class="field" type="text" data-field="body" value="${esc(f.body)}" placeholder="본문 입력">
-          <div class="f-help">끝에 발신자·수신거부 안내가 자동으로 붙습니다.</div>
-          ${errOf("body")}
-        </div>
-        <div class="f w3">
-          <label class="f-label">페이지이동</label>
-          <select class="field" data-field="link">
-            ${LINKS.map(o => `<option ${f.link===o?"selected":""}>${o}</option>`).join("")}
-          </select>
-          <div class="f-help">푸시를 누르면 이 화면으로 들어갑니다.</div>
-        </div>
+    <div class="fcard">
+      <h2 class="fcard-title">발송 내용</h2>
+      <div class="f full ${state.errors.title ? "f-err" : ""}">
+        <label class="f-label">제목<span class="req">*</span></label>
+        <input class="field" type="text" data-field="title" value="${esc(f.title)}" placeholder="제목을 입력해주세요">
+        <div class="f-help">제목 앞에 ${esc(prefix().trim())} 이 자동으로 붙습니다.</div>
+        ${errOf("title")}
+      </div>
+      <div class="f full ${state.errors.body ? "f-err" : ""}">
+        <label class="f-label">본문<span class="req">*</span></label>
+        <textarea class="field" data-field="body" placeholder="본문을 입력해주세요">${esc(f.body)}</textarea>
+        <div class="f-help">끝에 발신자·수신거부 안내가 자동으로 붙습니다.</div>
+        ${errOf("body")}
+      </div>
+      <div class="f w483">
+        <label class="f-label">페이지이동</label>
+        <select class="field" data-field="link">
+          ${LINKS.map(o => `<option ${f.link===o?"selected":""}>${o}</option>`).join("")}
+        </select>
+        <div class="f-help">푸시를 누르면 이 화면으로 들어갑니다.</div>
       </div>
     </div>
 
-    <div class="sec">
-      <div class="sec-head"><h2 class="sec-title">발송 시점</h2></div>
-      <div class="radio-row">
-        <label class="radio"><input type="radio" name="when" value="now" data-field="when" ${f.when==="now"?"checked":""}> 즉시</label>
-        <label class="radio"><input type="radio" name="when" value="schedule" data-field="when" ${f.when==="schedule"?"checked":""}> 예약</label>
+    <div class="fcard">
+      <h2 class="fcard-title">발송 시점</h2>
+      <div class="f w483">
+        <label class="f-label">발송 시점<span class="req">*</span></label>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="when" value="now" data-field="when" ${f.when==="now"?"checked":""}> 즉시</label>
+          <label class="radio"><input type="radio" name="when" value="schedule" data-field="when" ${f.when==="schedule"?"checked":""}> 예약</label>
+        </div>
       </div>
-      ${f.when === "schedule" ? `<div class="f w3 ${state.errors.at ? "f-err" : ""}">
+      ${f.when === "schedule" ? `<div class="f w483 ${state.errors.at ? "f-err" : ""}">
         <label class="f-label">예약일시<span class="req">*</span></label>
         <input class="field" type="datetime-local" data-field="at" value="${esc(f.at)}">
+        <div class="f-help">21:00~08:00 은 야간 수신 동의자에게만 발송됩니다.</div>
         ${errOf("at")}
       </div>` : ""}
     </div>
 
-    <div class="sec">
-      <div class="sec-head"><h2 class="sec-title">미리보기</h2></div>
+    <div class="fcard">
+      <h2 class="fcard-title">미리보기</h2>
       <div class="pv" id="pv">${previewInner(f)}</div>
     </div>
 
     <div class="form-actions">
       <button class="btn btn-soft" data-action="cancel-create">취소</button>
-      <button class="btn btn-primary" data-action="ask-send">발송하기</button>
+      <button class="btn btn-primary" data-action="ask-send">발송</button>
     </div>
   </div>
   ${night ? `<div class="note">예약 시각이 21:00~08:00이면 야간 광고 수신에 동의한 회원에게만 발송됩니다. 대상 ${fmtNum(ALL_TARGET)}명 → ${fmtNum(NIGHT_TARGET)}명</div>` : ""}`;
