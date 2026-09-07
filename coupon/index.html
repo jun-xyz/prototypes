@@ -570,15 +570,15 @@ function benefitFields(){
            : f.scope==="특정 카테고리" ? (noBranch ? "사용 가능 매장을 먼저 선택해주세요" : "카테고리를 선택해주세요")
            : "타입을 선택해주세요";
   const tgtHelp = f.scope==="특정 카테고리"
-    ? "선택한 매장의 판매 카테고리만 나옵니다. 같은 이름이라도 지점별 별개 항목입니다."
-    : f.scope==="특정 타입" ? "전체상품 마스터 속성 4종 기준입니다." : "복수 선택 가능.";
+    ? "같은 이름이라도 지점별 별개 항목입니다."
+    : f.scope==="특정 타입" ? "전체상품 마스터 속성 4종 기준입니다." : "다른 줄이 쓴 항목은 고를 수 없습니다.";
 
   const rows = f.tiers.map((t,i)=>{
     const valueField = f.benefitType==="증정" ? "" :
       `<div class="field"><div class="flabel">${f.benefitType==="정률"?"할인율":"할인 금액"} <span class="req">*</span></div>
         <div class="inp-suffix"><input class="inp ${e[`tier${i}val`]?"err":""}" inputmode="numeric" placeholder="${f.benefitType==="정률"?"10":"1,000"}"
           value="${t.value??""}" data-action="tier-input" data-tidx="${i}"><span class="suffix">${unit}</span></div>
-        <div class="help ${e[`tier${i}val`]?"err":""}">${e[`tier${i}val`]||(f.benefitType==="정률"?"옵션 추가금은 할인에서 제외됩니다.":"정액으로 차감됩니다.")}</div></div>`;
+        <div class="help ${e[`tier${i}val`]?"err":""}">${e[`tier${i}val`]||(f.benefitType==="정률"?"옵션 추가금은 할인에서 제외됩니다.":"옵션 추가금까지 포함해 차감합니다.")}</div></div>`;
     if(f.scope==="주문 전체") return `<div class="tier-row">${valueField}</div>`;
     const targetField = `<div class="field"><div class="flabel">대상 <span class="req">*</span></div>
         ${multiselect("target",i,t.targets,ph,e[`tier${i}tgt`])}
@@ -590,19 +590,19 @@ function benefitFields(){
 
   const addBtn = single ? "" :
     `<button class="btn-add-tier" data-action="add-tier">＋ 대상 추가</button>
-     <div class="tier-hint">대상마다 값을 다르게 줄 수 있습니다. 같은 대상은 한 줄에만 담깁니다.</div>`;
+     <div class="tier-hint">대상마다 값을 다르게 줄 수 있습니다.</div>`;
 
   return `
     <div class="field"><div class="flabel">혜택 유형 <span class="req">*</span></div>
       ${radioGroup("benefitType",BENEFIT_TYPES.map(v=>({val:v,lab:BENEFIT_LABELS[v]})),f.benefitType,"")}
-      <div class="help">쿠폰 하나에 유형 하나가 적용됩니다.</div></div>
+      <div class="help">쿠폰당 하나만 고릅니다.</div></div>
     ${f.benefitType!=="정률" ? "" : `<div class="field"><div class="flabel">최대 할인 금액</div>
       <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="예: 5,000"
         value="${f.maxDiscount??""}" data-field="maxDiscount"><span class="suffix">원</span></div>
-      <div class="help">정률의 최대 할인 상한. 쿠폰 공통으로 걸립니다(선택).</div></div>`}
+      <div class="help">쿠폰 공통으로 걸립니다. 미입력 시 상한 없음</div></div>`}
     <div class="field"><div class="flabel">적용 범위 <span class="req">*</span></div>
       ${radioGroup("scope",scopeOpts,f.scope,"")}
-      <div class="help">범위는 쿠폰 단위로 하나입니다 — 상품과 카테고리를 섞을 수 없습니다.</div></div>
+      <div class="help">상품과 카테고리를 섞을 수 없습니다.</div></div>
     <div class="rule-divider"></div>
     <div class="flabel" style="margin-bottom:10px">대상별 혜택 값</div>
     ${rows}
@@ -620,13 +620,13 @@ function createView(){
         <div class="help ${e.code?"err":""}">${e.code||"여러 명이 공유하는 코드."}</div></div>
       <div class="field"><div class="flabel">발급 한도</div>
         <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="제한 없음" value="${esc(f.issueLimit)}" data-field="issueLimit"><span class="suffix">회</span></div>
-        <div class="help">코드 전체 사용 가능 횟수 · 미입력 시 무제한 (1인당 횟수와 독립).</div></div>
+        <div class="help">코드 전체의 사용 횟수 · 미입력 시 무제한</div></div>
     </div>`;
   }else{
     issueFields=`<div class="grid2">
       <div class="field"><div class="flabel">발급 수량 <span class="req">*</span></div>
         <div class="inp-suffix"><input class="inp ${e.issueCount?"err":""}" inputmode="numeric" placeholder="100" value="${esc(f.issueCount)}" data-field="issueCount"><span class="suffix">개</span></div>
-        <div class="help ${e.issueCount?"err":""}">${e.issueCount||"코드 1장으로 1회만 사용합니다. 여러 번 쓰게 하려면 수량을 늘려주세요."}</div></div>
+        <div class="help ${e.issueCount?"err":""}">${e.issueCount||"코드 하나로 한 번만 쓰입니다. 더 필요하면 수량을 늘리세요."}</div></div>
       <div class="field"></div>
     </div>`;
   }
@@ -638,11 +638,11 @@ function createView(){
         <input class="inp ${e.valid?"err":""}" type="date" value="${esc(f.validRangeStart)}" data-field="validRangeStart" style="flex:1">
         <span style="color:var(--text-muted)">~</span>
         <input class="inp ${e.valid?"err":""}" type="date" value="${esc(f.validRangeEnd)}" data-field="validRangeEnd" style="flex:1"></div>
-      <div class="help ${e.valid?"err":""}">${e.valid||"지정한 시작 ~ 만료일에 유효합니다."}</div></div>`;
+      ${e.valid?`<div class="help err">${e.valid}</div>`:""}</div>`;
   }else if(f.validType==="발급일로부터 N일"){
     validExtra=`<div class="field"><div class="flabel">유효 일수 <span class="req">*</span></div>
       <div class="inp-suffix"><input class="inp ${e.valid?"err":""}" inputmode="numeric" placeholder="30" value="${esc(f.validDays)}" data-field="validDays"><span class="suffix">일</span></div>
-      <div class="help ${e.valid?"err":""}">${e.valid||"회원이 앱에 등록한 날부터 셉니다."}</div></div>`;
+      ${e.valid?`<div class="help err">${e.valid}</div>`:""}</div>`;
   }else{
     validExtra=`<div class="field"></div>`;
   }
@@ -650,7 +650,7 @@ function createView(){
   const useCountExtra = f.useLimitType==="횟수 제한"
     ? `<div class="field"><div class="flabel">사용 가능 횟수 <span class="req">*</span></div>
         <div class="inp-suffix"><input class="inp ${e.useLimit?"err":""}" inputmode="numeric" placeholder="1" value="${esc(f.useLimit)}" data-field="useLimit"><span class="suffix">회</span></div>
-        <div class="help ${e.useLimit?"err":""}">${e.useLimit||"1인당 사용 가능한 횟수."}</div></div>`
+        ${e.useLimit?`<div class="help err">${e.useLimit}</div>`:""}</div>`
     : `<div class="field"></div>`;
 
   // 1인당 사용 횟수 — 공용 코드 전용 (개별 코드는 1코드 1회라 이 설정을 쓰지 않는다)
@@ -658,11 +658,11 @@ function createView(){
     ? `<div class="grid2">
         <div class="field"><div class="flabel">1인당 사용 횟수</div>
           ${radioGroup("useLimitType",["횟수 제한","무제한"],f.useLimitType,"")}
-          <div class="help">키오스크 무기명 사용은 개인 확인이 안 돼 발급 한도로만 관리됩니다.</div></div>
+          <div class="help">키오스크는 사람을 구분할 수 없어 이 횟수가 적용되지 않습니다.</div></div>
         ${useCountExtra}
       </div>`
     : `<div class="field"><div class="flabel">1인당 사용 횟수</div>
-        <div class="help">개별 코드는 코드 1장으로 1회만 사용합니다. 여러 번 쓰게 하려면 발급 수량을 늘려주세요.</div></div>`;
+        <div class="help">개별 코드는 코드 하나로 한 번만 쓰므로 해당하지 않습니다.</div></div>`;
 
   return `<div class="form-wrap">
     <div class="crumb">쿠폰 목록 › ${editing?"쿠폰 수정":"쿠폰 생성"}</div>
@@ -674,10 +674,9 @@ function createView(){
       <div class="grid2">
         <div class="field"><div class="flabel">쿠폰 이름 <span class="req">*</span></div>
           <input class="inp ${e.name?"err":""}" placeholder="쿠폰 이름을 입력해주세요" value="${esc(f.name)}" data-field="name">
-          <div class="help ${e.name?"err":""}">${e.name||"사용자에게 노출되는 쿠폰 이름입니다."}</div></div>
+          <div class="help ${e.name?"err":""}">${e.name||"회원에게 보입니다."}</div></div>
         <div class="field"><div class="flabel">쿠폰 ID</div>
-          <input class="inp" value="${editing?esc(state.editingId):""}" placeholder="자동 부여" disabled>
-          <div class="help">시스템에서 자동으로 부여됩니다.</div></div>
+          <input class="inp" value="${editing?esc(state.editingId):""}" placeholder="자동 부여" disabled></div>
       </div>
       <div class="field"><div class="flabel">쿠폰 설명</div>
         <textarea class="inp" maxlength="100" placeholder="쿠폰 설명을 입력해주세요" data-field="desc">${esc(f.desc)}</textarea>
@@ -689,19 +688,18 @@ function createView(){
       <div class="section-title">혜택 설정</div>
       <div class="field"><div class="flabel">사용 가능 매장 <span class="req">*</span></div>
         ${multiselect("merchant",-1,f.merchants,"매장을 선택해주세요",e.merchants)}
-        <div class="help ${e.merchants?"err":""}">${e.merchants||"선택한 매장에서만 사용 가능합니다."}</div></div>
+        <div class="help ${e.merchants?"err":""}">${e.merchants||"고른 매장에서만 쓸 수 있습니다."}</div></div>
       ${benefitFields()}
       <div class="field" style="max-width:520px"><div class="flabel">최소 주문 금액</div>
         <div class="inp-suffix"><input class="inp" inputmode="numeric" placeholder="0" value="${esc(f.minOrder)}" data-field="minOrder"><span class="suffix">원</span></div>
-        <div class="help">선택 입력 (미입력 시 제한 없음).</div></div>
+        <div class="help">미입력 시 제한 없음</div></div>
     </div>
 
     <!-- ③ 발급·코드 -->
     <div class="card section-card">
       <div class="section-title">발급·코드</div>
       <div class="field"><div class="flabel">발급 방식 <span class="req">*</span></div>
-        ${radioGroup("issueType",["공용","개별"].map(v=>({val:v,lab:v+" 코드"})),f.issueType,"")}
-        <div class="help">공용 코드 또는 개별 코드 중 선택해주세요.</div></div>
+        ${radioGroup("issueType",["공용","개별"].map(v=>({val:v,lab:v+" 코드"})),f.issueType,"")}</div>
       ${issueFields}
     </div>
 
@@ -711,19 +709,19 @@ function createView(){
       <div class="grid2">
         <div class="field"><div class="flabel">활성화</div>
           <div><button class="switch ${f.active?"on":""}" data-action="toggle-form-active"></button></div>
-          <div class="help">활성화 시 발급·등록 가능 (비활성화해도 보유분은 유효기간까지 사용).</div></div>
+          <div class="help">꺼도 회원 보유분은 유효기간까지 씁니다.</div></div>
         <div class="field"><div class="flabel">사용 채널 <span class="req">*</span></div>
           <div class="radio-row">
             ${["앱","키오스크"].map(ch=>`<label class="checkbox"><input type="checkbox" ${f.channels.includes(ch)?"checked":""}
               data-action="channel" data-val="${ch}"><span class="box">${f.channels.includes(ch)?"✓":""}</span>${ch}</label>`).join("")}
           </div>
-          <div class="help ${e.channels?"err":""}">${e.channels||"앱·키오스크 중 선택해주세요."}</div></div>
+          ${e.channels?`<div class="help err">${e.channels}</div>`:""}</div>
       </div>
       <div class="rule-divider"></div>
       <div class="grid2">
         <div class="field"><div class="flabel">유효기간 설정</div>
-          ${radioGroup("validType",["무기한","기간 지정",{val:"발급일로부터 N일",lab:"발급일로부터 N일",disabled:f.issueType==="개별"}],f.validType,"")}
-          <div class="help">유효기간 설정 시, 해당 기간 내에만 사용할 수 있습니다.${f.issueType==="개별"?" '발급일로부터 N일'은 공용 코드에서만 쓸 수 있습니다.":""}</div></div>
+          ${radioGroup("validType",["무기한","기간 지정",{val:"발급일로부터 N일",lab:"발급일로부터 N일",disabled:f.channels.includes("키오스크")}],f.validType,"")}
+          <div class="help">'발급일로부터 N일'은 앱 등록일부터 셉니다. 키오스크를 함께 쓰면 고를 수 없습니다.</div></div>
         ${validExtra}
       </div>
       <div class="rule-divider"></div>
@@ -905,10 +903,7 @@ app.addEventListener("change",ev=>{
     else if(name==="scope"){ f.scope=val;
       f.tiers = (val==="주문 전체") ? [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}] : [{targets:[],value:f.tiers[0]?f.tiers[0].value:null}];
       Object.keys(state.errors).forEach(k=>{ if(k.startsWith("tier")) delete state.errors[k]; }); }
-    else if(name==="issueType"){ f.issueType=val;
-      if(val==="개별" && f.validType==="발급일로부터 N일"){
-        f.validType="기간 지정"; f.validDays=""; delete state.errors.valid;
-        showToast("개별 코드는 '발급일로부터 N일'을 쓸 수 없어 '기간 지정'으로 바꿨습니다"); } }
+    else if(name==="issueType") f.issueType=val;
     else if(name==="validType") f.validType=val;
     else if(name==="useLimitType") f.useLimitType=val;
     clearErrForRadio(name,ri); render(); return;
@@ -917,6 +912,11 @@ app.addEventListener("change",ev=>{
     const v=t.getAttribute("data-val"), f=state.form;
     if(t.checked){ if(!f.channels.includes(v)) f.channels.push(v); }
     else f.channels=f.channels.filter(x=>x!==v);
+    // 키오스크는 무기명이라 기간을 셀 등록 시점이 없다
+    if(f.channels.includes("키오스크") && f.validType==="발급일로부터 N일"){
+      f.validType="기간 지정"; f.validDays=""; delete state.errors.valid;
+      showToast("키오스크는 '발급일로부터 N일'을 쓸 수 없어 '기간 지정'으로 바꿨습니다");
+    }
     delete state.errors.channels; state.dirty=true; render(); return;
   }
 });
