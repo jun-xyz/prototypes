@@ -92,7 +92,7 @@ tbody tr:hover td{background:#fbfcfd}
 .err-msg{color:var(--danger);font-size:12px;margin-top:6px}
 select.field{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M5 8l5 5 5-5' fill='none' stroke='%23787e87' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
 
-.ms{position:relative}
+.ms{position:relative;width:326px}
 .ms-field{border:1px solid var(--border);border-radius:var(--r);min-height:48px;padding:7px 38px 7px 10px;
   background:var(--surface);cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:relative}
 .ms-field.on{border-color:var(--primary)}
@@ -280,7 +280,7 @@ function createView(){
         <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
         <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
       </div>
-      ${f.target === "store" ? `<div class="f ${state.errors.stores ? "f-err" : ""}" style="width:501px">
+      ${f.target === "store" ? `<div class="f full ${state.errors.stores ? "f-err" : ""}">
         <label class="f-label">발송매장<span class="req">*</span></label>
         ${storeSelect(f)}
         <div class="f-help">앱에 노출되는 지점만 표시됩니다. 여러 곳을 고를 수 있습니다.</div>
