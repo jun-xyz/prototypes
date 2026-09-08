@@ -205,7 +205,7 @@ function pagerHtml(){
 }
 const listView = () => ''+
   '<div class="page-head"><h1 class="page-title">공지사항/이벤트</h1>'+
-    '<button class="btn btn-primary" data-action="go-create">공지사항 추가하기</button></div>'+
+    '<button class="btn btn-primary" data-action="go-create">추가하기</button></div>'+
   '<div class="card">'+
     '<div class="count">전체 공지 '+state.items.length+'개</div>'+
     '<div class="table-wrap"><table>'+
@@ -261,7 +261,7 @@ function formView(mode){
     '<label class="radio"><input type="radio" name="status" value="'+v+'" data-field="status"'+
     (f.status === v ? " checked" : "")+'>'+v+"</label>";
   return ''+
-  '<div class="page-head"><h1 class="page-title">'+(isEdit ? "공지사항 수정" : "공지사항 추가하기")+"</h1></div>"+
+  '<div class="page-head"><h1 class="page-title">'+(isEdit ? "수정" : "추가하기")+"</h1></div>"+
   '<div class="card">'+
     '<div class="fcard"><h2 class="fcard-title">공지정보</h2>'+
       '<div class="f'+(e.title?" f-err":"")+'" data-wrap="title">'+
