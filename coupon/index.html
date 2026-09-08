@@ -360,7 +360,7 @@ function validFull(c){
   return c.validRange||"기간 지정";
 }
 function useCond(c){
-  const per = c.issueType==="개별" ? "개별 코드 1장당 1회"
+  const per = c.issueType==="개별" ? "1코드 1회"
     : (c.useLimitType==="무제한" ? "1인 무제한" : `1인 ${c.useLimit||1}회`);
   const min = c.minOrder ? `최소 주문 ${Number(c.minOrder).toLocaleString()}원` : "최소 주문 금액 없음";
   return `${per} · ${min}`;
