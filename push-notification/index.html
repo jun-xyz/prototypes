@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>푸시 알림 관리 — 동작 프로토타입</title>
 <style>
 :root{
@@ -17,7 +17,7 @@
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
-  font-size:14px;line-height:1.5;min-width:1440px}
+  font-size:14px;line-height:1.5;min-width:960px}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 input,select{font-family:inherit;font-size:16px;color:var(--text)}
 input::placeholder{color:var(--ph)}
@@ -35,12 +35,12 @@ input::placeholder{color:var(--ph)}
 .badge{background:var(--danger);color:#fff;font-size:14px;font-weight:600;padding:6px 12px;border-radius:var(--r-sm)}
 .hi{font-size:14px;font-weight:500;color:var(--text2)}
 .ghost{border:1px solid var(--primary);color:var(--primary);background:var(--primary-soft);font-size:14px;font-weight:600;padding:8px 14px;border-radius:var(--r-sm)}
-.content{flex:1;padding:40px}
+.content{flex:1;padding:40px;width:100%;max-width:1190px;margin:0 auto}
 .foot{height:60px;display:flex;align-items:center;padding:0 40px;font-size:14px;font-weight:500;color:var(--text3)}
 
 .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .page-title{font-size:24px;font-weight:600;margin:0}
-.btn{border-radius:var(--r);font-weight:500;transition:background .12s}
+.btn{border-radius:var(--r);font-weight:500;white-space:nowrap;transition:background .12s}
 .btn-primary{background:var(--primary);color:#fff;font-size:16px;padding:12px 20px}
 .btn-primary:hover{background:var(--primary-dark)}
 .btn-soft{background:var(--primary-soft);color:var(--primary);font-size:16px;padding:12px 20px}
@@ -52,14 +52,15 @@ input::placeholder{color:var(--ph)}
 .card-title{font-size:18px;font-weight:600;margin:0 0 24px}
 
 .search-row{display:flex;align-items:center;gap:16px}
-.search-label{font-size:14px;font-weight:600;width:64px;flex:none}
+.search-label{font-size:14px;font-weight:600;width:64px;flex:none;white-space:nowrap}
 .field{border:1px solid var(--border);border-radius:var(--r);height:48px;padding:0 14px;font-size:16px;background:var(--surface);width:100%}
 .field:focus{outline:none;border-color:var(--primary)}
-.search-row .field{width:230px}
-.search-actions{margin-left:auto;display:flex;gap:8px}
+.search-row .field{width:230px;min-width:0}
+.search-actions{margin-left:auto;display:flex;gap:8px;flex:none}
 
 .count{font-size:13px;color:var(--text3);margin-bottom:12px}
-table{width:100%;border-collapse:collapse}
+.table-wrap{overflow-x:auto}
+table{width:100%;min-width:820px;border-collapse:collapse}
 thead th{background:var(--thead);font-size:14px;font-weight:600;color:var(--text2);padding:14px 12px;text-align:center;white-space:nowrap}
 thead th:first-child{border-radius:var(--r) 0 0 var(--r)}
 thead th:last-child{border-radius:0 var(--r) var(--r) 0}
@@ -83,8 +84,8 @@ tbody tr:hover td{background:#fbfcfd}
 .radio input{width:20px;height:20px;accent-color:var(--primary);margin:0;cursor:pointer}
 .grid{display:flex;flex-wrap:wrap;gap:12px 24px}
 .f{margin-bottom:4px}
-.f.w483{width:483px}
-.row{display:flex;gap:32px}
+.f.w483{flex:1 1 483px;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:32px}
 .row > .f{margin-top:0}
 .row + .f, .f + .row{margin-top:32px}
 .row + .row{margin-top:32px}
@@ -99,7 +100,7 @@ textarea.field{height:80px;padding:12px 14px;resize:vertical;line-height:1.5}
 .err-msg{color:var(--danger);font-size:12px;margin-top:6px}
 select.field{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><path d='M5 8l5 5 5-5' fill='none' stroke='%23787e87' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
 
-.ms{position:relative;width:326px}
+.ms{position:relative;width:100%;max-width:326px}
 .ms-field{border:1px solid var(--border);border-radius:var(--r);min-height:48px;padding:7px 38px 7px 10px;
   background:var(--surface);cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:relative}
 .ms-field.on{border-color:var(--primary)}
@@ -121,7 +122,7 @@ select.field{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg 
 .ms-sel .t{font-size:12px;font-weight:600;color:var(--primary);margin-bottom:4px}
 .ms-sel .v{font-size:13px;color:var(--text2);line-height:1.6}
 
-.pv{width:420px;border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;background:var(--surface)}
+.pv{width:100%;max-width:420px;border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;background:var(--surface)}
 .pv-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
 .pv-app{font-size:13px;font-weight:600;color:var(--text2)}
 .pv-when{font-size:12px;color:var(--ph)}
@@ -134,7 +135,7 @@ select.field{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg 
 .note{font-size:14px;color:var(--muted);padding:0 40px;margin-top:-8px;margin-bottom:24px}
 
 .dim{position:fixed;inset:0;background:rgba(23,25,28,.45);display:grid;place-items:center;z-index:50}
-.dlg{background:var(--surface);border-radius:var(--r-lg);padding:32px;width:420px;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.dlg{background:var(--surface);border-radius:var(--r-lg);padding:32px;width:calc(100% - 48px);max-width:420px;box-shadow:0 12px 40px rgba(0,0,0,.18)}
 .dlg h3{font-size:18px;font-weight:600;margin:0 0 12px}
 .dlg p{font-size:14px;color:var(--text3);margin:0 0 24px}
 .dlg-actions{display:flex;justify-content:flex-end;gap:8px}
@@ -227,10 +228,10 @@ const listView = () => `
   </div>
   <div class="card">
     <div class="count">전체 발송 ${filtered().length}개</div>
-    <table><thead><tr>
+    <div class="table-wrap"><table><thead><tr>
       <th style="width:180px">발송일시</th><th>제목</th><th style="width:120px">대상</th>
       <th style="width:120px">도달 수</th><th style="width:110px">상태</th><th style="width:70px"></th>
-    </tr></thead><tbody>${rowsHtml()}</tbody></table>
+    </tr></thead><tbody>${rowsHtml()}</tbody></table></div>
     <div class="pager"><b>1</b>${[2,3,4,5,6,7,8,9,10].map(n => `<span>${n}</span>`).join("")}</div>
   </div>`;
 
