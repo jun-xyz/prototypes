@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공지사항/이벤트 관리 — 동작 프로토타입</title>
+<style>
+:root{
+  --bg:#f9fafa; --surface:#fff;
+  --text:#17191c; --text2:#3b3f44; --text3:#787e87; --ph:#aeb2b8;
+  --primary:#338bff; --primary-soft:#eaf3ff; --primary-dark:#1f75e8;
+  --border:#e5e8eb; --border2:#eff1f4; --thead:#eff4fb; --disabled:#f5f6f7;
+  --danger:#e5484d; --danger-soft:#fdeeee; --text3:#787e87; --card-line:#e3e6e9;
+  --r-sm:6px; --r:8px; --r-lg:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+  font-size:14px;line-height:1.5;min-width:960px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea{font-family:inherit;font-size:14px;color:var(--text)}
+input::placeholder,textarea::placeholder{color:var(--ph)}
+
+/* shell */
+.shell{display:flex;min-height:100vh}
+.nav{width:250px;background:var(--surface);border-right:1px solid var(--border2);flex:none}
+.nav-head{height:90px;display:flex;align-items:center;gap:10px;padding:0 24px}
+.logo{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:600;letter-spacing:-.3px}
+.logo i{font-style:italic}
+.nav-div{width:1px;height:16px;background:var(--border)}
+.nav-app{font-size:16px;font-weight:600;color:var(--text2)}
+.nav-item{display:flex;align-items:center;gap:10px;height:48px;padding:0 24px;font-size:14px;font-weight:600;background:var(--primary-soft)}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:90px;background:var(--surface);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.topbar .right{display:flex;align-items:center;gap:16px}
+.collapse{color:var(--text3);font-size:18px}
+.badge{background:var(--danger);color:#fff;font-size:14px;font-weight:600;padding:6px 12px;border-radius:var(--r-sm)}
+.hi{font-size:14px;font-weight:500;color:var(--text2)}
+.ico{color:var(--text2);font-size:16px;line-height:1}
+.ghost{border:1px solid var(--primary);color:var(--primary);background:var(--primary-soft);font-size:14px;font-weight:600;padding:8px 14px;border-radius:var(--r-sm)}
+.content{flex:1;padding:40px;width:100%;max-width:1190px;margin:0 auto}
+.foot{height:60px;display:flex;align-items:center;padding:0 40px;font-size:14px;font-weight:500;color:var(--text3)}
+
+/* page */
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;min-height:48px}
+.page-title{font-size:24px;font-weight:600;margin:0}
+.btn{border-radius:var(--r);font-weight:500;white-space:nowrap;transition:background .12s}
+.btn-primary{background:var(--primary);color:#fff;font-size:16px;padding:12px 20px}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-soft{background:var(--primary-soft);color:var(--primary);font-size:16px;padding:12px 20px}
+.btn-danger{background:var(--danger-soft);color:var(--danger);font-size:16px;padding:12px 20px}
+.btn-sm{font-size:14px;padding:9px 16px}
+.card{background:var(--surface);border-radius:16px;padding:40px;margin-bottom:24px}
+
+/* table */
+.count{font-size:13px;color:var(--text3);margin-bottom:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;min-width:560px;border-collapse:collapse;table-layout:fixed}
+thead th{background:var(--thead);font-size:14px;font-weight:600;color:var(--text2);padding:14px 12px;
+  text-align:center;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:first-child{border-radius:var(--r) 0 0 var(--r)}
+thead th:last-child{border-radius:0 var(--r) var(--r) 0}
+.sort{color:var(--ph);font-size:11px;margin-left:4px}
+.sort.on{color:var(--text)}
+tbody td{border-bottom:1px solid var(--border2);padding:18px 12px;text-align:center;font-size:14px;color:var(--text2)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#fbfcfd}
+td.title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{text-align:center;color:var(--text3);padding:60px 0;font-size:14px}
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:24px}
+.pager span,.pager b,.pager button{width:30px;height:30px;display:grid;place-items:center;border-radius:var(--r-sm);
+  font-size:13px;color:var(--text3);font-weight:400}
+.pager b{background:var(--border2);color:var(--text);font-weight:600}
+.pager button:hover{background:#f4f6f8}
+.pager .off{color:#d6d9de;cursor:default}
+
+/* form */
+.fcard{border:1px solid var(--card-line);border-radius:16px;padding:32px;margin-bottom:40px}
+.fcard:last-of-type{margin-bottom:0}
+.fcard-title{font-size:20px;font-weight:600;margin:0 0 32px}
+.f + .f{margin-top:32px}
+.row{display:flex;gap:32px;margin-top:32px}
+.row > .f{flex:1 1 0;min-width:0;margin-top:0}
+.f-label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.req{color:var(--danger);margin-left:4px}
+.field{border:1px solid var(--border);border-radius:var(--r);height:40px;padding:0 12px;font-size:14px;
+  background:var(--surface);width:100%;color:var(--text)}
+.field:focus{outline:none;border-color:var(--primary)}
+.field:disabled{background:var(--disabled);color:var(--ph);cursor:not-allowed}
+textarea.field{height:100px;padding:10px 12px;resize:vertical;line-height:1.5}
+.f-help{font-size:13px;color:var(--text3);margin-top:8px}
+.radio-row{display:flex;gap:16px;padding-top:2px}
+.radio{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding-right:8px}
+.radio input{width:20px;height:20px;accent-color:var(--primary);margin:0;cursor:pointer}
+.f-err .field{border-color:var(--danger);background:var(--danger-soft)}
+.err-msg{color:var(--danger);font-size:13px;margin-top:8px}
+.form-actions{display:flex;justify-content:flex-end;gap:16px;margin-top:24px}
+
+/* overlays */
+.dim{position:fixed;inset:0;background:rgba(23,25,28,.45);display:grid;place-items:center;z-index:50}
+.dlg{background:var(--surface);border-radius:var(--r-lg);padding:32px;width:calc(100% - 48px);max-width:424px;
+  box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.dlg h3{font-size:18px;font-weight:600;margin:0 0 12px}
+.dlg p{font-size:14px;color:var(--text3);margin:0 0 24px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px}
+.toast{position:fixed;left:calc(50% + 125px);top:114px;transform:translateX(-50%);
+  background:rgba(23,25,28,.92);color:#fff;font-size:14px;font-weight:500;
+  padding:16px 22px;border-radius:var(--r);z-index:60;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+
+const PAGE_SIZE = 10;
+const MAX_BODY = 100;
+const ME = "Super Admin";
+
+const state = {
+  view: "list",
+  items: [
+    {id:1, title:"새해 맞이 랜덤 박스 이벤트!!!",        at:"2024-01-16 20:07", status:"활성화",
+     body:"새해를 맞아 랜덤 박스 이벤트를 진행합니다. 앱에서 확인해보세요.",
+     cAt:"2022-11-01 08:07", cBy:"SYSTEM", uAt:"2022-11-04 00:40", uBy:"SYSTEM"},
+    {id:2, title:"라운지엑스 24H 성수점이 오픈 했다고!?", at:"2024-01-16 20:07", status:"활성화",
+     body:"성수점이 24시간 운영을 시작했습니다. 언제든 방문해주세요.",
+     cAt:"2022-11-01 08:07", cBy:"SYSTEM", uAt:"2022-11-04 00:40", uBy:"SYSTEM"},
+    {id:3, title:"라운지엑스 성수 24h 매장 임시 휴업 안내", at:"2024-01-16 20:07", status:"활성화",
+     body:"내부 공사로 성수 24h 매장이 임시 휴업합니다. 이용에 참고 바랍니다.",
+     cAt:"2022-11-01 08:07", cBy:"SYSTEM", uAt:"2022-11-04 00:40", uBy:"SYSTEM"}
+  ],
+  sort: {key:"at", dir:"desc"},
+  page: 1,
+  form: null, editId: null, errors: {}, dialog: null, toast: null
+};
+let seq = 4, toastTimer = null;
+
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const nowStamp = () => { const d = new Date(), p = x => String(x).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes()); };
+const blankForm = () => ({title:"", status:"활성화", body:""});
+
+const sorted = () => {
+  const {key, dir} = state.sort, k = dir === "asc" ? 1 : -1;
+  return state.items.slice().sort((a,b) => {
+    const x = String(a[key]), y = String(b[key]);
+    if (x === y) return a.id - b.id;
+    return x > y ? k : -k;
+  });
+};
+const pageCount = () => Math.max(1, Math.ceil(state.items.length / PAGE_SIZE));
+const pageRows = () => sorted().slice((state.page-1)*PAGE_SIZE, state.page*PAGE_SIZE);
+
+/* ---------- list ---------- */
+function th(label, key){
+  const on = state.sort.key === key;
+  const glyph = !on ? "⇅" : (state.sort.dir === "asc" ? "↑" : "↓");
+  return '<th data-action="sort" data-key="'+key+'">'+esc(label)+
+         '<span class="sort'+(on?" on":"")+'">'+glyph+'</span></th>';
+}
+function rowsHtml(){
+  const rows = pageRows();
+  if (!rows.length) return '<tr><td colspan="3"><div class="empty">등록된 공지가 없습니다.</div></td></tr>';
+  return rows.map(it =>
+    '<tr data-action="go-edit" data-id="'+it.id+'">'+
+      '<td class="title">'+esc(it.title)+'</td>'+
+      '<td>'+esc(it.at)+'</td>'+
+      '<td>'+esc(it.status)+'</td>'+
+    '</tr>').join("");
+}
+function pagerHtml(){
+  const n = pageCount(), p = state.page;
+  const nav = (a, g, to, off) => off
+    ? '<span class="off">'+g+'</span>'
+    : '<button data-action="'+a+'" data-page="'+to+'">'+g+'</button>';
+  let out = nav("page","«",1,p===1) + nav("page","‹",p-1,p===1);
+  for (let i = 1; i <= n; i++)
+    out += i === p ? "<b>"+i+"</b>" : '<button data-action="page" data-page="'+i+'">'+i+"</button>";
+  out += nav("page","›",p+1,p===n) + nav("page","»",n,p===n);
+  return '<div class="pager">'+out+"</div>";
+}
+const listView = () => ''+
+  '<div class="page-head"><h1 class="page-title">공지사항/이벤트</h1>'+
+    '<button class="btn btn-primary" data-action="go-create">공지사항 추가하기</button></div>'+
+  '<div class="card">'+
+    '<div class="count">전체 공지 '+state.items.length+'개</div>'+
+    '<div class="table-wrap"><table>'+
+      '<colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup>'+
+      '<thead><tr>'+th("제목","title")+th("업로드일시","at")+th("상태","status")+'</tr></thead>'+
+      '<tbody>'+rowsHtml()+'</tbody>'+
+    '</table></div>'+
+    (state.items.length ? pagerHtml() : "")+
+  '</div>';
+
+/* ---------- form ---------- */
+const errBlock = k => state.errors[k] ? '<div class="err-msg">'+esc(state.errors[k])+"</div>" : "";
+const meta = (label, val) => ''+
+  '<div class="f"><label class="f-label">'+esc(label)+'</label>'+
+  '<input class="field" value="'+esc(val)+'" disabled></div>';
+
+function formView(mode){
+  const f = state.form, e = state.errors;
+  const isEdit = mode === "edit";
+  const it = isEdit ? state.items.find(x => x.id === state.editId) : null;
+  const metaRows = isEdit ? ''+
+    '<div class="row">'+meta("최초 작성 일시", it.cAt)+meta("최초 작성 계정", it.cBy)+'</div>'+
+    '<div class="row">'+meta("마지막 수정일시", it.uAt)+meta("수정 계정", it.uBy)+'</div>' : "";
+  const radio = v => ''+
+    '<label class="radio"><input type="radio" name="status" value="'+v+'" data-field="status"'+
+    (f.status === v ? " checked" : "")+'>'+v+"</label>";
+  return ''+
+  '<div class="page-head"><h1 class="page-title">'+(isEdit ? "공지사항 수정" : "공지사항 추가하기")+"</h1></div>"+
+  '<div class="card">'+
+    '<div class="fcard"><h2 class="fcard-title">공지정보</h2>'+
+      '<div class="f'+(e.title?" f-err":"")+'" data-wrap="title">'+
+        '<label class="f-label">제목<span class="req">*</span></label>'+
+        '<input class="field" data-field="title" placeholder="제목 입력" value="'+esc(f.title)+'">'+
+        errBlock("title")+'</div>'+
+      '<div class="f"><label class="f-label">공지상태<span class="req">*</span></label>'+
+        '<div class="radio-row">'+radio("활성화")+radio("비활성화")+"</div></div>"+
+      metaRows+
+    "</div>"+
+    '<div class="fcard"><h2 class="fcard-title">공지</h2>'+
+      '<div class="f'+(e.body?" f-err":"")+'" data-wrap="body">'+
+        '<label class="f-label">내용<span class="req">*</span></label>'+
+        '<textarea class="field" data-field="body" placeholder="내용 입력">'+esc(f.body)+"</textarea>"+
+        (e.body ? errBlock("body") : '<div class="f-help">'+MAX_BODY+'자까지 입력할 수 있습니다.</div>')+
+      "</div>"+
+    "</div>"+
+    '<div class="form-actions">'+
+      (isEdit
+        ? '<button class="btn btn-danger" data-action="ask-delete">삭제하기</button>'+
+          '<button class="btn btn-primary" data-action="save">저장하기</button>'
+        : '<button class="btn btn-soft" data-action="cancel">취소</button>'+
+          '<button class="btn btn-primary" data-action="save">입력완료</button>')+
+    "</div>"+
+  "</div>";
+}
+
+/* ---------- overlays ---------- */
+const dialogView = () => {
+  const d = state.dialog;
+  if (!d) return "";
+  return '<div class="dim" data-action="dim"><div class="dlg" data-stop>'+
+    "<h3>"+esc(d.title)+"</h3><p>"+esc(d.desc)+"</p>"+
+    '<div class="dlg-actions">'+
+      '<button class="btn btn-soft btn-sm" data-action="close-dialog">취소</button>'+
+      '<button class="btn btn-danger btn-sm" data-action="'+d.confirm+'">'+esc(d.ok)+"</button>"+
+    "</div></div></div>";
+};
+const toastView = () => state.toast ? '<div class="toast">'+esc(state.toast)+"</div>" : "";
+
+function render(){
+  const body = state.view === "list" ? listView() : formView(state.view);
+  document.getElementById("app").innerHTML = ''+
+  '<div class="shell">'+
+    '<aside class="nav">'+
+      '<div class="nav-head"><span class="logo">lounge<i>(x)</i></span>'+
+        '<span class="nav-div"></span><span class="nav-app">앱 관리</span></div>'+
+      '<div class="nav-item">\u{1F4C4} 공지사항/이벤트</div>'+
+    "</aside>"+
+    '<div class="main">'+
+      '<div class="topbar"><span class="collapse">«</span>'+
+        '<div class="right"><span class="badge">Super Admin</span>'+
+        '<span class="hi">사용자님 반가워요</span>'+
+        '<span class="ico">⛶</span><span class="ico">⚙</span><span class="ico">⇥</span>'+
+        '<button class="ghost">BBS관리</button></div></div>'+
+      '<div class="content">'+body+"</div>"+
+      '<div class="foot">2026 © XYZ corp.</div>'+
+    "</div>"+
+  "</div>"+dialogView()+toastView();
+}
+
+/* ---------- behaviour ---------- */
+function showToast(msg){
+  state.toast = msg; render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { state.toast = null; render(); }, 3000);
+}
+function validate(){
+  const f = state.form, e = {};
+  if (!f.title.trim()) e.title = "제목을 입력해주세요.";
+  if (!f.body.trim()) e.body = "내용을 입력해주세요.";
+  else if (f.body.length > MAX_BODY) e.body = MAX_BODY+"자까지 입력할 수 있습니다. (현재 "+f.body.length+"자)";
+  state.errors = e;
+  return Object.keys(e).length === 0;
+}
+function focusFirstError(){
+  const el = document.querySelector(".f-err .field");
+  if (el) { el.scrollIntoView({block:"center", behavior:"smooth"}); el.focus({preventScroll:true}); }
+}
+
+const app = document.getElementById("app");
+
+app.addEventListener("input", e => {
+  const key = e.target.getAttribute("data-field");
+  if (!key || !state.form) return;
+  state.form[key] = e.target.value;
+  if (state.errors[key]) {                      // 재렌더 없이 에러만 걷어낸다 (포커스 보존)
+    delete state.errors[key];
+    const wrap = e.target.closest("[data-wrap]");
+    if (wrap) {
+      wrap.classList.remove("f-err");
+      const msg = wrap.querySelector(".err-msg");
+      if (msg) {
+        if (key === "body") { msg.className = "f-help"; msg.textContent = MAX_BODY+"자까지 입력할 수 있습니다."; }
+        else msg.remove();
+      }
+    }
+  }
+});
+
+app.addEventListener("change", e => {
+  const key = e.target.getAttribute("data-field");
+  if (key === "status" && state.form) state.form.status = e.target.value;
+});
+
+app.addEventListener("click", e => {
+  const t = e.target.closest("[data-action]");
+  if (!t) return;
+  const a = t.getAttribute("data-action");
+
+  if (a === "dim" && e.target.closest("[data-stop]")) return;
+
+  switch (a) {
+    case "sort": {
+      const k = t.getAttribute("data-key");
+      state.sort = state.sort.key === k
+        ? {key:k, dir: state.sort.dir === "asc" ? "desc" : "asc"}
+        : {key:k, dir:"asc"};
+      state.page = 1; render(); break;
+    }
+    case "page":
+      state.page = +t.getAttribute("data-page"); render(); break;
+
+    case "go-create":
+      state.view = "create"; state.form = blankForm(); state.editId = null; state.errors = {};
+      window.scrollTo(0,0); render(); break;
+
+    case "go-edit": {
+      const it = state.items.find(x => x.id === +t.getAttribute("data-id"));
+      state.view = "edit"; state.editId = it.id; state.errors = {};
+      state.form = {title:it.title, status:it.status, body:it.body};
+      window.scrollTo(0,0); render(); break;
+    }
+    case "cancel":
+      state.view = "list"; state.form = null; state.errors = {}; render(); break;
+
+    case "save": {
+      if (!validate()) { render(); focusFirstError(); break; }
+      const f = state.form, now = nowStamp();
+      if (state.view === "create") {
+        state.items.push({id:seq++, title:f.title.trim(), at:now, status:f.status, body:f.body.trim(),
+                          cAt:now, cBy:ME, uAt:now, uBy:ME});
+      } else {
+        const it = state.items.find(x => x.id === state.editId);
+        it.title = f.title.trim(); it.status = f.status; it.body = f.body.trim();
+        it.uAt = now; it.uBy = ME;
+      }
+      state.view = "list"; state.form = null; state.editId = null; state.page = 1;
+      showToast("저장되었습니다."); break;
+    }
+    case "ask-delete":
+      state.dialog = {title:"이 공지를 삭제할까요?", desc:"삭제하면 되돌릴 수 없습니다.",
+                      ok:"삭제하기", confirm:"delete"};
+      render(); break;
+
+    case "close-dialog":
+    case "dim":
+      state.dialog = null; render(); break;
+
+    case "delete":
+      state.items = state.items.filter(x => x.id !== state.editId);
+      state.dialog = null; state.view = "list"; state.form = null; state.editId = null;
+      if (state.page > pageCount()) state.page = pageCount();
+      showToast("삭제되었습니다."); break;
+  }
+});
+
+render();
+</script>
+</body>
+</html>
