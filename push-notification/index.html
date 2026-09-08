@@ -84,8 +84,13 @@ tbody tr:hover td{background:#fbfcfd}
 .grid{display:flex;flex-wrap:wrap;gap:12px 24px}
 .f{margin-bottom:4px}
 .f.w483{width:483px}
+.row{display:flex;gap:32px}
+.row > .f{margin-top:0}
+.row + .f, .f + .row{margin-top:32px}
+.row + .row{margin-top:32px}
 .f.full{width:100%}
 .f + .f{margin-top:32px}
+.row > .f + .f{margin-top:0}
 textarea.field{height:80px;padding:12px 14px;resize:vertical;line-height:1.5}
 .f-label{display:block;font-size:12px;font-weight:500;color:var(--text3);margin-bottom:8px}
 .req{color:var(--danger);margin-left:2px}
@@ -266,22 +271,20 @@ function createView(){
   <div class="card">
 
     <div class="fcard">
-      <h2 class="fcard-title">공통 설정</h2>
-      <div class="f w483 ${state.errors.brand ? "f-err" : ""}">
-        <label class="f-label">브랜드명<span class="req">*</span></label>
-        <input class="field" type="text" data-field="brand" value="${esc(state.brand)}" placeholder="라운지엑스">
-        <div class="f-help">제목의 (광고) 뒤에 붙습니다. 모든 발송에 같은 값이 적용됩니다.</div>
-        ${errOf("brand")}
-      </div>
-    </div>
-
-    <div class="fcard">
-      <h2 class="fcard-title">발송 대상</h2>
-      <div class="f w483">
-        <label class="f-label">발송 대상<span class="req">*</span></label>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
-          <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
+      <h2 class="fcard-title">발송 설정</h2>
+      <div class="row">
+        <div class="f w483 ${state.errors.brand ? "f-err" : ""}">
+          <label class="f-label">브랜드명<span class="req">*</span></label>
+          <input class="field" type="text" data-field="brand" value="${esc(state.brand)}" placeholder="라운지엑스">
+          <div class="f-help">제목의 (광고) 뒤에 붙습니다. 모든 발송에 같은 값이 적용됩니다.</div>
+          ${errOf("brand")}
+        </div>
+        <div class="f w483">
+          <label class="f-label">발송 대상<span class="req">*</span></label>
+          <div class="radio-row">
+            <label class="radio"><input type="radio" name="target" value="all" data-field="target" ${f.target==="all"?"checked":""}> 전체</label>
+            <label class="radio"><input type="radio" name="target" value="store" data-field="target" ${f.target==="store"?"checked":""}> 매장 선택</label>
+          </div>
         </div>
       </div>
       ${f.target === "store" ? `<div class="f full ${state.errors.stores ? "f-err" : ""}">
@@ -290,6 +293,21 @@ function createView(){
         <div class="f-help">앱에 노출되는 지점만 표시됩니다. 여러 곳을 고를 수 있습니다.</div>
         ${errOf("stores")}
       </div>` : ""}
+      <div class="row">
+        <div class="f w483">
+          <label class="f-label">발송 시점<span class="req">*</span></label>
+          <div class="radio-row">
+            <label class="radio"><input type="radio" name="when" value="now" data-field="when" ${f.when==="now"?"checked":""}> 즉시</label>
+            <label class="radio"><input type="radio" name="when" value="schedule" data-field="when" ${f.when==="schedule"?"checked":""}> 예약</label>
+          </div>
+        </div>
+        ${f.when === "schedule" ? `<div class="f w483 ${state.errors.at ? "f-err" : ""}">
+          <label class="f-label">예약일시<span class="req">*</span></label>
+          <input class="field" type="datetime-local" data-field="at" value="${esc(f.at)}">
+          <div class="f-help">21:00~08:00 은 야간 수신 동의자에게만 발송됩니다.</div>
+          ${errOf("at")}
+        </div>` : ""}
+      </div>
     </div>
 
     <div class="fcard">
@@ -313,23 +331,6 @@ function createView(){
         </select>
         <div class="f-help">푸시를 누르면 이 화면으로 들어갑니다.</div>
       </div>
-    </div>
-
-    <div class="fcard">
-      <h2 class="fcard-title">발송 시점</h2>
-      <div class="f w483">
-        <label class="f-label">발송 시점<span class="req">*</span></label>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="when" value="now" data-field="when" ${f.when==="now"?"checked":""}> 즉시</label>
-          <label class="radio"><input type="radio" name="when" value="schedule" data-field="when" ${f.when==="schedule"?"checked":""}> 예약</label>
-        </div>
-      </div>
-      ${f.when === "schedule" ? `<div class="f w483 ${state.errors.at ? "f-err" : ""}">
-        <label class="f-label">예약일시<span class="req">*</span></label>
-        <input class="field" type="datetime-local" data-field="at" value="${esc(f.at)}">
-        <div class="f-help">21:00~08:00 은 야간 수신 동의자에게만 발송됩니다.</div>
-        ${errOf("at")}
-      </div>` : ""}
     </div>
 
     <div class="fcard">
