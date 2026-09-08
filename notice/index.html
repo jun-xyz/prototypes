@@ -90,6 +90,27 @@ td.title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .field:focus{outline:none;border-color:var(--primary)}
 .field:disabled{background:var(--disabled);color:var(--ph);cursor:not-allowed}
 textarea.field{height:100px;padding:10px 12px;resize:vertical;line-height:1.5}
+
+/* 리치 에디터 — 현행 Toast UI Editor 대역 */
+.rte{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.f-err .rte{border-color:var(--danger)}
+.rte-toolbar{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;
+  background:#f7f9fc;border-bottom:1px solid var(--border)}
+.rte-g{display:flex;gap:2px}
+.rte-btn{width:28px;height:28px;border-radius:4px;font-size:11px;font-weight:500;
+  color:#575757;display:grid;place-items:center;line-height:1}
+.rte-btn:hover{background:#e9edf3}
+.rte-div{width:1px;height:16px;background:var(--border);flex:none}
+.rte-body{height:460px;overflow:auto;padding:16px;font-size:14px;line-height:1.6;outline:none}
+.rte-body:empty::before{content:attr(data-ph);color:var(--ph)}
+.rte-body img{max-width:100%;height:auto;display:block;margin:8px 0}
+.rte-body table{width:auto;min-width:0;border-collapse:collapse;margin:8px 0}
+.rte-body td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.rte-body blockquote{border-left:3px solid var(--border);margin:8px 0;padding:4px 0 4px 12px;color:var(--text2)}
+.rte-body pre{background:#f4f6f8;padding:10px 12px;border-radius:6px;overflow:auto}
+.rte-body code{background:#f4f6f8;padding:1px 5px;border-radius:4px}
+.rte-body ul,.rte-body ol{padding-left:22px;margin:8px 0}
+.rte-body h3{font-size:18px;margin:12px 0 6px}
 .f-help{font-size:13px;color:var(--text3);margin-top:8px}
 .radio-row{display:flex;gap:16px;padding-top:2px}
 .radio{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding-right:8px}
@@ -116,7 +137,6 @@ textarea.field{height:100px;padding:10px 12px;resize:vertical;line-height:1.5}
 "use strict";
 
 const PAGE_SIZE = 10;
-const MAX_BODY = 100;
 const ME = "Super Admin";
 
 const state = {
@@ -197,6 +217,34 @@ const listView = () => ''+
   '</div>';
 
 /* ---------- form ---------- */
+// 현행 어드민 툴바 구성 그대로 — toolbarItems 5그룹 + colorSyntax
+const RTE_TOOLS = [
+  [["T","heading"],["B","bold"],["I","italic"],["S","strike"]],
+  [["\u2014","hr"],["\u201d","quote"]],
+  [["UL","ul"],["OL","ol"],["TD","task"],["\u2192","indent"],["\u2190","outdent"]],
+  [["TB","table"],["IM","image"],["LK","link"]],
+  [["<>","code"],["{}","codeblock"]],
+  [["A","color"]]
+];
+const editorHtml = html => {
+  const bar = RTE_TOOLS.map(gr =>
+    '<div class="rte-g">' + gr.map(([lb, cmd]) =>
+      '<button type="button" class="rte-btn" data-action="rte" data-cmd="'+cmd+'" title="'+cmd+'">'+esc(lb)+'</button>'
+    ).join("") + '</div>'
+  ).join('<span class="rte-div"></span>');
+  return '<div class="rte">'+
+    '<div class="rte-toolbar" data-rte-bar>'+bar+'</div>'+
+    '<div class="rte-body" contenteditable="true" data-rte data-ph="내용 입력">'+(html || "")+'</div>'+
+    '<input type="file" accept="image/*" class="rte-file" hidden>'+
+  '</div>';
+};
+// 이미지·표·구분선만 있어도 내용이 있는 것으로 본다
+const bodyEmpty = html => {
+  const d = document.createElement("div");
+  d.innerHTML = html || "";
+  return !d.querySelector("img,table,hr") && !d.textContent.trim();
+};
+
 const errBlock = k => state.errors[k] ? '<div class="err-msg">'+esc(state.errors[k])+"</div>" : "";
 const meta = (label, val) => ''+
   '<div class="f"><label class="f-label">'+esc(label)+'</label>'+
@@ -227,8 +275,8 @@ function formView(mode){
     '<div class="fcard"><h2 class="fcard-title">공지</h2>'+
       '<div class="f'+(e.body?" f-err":"")+'" data-wrap="body">'+
         '<label class="f-label">내용<span class="req">*</span></label>'+
-        '<textarea class="field" data-field="body" placeholder="내용 입력">'+esc(f.body)+"</textarea>"+
-        (e.body ? errBlock("body") : '<div class="f-help">'+MAX_BODY+'자까지 입력할 수 있습니다.</div>')+
+        editorHtml(f.body)+
+        errBlock("body")+
       "</div>"+
     "</div>"+
     '<div class="form-actions">'+
@@ -284,37 +332,98 @@ function showToast(msg){
 function validate(){
   const f = state.form, e = {};
   if (!f.title.trim()) e.title = "제목을 입력해주세요.";
-  if (!f.body.trim()) e.body = "내용을 입력해주세요.";
-  else if (f.body.length > MAX_BODY) e.body = MAX_BODY+"자까지 입력할 수 있습니다. (현재 "+f.body.length+"자)";
+  if (bodyEmpty(f.body)) e.body = "내용을 입력해주세요.";
   state.errors = e;
   return Object.keys(e).length === 0;
 }
+function clearErr(key, wrap){
+  if (!state.errors[key]) return;
+  delete state.errors[key];
+  if (!wrap) return;
+  wrap.classList.remove("f-err");
+  const m = wrap.querySelector(".err-msg");
+  if (m) m.remove();
+}
+let savedRange = null;
+function saveRange(body){
+  const sel = window.getSelection();
+  savedRange = (sel && sel.rangeCount && body.contains(sel.getRangeAt(0).commonAncestorContainer))
+    ? sel.getRangeAt(0).cloneRange() : null;
+}
+function restoreRange(body){
+  body.focus();
+  const sel = window.getSelection();
+  let r = savedRange;
+  if (!r || !body.contains(r.commonAncestorContainer)) {
+    r = document.createRange(); r.selectNodeContents(body); r.collapse(false);
+  }
+  sel.removeAllRanges(); sel.addRange(r);
+}
+function runCmd(cmd, wrap, body){
+  const ex = (c, v) => document.execCommand(c, false, v);
+  switch (cmd) {
+    case "heading":   ex("formatBlock", "<h3>"); break;
+    case "bold":      ex("bold"); break;
+    case "italic":    ex("italic"); break;
+    case "strike":    ex("strikeThrough"); break;
+    case "hr":        ex("insertHorizontalRule"); break;
+    case "quote":     ex("formatBlock", "<blockquote>"); break;
+    case "ul":        ex("insertUnorderedList"); break;
+    case "ol":        ex("insertOrderedList"); break;
+    case "task":      ex("insertHTML", '<ul><li><input type="checkbox"> 할 일</li></ul>'); break;
+    case "indent":    ex("indent"); break;
+    case "outdent":   ex("outdent"); break;
+    case "table":     ex("insertHTML", '<table><tbody><tr><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><p><br></p>'); break;
+    case "code":      ex("insertHTML", "<code>코드</code>"); break;
+    case "codeblock": ex("formatBlock", "<pre>"); break;
+    case "color":     ex("foreColor", "#338bff"); break;
+    case "link":      ex("createLink", "#"); break;   // 실제 어드민은 URL 입력 다이얼로그
+    case "image":     wrap.querySelector(".rte-file").click(); break;
+  }
+}
 function focusFirstError(){
-  const el = document.querySelector(".f-err .field");
+  const el = document.querySelector(".f-err .field, .f-err .rte-body");
   if (el) { el.scrollIntoView({block:"center", behavior:"smooth"}); el.focus({preventScroll:true}); }
 }
 
 const app = document.getElementById("app");
 
 app.addEventListener("input", e => {
-  const key = e.target.getAttribute("data-field");
-  if (!key || !state.form) return;
-  state.form[key] = e.target.value;
-  if (state.errors[key]) {                      // 재렌더 없이 에러만 걷어낸다 (포커스 보존)
-    delete state.errors[key];
-    const wrap = e.target.closest("[data-wrap]");
-    if (wrap) {
-      wrap.classList.remove("f-err");
-      const msg = wrap.querySelector(".err-msg");
-      if (msg) {
-        if (key === "body") { msg.className = "f-help"; msg.textContent = MAX_BODY+"자까지 입력할 수 있습니다."; }
-        else msg.remove();
-      }
-    }
+  if (!state.form) return;
+  // 리치 에디터는 innerHTML 을 그대로 담는다 (재렌더 없음 — 커서 보존)
+  if (e.target.hasAttribute("data-rte")) {
+    state.form.body = e.target.innerHTML;
+    clearErr("body", e.target.closest("[data-wrap]"));
+    return;
   }
+  const key = e.target.getAttribute("data-field");
+  if (!key) return;
+  state.form[key] = e.target.value;
+  clearErr(key, e.target.closest("[data-wrap]"));   // 재렌더 없이 에러만 걷어낸다
+});
+
+// 툴바를 눌러도 편집 영역의 선택이 풀리지 않게
+app.addEventListener("mousedown", e => {
+  if (e.target.closest("[data-rte-bar]")) e.preventDefault();
 });
 
 app.addEventListener("change", e => {
+  // 이미지: 업로드 서버가 없어 현행과 똑같이 base64 로 본문에 인라인된다
+  if (e.target.classList.contains("rte-file")) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const wrap = e.target.closest(".rte"), body = wrap.querySelector("[data-rte]");
+      restoreRange(body);
+      document.execCommand("insertHTML", false, '<img src="' + reader.result + '" alt="">');
+      state.form.body = body.innerHTML;
+      clearErr("body", wrap.closest("[data-wrap]"));
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
   const key = e.target.getAttribute("data-field");
   if (key === "status" && state.form) state.form.status = e.target.value;
 });
@@ -327,6 +436,16 @@ app.addEventListener("click", e => {
   if (a === "dim" && e.target.closest("[data-stop]")) return;
 
   switch (a) {
+    case "rte": {
+      const cmd = t.getAttribute("data-cmd"), wrap = t.closest(".rte");
+      const body = wrap.querySelector("[data-rte]");
+      if (cmd === "image") saveRange(body);   // 파일 대화상자 뒤에 커서를 되돌리기 위해
+      body.focus();
+      runCmd(cmd, wrap, body);
+      state.form.body = body.innerHTML;
+      clearErr("body", wrap.closest("[data-wrap]"));
+      break;
+    }
     case "sort": {
       const k = t.getAttribute("data-key");
       state.sort = state.sort.key === k
@@ -354,11 +473,11 @@ app.addEventListener("click", e => {
       if (!validate()) { render(); focusFirstError(); break; }
       const f = state.form, now = nowStamp();
       if (state.view === "create") {
-        state.items.push({id:seq++, title:f.title.trim(), at:now, status:f.status, body:f.body.trim(),
+        state.items.push({id:seq++, title:f.title.trim(), at:now, status:f.status, body:f.body,
                           cAt:now, cBy:ME, uAt:now, uBy:ME});
       } else {
         const it = state.items.find(x => x.id === state.editId);
-        it.title = f.title.trim(); it.status = f.status; it.body = f.body.trim();
+        it.title = f.title.trim(); it.status = f.status; it.body = f.body;
         it.uAt = now; it.uBy = ME;
       }
       state.view = "list"; state.form = null; state.editId = null; state.page = 1;
