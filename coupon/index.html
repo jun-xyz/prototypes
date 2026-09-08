@@ -216,6 +216,7 @@ textarea.inp{height:108px;padding:12px 14px;resize:none;line-height:1.5}
 <body>
 <div id="app"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script>
 "use strict";
 
@@ -424,6 +425,15 @@ function showToast(msg){
 /* ============ Render root ============ */
 const app=document.getElementById("app");
 function esc(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+
+/* 쿠폰 코드를 QR 이미지(data URL)로. 스캔값이 곧 쿠폰 코드라 링크가 아니라 코드 문자열만 담는다. */
+function qrDataUrl(text,size){
+  try{
+    if(typeof QRious==="undefined"||!text) return null;
+    return new QRious({value:String(text),size:size||174,level:"M",padding:12,
+                       background:"#ffffff",foreground:"#191F28"}).toDataURL();
+  }catch(e){ return null; }
+}
 
 function render(){
   app.innerHTML = sidebar() +
@@ -773,12 +783,21 @@ function detailView(){
           <td>${codeStatusPill(x.status)}</td><td>${x.issued}</td><td>${x.used}</td></tr>`).join("")}</tbody>
       </table></div>`;
   }else{
+    const qr=qrDataUrl(c.code,174);
     codeSection=`<div class="card section-card">
-      <div class="section-title">공용 코드</div>
-      <div class="detail-grid">
-        <dt>코드</dt><dd style="font-weight:700;letter-spacing:.5px">${esc(c.code)}</dd>
-        <dt>발급 한도</dt><dd>${c.issueLimit?Number(c.issueLimit).toLocaleString()+"회":"무제한"}</dd>
-        <dt>등록 현황</dt><dd>등록 128 · 사용 67</dd>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="section-title" style="margin:0">쿠폰 코드</div>
+        <button class="btn btn-primary btn-sm" data-action="download-qr" data-id="${c.id}">QR 다운로드</button></div>
+      <div style="display:flex;gap:24px;align-items:center">
+        ${qr?`<img src="${qr}" width="174" height="174" alt="${esc(c.code)} QR"
+              style="border:1px solid var(--border);border-radius:8px;flex:none">`
+            :`<div style="width:174px;height:174px;border:1px solid var(--border);border-radius:8px;flex:none;
+                display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px">QR을 만들지 못했어요</div>`}
+        <div>
+          <div style="font-size:24px;font-weight:600;letter-spacing:.5px">${esc(c.code)}</div>
+          <div style="margin-top:8px;font-size:14px;color:var(--text-muted)">회원이 앱에서 이 코드를 등록하거나 키오스크에서 QR을 스캔해 씁니다</div>
+          <div style="margin-top:16px;font-size:14px;color:var(--text-sub)">등록 128 · 사용 67</div>
+        </div>
       </div></div>`;
   }
   return `<div class="form-wrap">
@@ -937,6 +956,15 @@ app.addEventListener("click",ev=>{
   if(el.getAttribute("data-stop")) ev.stopPropagation();
 
   switch(act){
+    case "download-qr": {
+      const c=coupons.find(x=>x.id===id);
+      const url=qrDataUrl(c&&c.code,1024);   // 인쇄용 고해상도
+      if(!url){ showToast("QR을 만들지 못했어요"); break; }
+      const a=document.createElement("a");
+      a.href=url; a.download=`${c.name}_${c.code}_QR.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      showToast("QR을 내려받았어요"); break;
+    }
     case "nav-list": if(guardLeave(()=>go("list"))) {} break;
     case "nav-create": go("create"); break;
     case "tab": go("list",{tab:el.getAttribute("data-tab")}); break;
