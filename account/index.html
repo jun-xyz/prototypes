@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>계정 관리·권한 체계 프로토타입 · BarisON</title>
+<title>로그인·설정 프로토타입 · BarisON</title>
 <style>
 :root{
   --bg:#F9FAFA; --surface:#FFFFFF; --surface-sub:#F9FAFB;
@@ -66,26 +66,6 @@ a{color:var(--primary);text-decoration:none}
 .card{background:var(--surface);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:40px;max-width:1142px}
 .card.narrow{max-width:544px;padding:32px}
 
-/* ---------- filter bar / table ---------- */
-.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;height:38px}
-.seg{display:flex;background:var(--chip);border-radius:var(--radius-btn);padding:3px;height:38px}
-.seg button{padding:0 14px;border-radius:6px;font-size:14px;color:var(--text-sub)}
-.seg button.on{background:var(--surface);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.sel-input{height:38px;border:1px solid var(--border-input);border-radius:var(--radius-input);padding:0 10px;
-  background:var(--surface);color:var(--text-sub);min-width:120px}
-.search{margin-left:auto;position:relative}
-.search input{height:38px;width:260px;border:1px solid var(--border-input);border-radius:var(--radius-input);padding:0 12px}
-.count{font-size:14px;color:var(--text-muted);margin-bottom:10px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-thead th{background:var(--thead);color:var(--text-sub);font-weight:600;text-align:left;padding:12px 14px;
-  border-top:1px solid var(--border);border-bottom:1px solid var(--border);white-space:nowrap}
-tbody td{padding:14px;border-bottom:1px solid var(--border);color:var(--text-sub);vertical-align:middle}
-tbody tr{cursor:pointer}
-tbody tr:hover td{background:var(--surface-sub)}
-.pill{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:600}
-.pill.on{background:#E7F7EF;color:#0F9D58}
-.pill.off{background:var(--chip);color:var(--text-muted)}
-.pill.wait{background:var(--primary-weak);color:var(--primary)}
 .empty{padding:60px 0;text-align:center;color:var(--text-muted)}
 
 /* ---------- form ---------- */
@@ -115,24 +95,6 @@ tbody tr:hover td{background:var(--surface-sub)}
 .btn.m{height:38px;padding:0 14px;font-size:14px;font-weight:500}
 .btn.weak{background:var(--primary-weak);color:var(--primary)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-
-/* branch multiselect */
-.branch-box{position:relative;max-width:480px}
-.branch-input{min-height:36px;border:1px solid var(--border-input);border-radius:var(--radius-input);
-  padding:4px 30px 4px 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--surface);cursor:pointer}
-.branch-input.err{border-color:var(--danger)}
-.branch-input .ph{color:var(--text-placeholder);padding-left:4px}
-.branch-input:after{content:"";position:absolute;right:12px;top:15px;width:7px;height:7px;
-  border-right:1.5px solid var(--text-muted);border-bottom:1.5px solid var(--text-muted);transform:rotate(45deg)}
-.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 8px;background:var(--chip);border-radius:6px;font-size:13px}
-.chip button{color:var(--text-muted);font-size:14px;line-height:1}
-.branch-pop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-input);box-shadow:var(--shadow-pop);max-height:230px;overflow-y:auto;z-index:20}
-.branch-pop div{padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px}
-.branch-pop div:hover{background:var(--surface-sub)}
-.branch-pop div.sel{color:var(--primary);font-weight:600}
-.branch-cap{font-size:12px;margin-top:6px;color:var(--text-sub)}
-.branch-cap b{color:var(--primary);font-weight:600}
 
 /* ---------- auth screens ---------- */
 .auth{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;gap:14px}
@@ -164,18 +126,55 @@ tbody tr:hover td{background:var(--surface-sub)}
   padding:24px;text-align:center}
 .dialog h4{font-size:18px;font-weight:600;margin-bottom:8px}
 .dialog p{font-size:14px;color:var(--text-muted);margin-bottom:20px;word-break:break-all}
-.dialog .pw{font-size:20px;font-weight:700;color:var(--text);letter-spacing:1px;display:block;margin-bottom:6px}
 .dialog .btns{display:flex;gap:8px}
 .dialog .btns .btn{flex:1;height:48px}
+
+/* ---------- settings ---------- */
+.topbar .sel-branch{height:38px;min-width:220px;border:1px solid var(--border-input);border-radius:var(--radius-input);
+  padding:0 10px;color:var(--text-sub);background:var(--surface)}
+.topbar .icon-btn{width:38px;height:38px;border:1px solid var(--border-input);border-radius:var(--radius-btn);
+  display:inline-flex;align-items:center;justify-content:center;color:var(--text-sub)}
+.topbar .icon-btn.on{border-color:var(--primary);color:var(--primary);background:var(--primary-weak)}
+.sec-head{display:flex;align-items:center;gap:10px;margin:0 0 16px}
+.sec-head .body-title{margin:0}
+.sec-head .sub{font-size:13px;color:var(--text-muted)}
+.sec-head .btn{margin-left:auto}
+.sec + .sec{margin-top:40px;padding-top:32px;border-top:1px solid var(--border)}
+.ro{min-height:36px;display:flex;align-items:center;padding:6px 12px;border-radius:var(--radius-input);
+  background:var(--surface-sub);color:var(--text-sub);flex-wrap:wrap;gap:6px}
+.ro .chip{display:inline-flex;align-items:center;height:24px;padding:0 8px;background:var(--chip);border-radius:6px;font-size:13px}
+.ext:after{content:" \2197";font-size:12px}
+
+/* ---------- 통합계정관리 흉내 화면 (새 탭) ---------- */
+.rg{min-height:100vh;background:#F3F4F6}
+.rg-stub{background:#FFF7E6;color:#8A5A00;font-size:12px;padding:8px 24px;border-bottom:1px solid #F3DDAE}
+.rg-head{height:56px;background:#1F2937;color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px}
+.rg-head .brand{font-weight:700}
+.rg-head a{color:#fff;margin-left:auto;text-decoration:underline}
+.rg-head button{color:#D1D5DB;font-size:13px}
+.rg-body{display:flex}
+.rg-nav{width:180px;padding:16px 0;background:#fff;min-height:calc(100vh - 90px);border-right:1px solid #E5E7EB}
+.rg-nav span{display:block;padding:10px 20px;color:#374151;font-size:14px}
+.rg-main{flex:1;padding:24px}
+.rg-card{background:#fff;border-radius:8px;padding:24px;max-width:520px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.rg-main h1,.rg-card h1{font-size:20px;margin-bottom:16px}
+.rg-card label{display:block;font-size:13px;color:#374151;margin:12px 0 4px}
+.rg-card input{width:100%;height:36px;border:1px solid #D1D5DB;border-radius:6px;padding:0 10px}
+.rg-card input:disabled{background:#F9FAFB;color:#9CA3AF}
+.rg-card .rg-btn{margin-top:16px;height:38px;padding:0 16px;border-radius:6px;background:#2563EB;color:#fff;font-size:14px}
+.rg-card .rg-err{color:#DC2626;font-size:13px;margin-top:8px}
+.rg-card .rg-ok{color:#059669;font-size:13px;margin-top:8px}
+.rg-login{display:flex;justify-content:center;padding-top:80px}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 /* ============================================================
-   BarisON 계정관리 프로토타입 — 감축 확정안(2026-09-07) 반영
-   · 메일 자동 발송 없음 · 계정 삭제 없음 · 오픈 예정 직접 입력 없음
-   · 신청/반려 사유 없음 · 지점 필터·마지막 접속일 없음
+   BarisON 로그인·설정 프로토타입 — 2026-09-17 범위
+   · 계정 등록·승인·비밀번호는 통합계정관리가 맡는다
+   · 바리스온에 남는 것: 로그인(회원가입은 새 탭) · 설정(내 정보 조회 + 지점 정보)
+   · 통합계정관리 화면은 이 파일 안의 흉내 화면으로 새 탭에 띄운다 (?rg=signup / ?rg=detail)
    ============================================================ */
 
 const BRANCHES = [
@@ -191,9 +190,6 @@ const BRANCHES = [
   {code:null, name:"현대자동차점"},
   {code:null, name:"덕구온천호텔앤콘도"},
   {code:null, name:"라운지와이"},
-  {code:null, name:"라운지엑스 판교점"},
-  {code:null, name:"호반써밋 2차"},
-  {code:null, name:"용산더프라임점"},
 ];
 const bLabel = n => { const b = BRANCHES.find(x=>x.name===n); return b && b.code ? b.code+" "+b.name : n; };
 
@@ -202,200 +198,110 @@ const MENUS = [
   {sec:"로봇관리", items:[{k:"ops", n:"운영관리"},{k:"device", n:"기기상태관리"}]},
   {sec:"매장관리", items:[{k:"stock", n:"재고관리"},{k:"product", n:"판매상품관리"},{k:"kiosk", n:"키오스크설정"},{k:"did", n:"DID관리"},{k:"pay", n:"결제관리"}]},
   {sec:"매출관리/분석", items:[{k:"cal", n:"매출달력"},{k:"sales", n:"매출분석"},{k:"biz", n:"영업분석"},{k:"item", n:"상품분석"}]},
-  {sec:"설정", items:[{k:"account", n:"계정관리", hq:true}]},
 ];
 
-let seq = 100;
+/* 통합계정관리에 있는 계정이라고 본다 — approved:false 는 가입 신청만 하고 승인 전 */
+const ACCOUNTS = [
+  {id:"hqops", name:"로봇운영관리팀", email:"hqops@example.com", tel:"010-1000-0001", role:"hq", all:true, branches:[], active:true, approved:true, pw:"baris1234!"},
+  {id:"hqstaff2", name:"홍OO", email:"hqstaff2@example.com", tel:"010-1000-0005", role:"hq", all:false, branches:["성수","강남대로점"], active:false, approved:true, pw:"baris1234!"},
+  {id:"store01", name:"서울갤러리", email:"store01@example.com", tel:"010-2000-0001", role:"owner", all:false, branches:["서울갤러리"], active:true, approved:true, pw:"baris1234!"},
+  {id:"store02", name:"시대인재", email:"store02@example.com", tel:"010-2345-6789", role:"owner", all:false, branches:["시대인재 1호점","시대인재 2호점","시대인재 3호점","시대인재 4호점","시대인재 5호점"], active:true, approved:true, pw:"baris1234!"},
+  {id:"newshop01", name:"김OO", email:"newshop01@example.com", tel:"010-1234-5678", role:"owner", all:false, branches:[], active:true, approved:false, pw:"baris1234!"},
+];
+const acct = id => ACCOUNTS.find(a=>a.id===id);
+
+/* 지점 정보 — 계정이 아니라 지점에 저장된다 */
+const BRANCH_INFO = {
+  "서울시청": {mgr:"로봇운영관리팀", tel:"010-1000-0001", cs:"1588-0000"},
+  "서울갤러리": {mgr:"서울갤러리", tel:"010-2000-0001", cs:"02-000-0016"},
+  "시대인재 1호점": {mgr:"시대인재", tel:"010-2345-6789", cs:"02-000-0005"},
+  "시대인재 2호점": {mgr:"시대인재", tel:"010-2345-6789", cs:"02-000-0006"},
+};
+const info = b => BRANCH_INFO[b] || (BRANCH_INFO[b] = {mgr:"", tel:"", cs:""});
+
+const RG_PAGE = new URLSearchParams(location.search).get("rg");
+
 const state = {
-  view: "login",
+  view: "login",        // login · home · settings
   session: null,
-  loginMsg: null,
-  accounts: [
-    {id:"hqops", name:"로봇운영관리팀", email:"hqops@example.com", tel:"010-1000-0001", role:"hq", all:true, branches:[], status:"active", created:"2025-03-04", pw:"baris1234!", temp:false},
-    {id:"hqretail", name:"리테일팀", email:"hqretail@example.com", tel:"010-1000-0002", role:"hq", all:true, branches:[], status:"active", created:"2025-03-04", pw:"baris1234!", temp:false},
-    {id:"hqexec", name:"경영자", email:"hqexec@example.com", tel:"010-1000-0003", role:"hq", all:true, branches:[], status:"active", created:"2025-03-04", pw:"baris1234!", temp:false},
-    {id:"hqstaff1", name:"유OO", email:"hqstaff1@example.com", tel:"010-1000-0004", role:"hq", all:false, branches:["서울시청","서울갤러리"], status:"active", created:"2025-04-18", pw:"baris1234!", temp:false},
-    {id:"hqstaff2", name:"홍OO", email:"hqstaff2@example.com", tel:"010-1000-0005", role:"hq", all:false, branches:["성수","강남대로점"], status:"inactive", created:"2025-04-18", pw:"baris1234!", temp:false},
-    {id:"store01", name:"서울갤러리", email:"store01@example.com", tel:"010-2000-0001", role:"owner", all:false, branches:["서울갤러리"], status:"active", created:"2025-11-20", pw:"baris1234!", temp:false},
-    {id:"store02", name:"시대인재", email:"store02@example.com", tel:"010-2345-6789", role:"owner", all:false, branches:["시대인재 1호점","시대인재 2호점","시대인재 3호점","시대인재 4호점","시대인재 5호점"], status:"active", created:"2025-06-11", pw:"baris1234!", temp:false},
-    {id:"store03", name:"현대자동차", email:"store03@example.com", tel:"010-2000-0003", role:"owner", all:false, branches:["현대자동차점"], status:"active", created:"2025-02-07", pw:"baris1234!", temp:false},
-    {id:"store04", name:"덕구온천호텔앤콘도", email:"store04@example.com", tel:"010-2000-0004", role:"owner", all:false, branches:["덕구온천호텔앤콘도"], status:"active", created:"2025-08-22", pw:"baris1234!", temp:false},
-    {id:"store05", name:"라운지와이", email:"store05@example.com", tel:"010-2000-0005", role:"owner", all:false, branches:["라운지와이"], status:"inactive", created:"2026-01-09", pw:"baris1234!", temp:false},
-  ],
-  requests: [
-    {rid:1, date:"2026-08-17", id:"newshop01", name:"김OO", email:"newshop01@example.com", tel:"010-1234-5678", store:"라운지엑스 판교점", pw:"baris1234!"},
-    {rid:2, date:"2026-08-16", id:"bx007", name:"이OO", email:"bx007@example.com", tel:"010-2345-6789", store:"호반써밋 2차", pw:"baris1234!"},
-    {rid:3, date:"2026-08-14", id:"cafeyj", name:"박OO", email:"cafeyj@example.com", tel:"010-3456-7890", store:"용산더프라임점", pw:"baris1234!"},
-  ],
-  tab: "list",
-  filter: {role:"all", status:"all", q:""},
+  branch: null,
+  greet: "",
+  loginId: "", loginPw: "",
+  loginErr: false,
+  loggingIn: false,
   form: {},
-  errors: {},
-  editing: null,
-  branchOpen: false,
-  storeOpen: false,
   toast: null,
-  dialog: null,
 };
 
 /* ---------- helpers ---------- */
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const roleName = r => r==="hq" ? "본사 관리자" : "매장 점주";
-const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
-const genPw = () => { const s="abcdefghjkmnpqrstuvwxyz23456789"; let o=""; for(let i=0;i<8;i++) o+=s[Math.floor(Math.random()*s.length)]; return o; };
 const toast = (msg, kind) => { state.toast = {msg, kind:kind||""}; render(); setTimeout(()=>{ state.toast=null; render(); }, 2600); };
-const acct = id => state.accounts.find(a=>a.id===id);
-const lastHq = a => a.role==="hq" && a.status==="active" && state.accounts.filter(x=>x.role==="hq"&&x.status==="active").length<=1;
-
-function branchText(a){
-  if (a.all) return "전 지점";
-  if (!a.branches.length) return "-";
-  if (a.branches.length<=2) return a.branches.join(", ");
-  return a.branches[0]+" +"+(a.branches.length-1);
+const myBranches = s => s.all ? BRANCHES.map(b=>b.name) : s.branches;
+function formatTel(v){
+  const d = v.replace(/\D/g,"");
+  let out;
+  if (d.startsWith("02")) out = d.length<=2?d : d.length<=5?d.slice(0,2)+"-"+d.slice(2) : d.length<=9?d.slice(0,2)+"-"+d.slice(2,d.length-4)+"-"+d.slice(-4) : d.slice(0,2)+"-"+d.slice(2,6)+"-"+d.slice(6,10);
+  else out = d.length<=3?d : d.length<=7?d.slice(0,3)+"-"+d.slice(3) : d.length<=10?d.slice(0,3)+"-"+d.slice(3,d.length-4)+"-"+d.slice(-4) : d.slice(0,3)+"-"+d.slice(3,7)+"-"+d.slice(7,11);
+  return out.slice(0,13);
 }
-
-/* ---------- validation ---------- */
-function validateAccount(f, opts){
-  const e = {};
-  const o = opts||{};
-  // 아이디 형식은 새로 발급하는 계정에만 적용한다 — 기존 계정에는 대문자가 섞인 값이 있고 그대로 둔다
-  if (!f.id) e.id = "아이디를 입력해주세요.";
-  else if (!o.skipFormat && !/^[a-z0-9]{4,20}$/.test(f.id)) e.id = "영문 소문자·숫자 4~20자로 입력해주세요.";
-  else if (!o.skipDup && (acct(f.id) || state.requests.some(r=>r.id===f.id))) e.id = "이미 쓰이고 있는 아이디입니다.";
-  if (!f.name) e.name = "이름을 입력해주세요.";
-  if (!f.email) e.email = "이메일을 입력해주세요.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "이메일 형식이 올바르지 않습니다.";
-  else if (state.accounts.some(a=>a.email===f.email && a.id!==o.self)) e.email = "이미 쓰이고 있는 이메일입니다.";
-  if (!f.tel) e.tel = "연락처를 입력해주세요.";
-  if (!f.role) e.role = "역할을 선택해주세요.";
-  if (f.role==="owner" && !(f.branches||[]).length) e.branches = "관리지점을 선택해주세요.";
-  if (f.role==="hq" && !f.all && !(f.branches||[]).length) e.branches = "지정 지점을 선택하거나 전 지점으로 두세요.";
-  return e;
-}
-function validatePw(pw, pw2, id){
-  if (!pw) return "새 비밀번호를 입력해주세요.";
-  if (pw.length<8) return "8자 이상으로 입력해주세요.";
-  const kinds = [/[a-zA-Z]/, /[0-9]/, /[^a-zA-Z0-9]/].filter(re=>re.test(pw)).length;
-  if (kinds<2) return "영문·숫자·특수문자 중 2가지 이상을 섞어주세요.";
-  if (id && pw===id) return "아이디와 같은 값은 쓸 수 없습니다.";
-  return null;
+function openRangers(page, id){
+  const u = location.pathname + "?rg=" + page + (id ? "&memberId=" + encodeURIComponent(id) : "");
+  window.open(u, "_blank");
 }
 
 /* ============================================================
-   RENDER
+   RENDER — 바리스온
    ============================================================ */
 function render(){
+  if (RG_PAGE) { renderRangers(); return; }
   const app = document.getElementById("app");
-  let html = "";
-  if (["login","signup","signupDone","firstPw"].includes(state.view)) html = renderAuth();
-  else html = renderShell();
+  let html = state.view==="login" ? renderLogin() : renderShell();
   if (state.toast) html += `<div class="toast ${state.toast.kind}">${esc(state.toast.msg)}</div>`;
-  if (state.dialog) html += renderDialog();
   app.innerHTML = html;
 }
 
-/* ---------- auth ---------- */
-function renderAuth(){
-  if (state.view==="login") return `
+function renderLogin(){
+  const err = state.loginErr;
+  return `
   <div class="auth">
     <div class="card">
       <div class="auth-logo"><b>Baris</b><i>brew</i></div>
       <div class="auth-sub">관리자 계정으로 로그인하세요.</div>
       <div class="field"><div class="label">아이디</div>
-        <input class="input" data-field="loginId" value="${esc(state.form.loginId||"")}" placeholder="아이디 입력"></div>
+        <input class="input ${err?"err":""}" data-field="loginId" value="${esc(state.loginId)}" placeholder="아이디 입력"></div>
       <div class="field" style="margin-top:14px"><div class="label">비밀번호</div>
-        <input class="input" type="password" data-field="loginPw" value="${esc(state.form.loginPw||"")}" placeholder="비밀번호 입력"></div>
-      ${state.loginMsg ? `<div class="auth-msg ${state.loginMsg.kind}">${esc(state.loginMsg.text)}</div>` : ""}
-      <button class="btn primary" data-action="login">로그인</button>
-      <div class="auth-foot">계정이 없으신가요? <a href="#" data-action="go-signup">가입 신청</a></div>
+        <input class="input ${err?"err":""}" type="password" data-field="loginPw" value="${esc(state.loginPw)}" placeholder="비밀번호 입력"></div>
+      ${err ? `<div class="auth-msg err">아이디 또는 비밀번호가 올바르지 않습니다.</div>` : ""}
+      <button class="btn primary" data-action="login" ${state.loggingIn?"disabled":""}>${state.loggingIn?"로그인 중…":"로그인"}</button>
+      <div class="auth-foot">계정이 없으신가요? <a href="#" class="ext" data-action="signup">회원가입</a></div>
     </div>
     <div class="demo-note">
       <b>프로토타입 안내</b> — 실제 화면에는 없는 설명입니다.<br>
       비밀번호는 모두 <b>baris1234!</b> 입니다.
-      본사 관리자 <b>hqops</b> · 매장 점주 <b>store01</b> · 비활성 계정 <b>hqstaff2</b> · 승인 대기 <b>newshop01</b>
+      본사 관리자 <b>hqops</b> · 매장 점주 <b>store01</b> · 여러 지점 점주 <b>store02</b> · 승인 전 <b>newshop01</b> · 사용 중지 <b>hqstaff2</b><br>
+      승인 전·사용 중지 계정도 틀린 입력과 같은 안내를 봅니다.
+      「회원가입」과 설정의 「비밀번호 변경」은 새 탭에 <b>통합계정관리 흉내 화면</b>을 띄웁니다. 실제 시스템과 연결되지 않습니다.<br>
+      비밀번호 변경 탭은 지금 통합계정관리처럼 <b>로그인 → 홈 → 위쪽 이름 → 회원 상세</b> 순서로 가야 합니다.
     </div>
-  </div>`;
-
-  if (state.view==="signup") { const f=state.form, e=state.errors; return `
-  <div class="auth">
-    <div class="card">
-      <div class="page-title" style="font-size:20px;margin-bottom:20px">가입 신청</div>
-      <div class="body-title" style="font-size:16px">신청 정보</div>
-      <div class="group">
-        ${fieldHtml("아이디","id",f.id,e.id,"영문 소문자·숫자 4~20자")}
-        ${fieldHtml("이름","name",f.name,e.name,"담당자 이름")}
-        ${fieldHtml("이메일","email",f.email,e.email,"연락받을 이메일 주소")}
-        ${fieldHtml("연락처","tel",f.tel,e.tel,"010-0000-0000")}
-        <div class="field">
-          <div class="label">매장<span class="req">*</span></div>
-          <div class="branch-box" data-stop="1">
-            <div class="branch-input ${e.store?"err":""}" data-action="toggle-store">
-              ${f.store ? `<span style="padding-left:4px">${esc(f.store)}</span>` : `<span class="ph">매장을 선택해주세요</span>`}
-            </div>
-            ${state.storeOpen ? `<div class="branch-pop">
-              ${BRANCHES.map(b=>`<div class="${f.store===b.name?"sel":""}" data-action="pick-store" data-v="${esc(b.name)}">${esc(b.name)}</div>`).join("")}
-            </div>` : ""}
-          </div>
-          ${e.store?`<div class="help err">${esc(e.store)}</div>`:`<div class="help">운영 중인 매장만 고를 수 있어요. 아직 등록되지 않은 매장은 지점 등록 후에 신청해주세요.</div>`}
-        </div>
-      </div>
-      <button class="btn primary" data-action="signup-submit">신청하기</button>
-      <div class="auth-foot"><a href="#" data-action="go-login">로그인으로 돌아가기</a></div>
-    </div>
-  </div>`; }
-
-  if (state.view==="signupDone") return `
-  <div class="auth">
-    <div class="card">
-      <div class="done">
-        <h3>신청이 접수됐어요</h3>
-        <p>본사 확인 후 결과를 따로 알려드립니다.<br>영업일 기준 1~2일이 걸려요.</p>
-        <button class="btn primary" style="width:240px" data-action="go-login">로그인으로</button>
-      </div>
-    </div>
-  </div>`;
-
-  if (state.view==="firstPw") { const e=state.errors; return `
-  <div class="auth">
-    <div class="card">
-      <div class="auth-sub" style="margin-bottom:24px">임시 비밀번호로 로그인했습니다.
-새 비밀번호를 설정해주세요.</div>
-      <div class="field"><div class="label">새 비밀번호</div>
-        <input class="input ${e.pw?"err":""}" type="password" data-field="pw" value="${esc(state.form.pw||"")}" placeholder="영문·숫자·특수문자 8자 이상">
-        ${e.pw?`<div class="help err">${esc(e.pw)}</div>`:""}</div>
-      <div class="field" style="margin-top:14px"><div class="label">새 비밀번호 확인</div>
-        <input class="input ${e.pw2?"err":""}" type="password" data-field="pw2" value="${esc(state.form.pw2||"")}" placeholder="다시 한 번 입력">
-        ${e.pw2?`<div class="help err">${esc(e.pw2)}</div>`:""}</div>
-      <button class="btn primary" data-action="first-pw-save">변경하고 시작하기</button>
-    </div>
-  </div>`; }
-  return "";
-}
-
-function fieldHtml(label, key, val, err, ph, opts){
-  const o = opts||{};
-  return `<div class="field ${o.wide?"wide":""}">
-    <div class="label">${esc(label)}${o.optional?"":'<span class="req">*</span>'}</div>
-    <input class="input ${err?"err":""}" data-field="${key}" value="${esc(val||"")}" placeholder="${esc(ph||"")}" ${o.disabled?"disabled":""}>
-    ${err?`<div class="help err">${esc(err)}</div>`:(o.help?`<div class="help">${esc(o.help)}</div>`:"")}
   </div>`;
 }
 
-/* ---------- shell ---------- */
 function renderShell(){
   const s = state.session;
   const isHq = s.role==="hq";
+  const landing = isHq ? "home" : "ops";
   let side = "";
   for (const grp of MENUS){
     const items = grp.items.filter(it=>!it.hq || isHq);
     if (!items.length) continue;
     if (grp.sec) side += `<div class="side-sec">${esc(grp.sec)}</div>`;
     side += items.map(it=>{
-      const on = (it.k==="account" && ["list","pending","add","detail","pendingDetail"].includes(state.view));
-      const act = it.k==="account" ? ` data-action="go-list"` : ` `;
-      return `<button class="side-item ${on?"on":""} ${it.k==="account"?"":"dim"}"${act}>${esc(it.n)}</button>`;
+      const on = state.view==="home" && it.k===landing;
+      return `<button class="side-item ${on?"on":"dim"}" ${it.k===landing?'data-action="go-home"':""}>${esc(it.n)}</button>`;
     }).join("");
   }
+  const opts = myBranches(s).map(b=>`<option value="${esc(b)}" ${b===state.branch?"selected":""}>${esc(bLabel(b))}</option>`).join("");
   return `
   <div class="shell">
     <aside class="sidebar">
@@ -404,552 +310,222 @@ function renderShell(){
     </aside>
     <div class="body-col">
       <header class="topbar">
-        <div class="sel">지점명</div>
+        <select class="sel-branch" data-field="branch">${opts}</select>
         <div class="right">
           <span class="badge ${isHq?"super":"owner"}">${isHq?"Super Admin":"Owner"}</span>
-          <span class="who">${esc(s.name)}님 반가워요</span>
-          <button class="app-btn" data-action="go-me">내 정보</button>
+          <span class="who">${esc(state.greet)}님 반가워요</span>
+          <button class="icon-btn ${state.view==="settings"?"on":""}" data-action="go-settings" title="설정" aria-label="설정">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
           <button class="app-btn" data-action="logout">로그아웃</button>
         </div>
       </header>
-      <main class="main">${renderMain()}</main>
+      <main class="main">${state.view==="settings" ? viewSettings() : viewHome()}</main>
       <footer class="footer">2026 © XYZ corp.</footer>
     </div>
   </div>`;
 }
 
-function renderMain(){
-  switch(state.view){
-    case "list": return viewList();
-    case "pending": return viewPending();
-    case "add": return viewAdd();
-    case "detail": return viewDetail();
-    case "pendingDetail": return viewPendingDetail();
-    case "me": return viewMe();
-    case "mePw": return viewMePw();
-    case "blocked": return `<div class="card"><div class="empty">이 프로토타입은 계정관리 화면만 다룹니다.<br>매장 점주 계정에는 계정관리 메뉴가 보이지 않습니다 — 우상단 「내 정보」로 확인해보세요.</div></div>`;
-  }
-  return "";
+function viewHome(){
+  const where = state.session.role==="hq" ? "홈" : "운영관리";
+  return `<div class="card"><div class="empty">로그인하면 ${where} 화면으로 들어옵니다 — 이 프로토타입은 그 화면을 그리지 않습니다.<br>우상단 톱니 아이콘으로 「설정」을 열어보세요.</div></div>`;
 }
 
-/* ---------- list ---------- */
-function viewList(){
-  const f = state.filter;
-  let rows = state.accounts.filter(a=>{
-    if (f.role!=="all" && a.role!==f.role) return false;
-    if (f.status!=="all" && a.status!==f.status) return false;
-    if (f.q){ const q=f.q.toLowerCase();
-      if (!(a.id.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q))) return false; }
-    return true;
-  });
+function roRow(label, valueHtml){
+  return `<div class="field"><div class="label">${esc(label)}</div><div class="ro">${valueHtml}</div></div>`;
+}
+
+function viewSettings(){
+  const s = state.session, f = state.form;
+  const branchesHtml = s.all ? "전 지점" : s.branches.map(b=>`<span class="chip">${esc(bLabel(b))}</span>`).join("");
   return `
-  <div class="page-title">
-    <span class="tab on">계정 목록</span>
-    <span class="tab" data-action="go-pending">승인 대기${state.requests.length?` (${state.requests.length})`:""}</span>
-    <button class="btn m primary" style="margin-left:auto" data-action="go-add">계정 추가</button>
-  </div>
+  <div class="page-title">설정</div>
   <div class="card">
-    <div class="filter-bar">
-      <div class="seg">
-        <button class="${f.role==="all"?"on":""}" data-action="f-role" data-v="all">전체</button>
-        <button class="${f.role==="hq"?"on":""}" data-action="f-role" data-v="hq">본사 관리자</button>
-        <button class="${f.role==="owner"?"on":""}" data-action="f-role" data-v="owner">매장 점주</button>
+    <div class="sec">
+      <div class="sec-head">
+        <div class="body-title">내 정보</div>
+        <button class="btn m ghost ext" data-action="change-pw">비밀번호 변경</button>
       </div>
-      <select class="sel-input" data-field="fstatus">
-        <option value="all" ${f.status==="all"?"selected":""}>상태 전체</option>
-        <option value="active" ${f.status==="active"?"selected":""}>활성</option>
-        <option value="inactive" ${f.status==="inactive"?"selected":""}>비활성</option>
-      </select>
-      <div class="search"><input data-field="fq" value="${esc(f.q)}" placeholder="아이디 · 이름 · 이메일 검색"></div>
-    </div>
-    <div class="count">총 ${rows.length}개</div>
-    <table>
-      <thead><tr><th>아이디</th><th>이름</th><th>이메일</th><th>역할</th><th>관리지점</th><th>상태</th><th>등록일</th></tr></thead>
-      <tbody>
-        ${rows.length ? rows.map(a=>`
-          <tr data-action="open-detail" data-id="${esc(a.id)}">
-            <td>${esc(a.id)}</td><td>${esc(a.name)}</td><td>${esc(a.email)}</td>
-            <td>${roleName(a.role)}</td><td>${esc(branchText(a))}</td>
-            <td><span class="pill ${a.status==="active"?"on":"off"}">${a.status==="active"?"활성":"비활성"}</span></td>
-            <td>${esc(a.created)}</td>
-          </tr>`).join("") : `<tr><td colspan="7"><div class="empty">조건에 맞는 계정이 없습니다.</div></td></tr>`}
-      </tbody>
-    </table>
-  </div>`;
-}
-
-function viewPending(){
-  const rows = state.requests;
-  return `
-  <div class="page-title">
-    <span class="tab" data-action="go-list">계정 목록</span>
-    <span class="tab on">승인 대기${rows.length?` (${rows.length})`:""}</span>
-  </div>
-  <div class="card">
-    <div class="count">총 ${rows.length}개</div>
-    <table>
-      <thead><tr><th>신청일</th><th>아이디</th><th>이름</th><th>이메일</th><th>연락처</th><th>매장명</th><th>상태</th></tr></thead>
-      <tbody>
-        ${rows.length ? rows.map(r=>`
-          <tr data-action="open-request" data-id="${r.rid}">
-            <td>${esc(r.date)}</td><td>${esc(r.id)}</td><td>${esc(r.name)}</td>
-            <td>${esc(r.email)}</td><td>${esc(r.tel)}</td><td>${esc(r.store)}</td>
-            <td><span class="pill wait">대기</span></td>
-          </tr>`).join("") : `<tr><td colspan="7"><div class="empty">승인을 기다리는 신청이 없습니다.</div></td></tr>`}
-      </tbody>
-    </table>
-  </div>`;
-}
-
-/* ---------- branch multiselect ---------- */
-function branchField(f, err){
-  const sel = f.branches||[];
-  const shown = sel.slice(0,2);
-  return `
-  <div class="field">
-    <div class="label">관리지점${f.role==="owner"?'<span class="req">*</span>':""}</div>
-    <div class="branch-box" data-stop="1">
-      <div class="branch-input ${err?"err":""}" data-action="toggle-branch">
-        ${shown.length ? shown.map(n=>`<span class="chip">${esc(bLabel(n))}<button data-action="rm-branch" data-v="${esc(n)}">×</button></span>`).join("")
-                       : `<span class="ph">지점을 선택해주세요</span>`}
-      </div>
-      ${state.branchOpen ? `<div class="branch-pop">
-        ${BRANCHES.map(b=>`<div class="${sel.includes(b.name)?"sel":""}" data-action="pick-branch" data-v="${esc(b.name)}">
-          <span>${sel.includes(b.name)?"✓":"&nbsp;&nbsp;"}</span>${esc(b.code?b.code+" "+b.name:b.name)}</div>`).join("")}
-      </div>` : ""}
-    </div>
-    ${err?`<div class="help err">${esc(err)}</div>`
-        : (sel.length ? `<div class="branch-cap"><b>선택됨</b> — ${esc(sel.map(bLabel).join(", "))}</div>` : "")}
-  </div>`;
-}
-
-/* ---------- add ---------- */
-function viewAdd(){
-  const f = state.form, e = state.errors;
-  return `
-  <div class="page-title">계정 추가</div>
-  <div class="card">
-    <div class="body-title">기본 정보</div>
-    <div class="group">
-      ${fieldHtml("아이디","id",f.id,e.id,"영문 소문자·숫자 4~20자")}
-      ${fieldHtml("이름","name",f.name,e.name,"계정 사용자 또는 매장명")}
-      ${fieldHtml("이메일","email",f.email,e.email,"연락받을 이메일 주소")}
-      ${fieldHtml("연락처","tel",f.tel,e.tel,"010-0000-0000")}
-    </div>
-    <div class="body-title">권한</div>
-    <div class="group">
-      <div class="field">
-        <div class="radios">
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="hq" ${f.role==="hq"?"checked":""}>본사 관리자</label>
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="owner" ${f.role==="owner"?"checked":""}>매장 점주</label>
-        </div>
-        ${e.role?`<div class="help err">${esc(e.role)}</div>`:""}
-      </div>
-      ${f.role==="hq" ? `<div class="field">
-        <div class="label">데이터 범위</div>
-        <div class="radios">
-          <label class="radio"><input type="radio" name="scope" data-action="pick-scope" data-v="all" ${f.all?"checked":""}>전 지점</label>
-          <label class="radio"><input type="radio" name="scope" data-action="pick-scope" data-v="some" ${f.all?"":"checked"}>지정 지점</label>
-        </div></div>` : ""}
-      ${(f.role==="owner" || (f.role==="hq" && !f.all)) ? branchField(f, e.branches) : ""}
-    </div>
-    <div class="actions">
-      <button class="btn ghost" data-action="go-list">취소</button>
-      <button class="btn primary" data-action="save-add">저장하기</button>
-    </div>
-  </div>`;
-}
-
-/* ---------- detail ---------- */
-function viewDetail(){
-  const f = state.form, e = state.errors;
-  const me = state.session.id === f.id;
-  const guard = lastHq(acct(f.id)||f);
-  return `
-  <div class="page-title">계정 상세</div>
-  <div class="card">
-    <div class="body-title">기본 정보</div>
-    <div class="group">
-      ${fieldHtml("아이디","id",f.id,null,"",{disabled:true})}
-      ${fieldHtml("이름","name",f.name,e.name,"")}
-      ${fieldHtml("이메일","email",f.email,e.email,"")}
-      ${fieldHtml("연락처","tel",f.tel,e.tel,"")}
-      <div class="field wide">
-        <div class="label">비밀번호</div>
-        <div class="row-inline">
-          <input class="input" type="password" value="dummy1234" disabled>
-          <button class="btn m weak" data-action="reset-pw">임시 비밀번호로 초기화</button>
-        </div>
+      <div class="group">
+        ${roRow("아이디", esc(s.id))}
+        ${roRow("이름", esc(s.name))}
+        ${roRow("이메일", esc(s.email))}
+        ${roRow("연락처", esc(s.tel))}
+        ${roRow("역할", esc(roleName(s.role)))}
+        ${roRow("관리지점", branchesHtml)}
       </div>
     </div>
-    <div class="body-title">권한</div>
-    <div class="group">
-      <div class="field">
-        <div class="radios">
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="hq" ${f.role==="hq"?"checked":""} ${me||guard?"disabled":""}>본사 관리자</label>
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="owner" ${f.role==="owner"?"checked":""} ${me||guard?"disabled":""}>매장 점주</label>
-        </div>
-        ${me?`<div class="help">본인 계정의 역할은 본인이 바꿀 수 없습니다.</div>`
-           :(guard?`<div class="help">마지막 남은 본사 관리자라 역할을 바꿀 수 없습니다.</div>`:"")}
+    <div class="sec">
+      <div class="sec-head">
+        <div class="body-title">지점 정보</div>
+        <span class="sub">${esc(bLabel(state.branch))}</span>
       </div>
-      ${f.role==="hq" ? `<div class="field">
-        <div class="label">데이터 범위</div>
-        <div class="radios">
-          <label class="radio"><input type="radio" name="scope" data-action="pick-scope" data-v="all" ${f.all?"checked":""}>전 지점</label>
-          <label class="radio"><input type="radio" name="scope" data-action="pick-scope" data-v="some" ${f.all?"":"checked"}>지정 지점</label>
-        </div></div>` : ""}
-      ${(f.role==="owner" || (f.role==="hq" && !f.all)) ? branchField(f, e.branches) : ""}
-    </div>
-    <div class="body-title">상태</div>
-    <div class="group">
-      <div class="field">
-        <div class="radios">
-          <label class="radio"><input type="radio" name="st" data-action="pick-status" data-v="active" ${f.status==="active"?"checked":""} ${me||guard?"disabled":""}>활성</label>
-          <label class="radio"><input type="radio" name="st" data-action="pick-status" data-v="inactive" ${f.status==="inactive"?"checked":""} ${me||guard?"disabled":""}>비활성</label>
-        </div>
-        ${me?`<div class="help">본인 계정은 본인이 비활성할 수 없습니다.</div>`
-           :(guard?`<div class="help">마지막 남은 본사 관리자라 비활성할 수 없습니다.</div>`:"")}
+      <div class="group">
+        <div class="field"><div class="label">관리자 이름</div>
+          <input class="input" data-field="mgr" value="${esc(f.mgr)}" placeholder="관리자 이름을 입력하세요"></div>
+        <div class="field"><div class="label">관리자 연락처</div>
+          <input class="input" data-field="tel" value="${esc(f.tel)}" placeholder="관리자 연락처를 입력하세요" maxlength="13" inputmode="numeric"></div>
+        <div class="field"><div class="label">고객센터</div>
+          <input class="input" data-field="cs" value="${esc(f.cs)}" placeholder="고객센터를 입력하세요" maxlength="13"></div>
       </div>
-    </div>
-    <div class="actions">
-      <button class="btn ghost" data-action="go-list">취소</button>
-      <button class="btn primary" data-action="save-detail">저장하기</button>
-    </div>
-  </div>`;
-}
-
-function viewPendingDetail(){
-  const f = state.form, e = state.errors;
-  return `
-  <div class="page-title">가입 신청 상세</div>
-  <div class="card">
-    <div class="body-title">신청 정보</div>
-    <div class="group">
-      ${fieldHtml("아이디","id",f.id,null,"",{disabled:true})}
-      ${fieldHtml("이름","name",f.name,null,"",{disabled:true})}
-      ${fieldHtml("이메일","email",f.email,null,"",{disabled:true})}
-      ${fieldHtml("연락처","tel",f.tel,null,"",{disabled:true})}
-      ${fieldHtml("매장명","store",f.store,null,"",{disabled:true})}
-    </div>
-    <div class="body-title">권한 지정</div>
-    <div class="group">
-      <div class="field">
-        <div class="radios">
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="hq" ${f.role==="hq"?"checked":""}>본사 관리자</label>
-          <label class="radio"><input type="radio" name="role" data-action="pick-role" data-v="owner" ${f.role==="owner"?"checked":""}>매장 점주</label>
-        </div>
-      </div>
-      ${branchField(f, e.branches)}
-    </div>
-    <div class="actions">
-      <button class="btn ghost" data-action="reject">반려</button>
-      <button class="btn primary" data-action="approve">승인</button>
-    </div>
-  </div>`;
-}
-
-/* ---------- me ---------- */
-function viewMe(){
-  const f = state.form, e = state.errors;
-  return `
-  <div class="page-title">내 정보</div>
-  <div class="card">
-    <div class="body-title">기본 정보</div>
-    <div class="group">
-      ${fieldHtml("아이디","id",f.id,null,"",{disabled:true})}
-      ${fieldHtml("이름","name",f.name,e.name,"")}
-      ${fieldHtml("이메일","email",f.email,e.email,"")}
-      ${fieldHtml("연락처","tel",f.tel,e.tel,"")}
-    </div>
-    <div class="body-title">권한</div>
-    <div class="help" style="margin:-8px 0 14px">역할과 관리지점은 본사 관리자가 변경합니다. 수정이 필요하면 본사 관리자에게 문의하세요.</div>
-    <div class="group">
-      ${fieldHtml("역할","role2",roleName(f.role),null,"",{disabled:true})}
-      <div class="field">
-        <div class="label">관리지점</div>
-        <input class="input" value="${esc(f.all?"전 지점":(f.branches||[]).map(bLabel).join(", ")||"-")}" disabled>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="btn ghost" data-action="go-mepw">비밀번호 변경</button>
-      <button class="btn primary" data-action="save-me">저장하기</button>
-    </div>
-  </div>`;
-}
-
-function viewMePw(){
-  const e = state.errors, f = state.form;
-  return `
-  <div class="page-title">비밀번호 변경</div>
-  <div class="card">
-    <div class="body-title">비밀번호</div>
-    <div class="group">
-      <div class="field"><div class="label">현재 비밀번호<span class="req">*</span></div>
-        <input class="input ${e.cur?"err":""}" type="password" data-field="cur" value="${esc(f.cur||"")}" placeholder="현재 쓰는 비밀번호">
-        ${e.cur?`<div class="help err">${esc(e.cur)}</div>`:""}</div>
-      <div class="field"><div class="label">새 비밀번호<span class="req">*</span></div>
-        <input class="input ${e.pw?"err":""}" type="password" data-field="pw" value="${esc(f.pw||"")}" placeholder="8자 이상, 영문·숫자·특수문자 중 2가지">
-        ${e.pw?`<div class="help err">${esc(e.pw)}</div>`:""}</div>
-      <div class="field"><div class="label">새 비밀번호 확인<span class="req">*</span></div>
-        <input class="input ${e.pw2?"err":""}" type="password" data-field="pw2" value="${esc(f.pw2||"")}" placeholder="한 번 더 입력">
-        ${e.pw2?`<div class="help err">${esc(e.pw2)}</div>`:""}</div>
-    </div>
-    <div class="actions">
-      <button class="btn ghost" data-action="go-me">취소</button>
-      <button class="btn primary" data-action="save-mepw">저장하기</button>
-    </div>
-  </div>`;
-}
-
-/* ---------- dialog ---------- */
-function renderDialog(){
-  const d = state.dialog;
-  if (d.kind==="temppw") return `
-  <div class="dim-layer">
-    <div class="dialog">
-      <h4>임시 비밀번호가 발급되었어요</h4>
-      <p><span class="pw">${esc(d.pw)}</span>창을 닫으면 다시 볼 수 없어요</p>
-      <div class="btns">
-        <button class="btn weak" data-action="copy-pw" data-v="${esc(d.pw)}">복사</button>
-        <button class="btn primary" data-action="dialog-ok">확인</button>
+      <div class="actions">
+        <button class="btn primary" data-action="save-branch">저장하기</button>
       </div>
     </div>
   </div>`;
-  return "";
 }
 
 /* ============================================================
-   EVENTS
+   EVENTS — 바리스온
    ============================================================ */
 const app = document.getElementById("app");
 
 app.addEventListener("input", ev=>{
+  if (RG_PAGE) return;
   const el = ev.target.closest("[data-field]");
   if (!el) return;
   const k = el.dataset.field;
-  if (k==="fq"){ state.filter.q = el.value; renderListBodyOnly(); return; }
+  if (k==="loginId" || k==="loginPw"){ state[k] = el.value; return; }
+  if (k==="tel"){
+    el.value = formatTel(el.value);
+    state.form.tel = el.value;
+    if (document.activeElement===el) el.setSelectionRange(el.value.length, el.value.length);
+    return;
+  }
   state.form[k] = el.value;
 });
 
 app.addEventListener("change", ev=>{
+  if (RG_PAGE) return;
   const el = ev.target.closest("[data-field]");
-  if (el && el.dataset.field==="fstatus"){ state.filter.status = el.value; render(); return; }
-  if (el && el.dataset.field==="store"){ state.form.store = el.value; return; }
+  if (el && el.dataset.field==="branch"){ state.branch = el.value; loadBranchForm(); render(); }
+});
+
+app.addEventListener("keydown", ev=>{
+  if (RG_PAGE || state.view!=="login" || ev.key!=="Enter") return;
+  if (ev.target.closest("[data-field]")) doLogin();
 });
 
 app.addEventListener("click", ev=>{
+  if (RG_PAGE) return;
   const t = ev.target.closest("[data-action]");
-  if (t && t.tagName === "A") ev.preventDefault();
-  if (!t){
-    if ((state.branchOpen || state.storeOpen) && !ev.target.closest("[data-stop]")){
-      state.branchOpen=false; state.storeOpen=false; render(); }
-    return;
-  }
-  const a = t.dataset.action, v = t.dataset.v;
-  const stopOutside = ev.target.closest("[data-stop]");
-  if (state.branchOpen && !stopOutside && !["toggle-branch","pick-branch","rm-branch"].includes(a)) state.branchOpen=false;
-  if (state.storeOpen && !stopOutside && !["toggle-store","pick-store"].includes(a)) state.storeOpen=false;
-
-  switch(a){
-    /* auth */
+  if (!t) return;
+  if (t.tagName === "A") ev.preventDefault();
+  switch(t.dataset.action){
     case "login": doLogin(); break;
-    case "go-signup": state.view="signup"; state.form={}; state.errors={}; render(); break;
-    case "go-login": state.view="login"; state.form={}; state.errors={}; state.loginMsg=null; render(); break;
-    case "signup-submit": doSignup(); break;
-    case "first-pw-save": doFirstPw(); break;
-    case "logout": state.session=null; state.view="login"; state.form={}; state.loginMsg=null; render(); break;
-
-    /* nav */
-    case "go-list": state.view="list"; state.errors={}; state.branchOpen=false; render(); break;
-    case "go-pending": state.view="pending"; render(); break;
-    case "go-add": state.view="add"; state.form={role:"", all:true, branches:[]}; state.errors={}; render(); break;
-    case "go-me": openMe(); break;
-    case "go-mepw": state.view="mePw"; state.form={}; state.errors={}; render(); break;
-
-    /* list */
-    case "f-role": state.filter.role=v; render(); break;
-    case "open-detail": openDetail(t.dataset.id); break;
-    case "open-request": openRequest(Number(t.dataset.id)); break;
-
-    /* form widgets */
-    case "pick-role": state.form.role=v; if(v==="owner") state.form.all=false; state.errors={}; render(); break;
-    case "pick-scope": state.form.all = (v==="all"); if(state.form.all) state.form.branches=[]; render(); break;
-    case "pick-status": state.form.status=v; render(); break;
-    case "toggle-branch": state.branchOpen=!state.branchOpen; render(); break;
-    case "toggle-store": state.storeOpen=!state.storeOpen; render(); break;
-    case "pick-store": state.form.store=v; state.storeOpen=false; render(); break;
-    case "pick-branch": {
-      const list = state.form.branches||[];
-      state.form.branches = list.includes(v) ? list.filter(x=>x!==v) : list.concat([v]);
-      render(); break; }
-    case "rm-branch": ev.stopPropagation();
-      state.form.branches = (state.form.branches||[]).filter(x=>x!==v); render(); break;
-
-    /* save */
-    case "save-add": doAdd(); break;
-    case "save-detail": doSaveDetail(); break;
-    case "reset-pw": doResetPw(); break;
-    case "approve": doApprove(); break;
-    case "reject": doReject(); break;
-    case "save-me": doSaveMe(); break;
-    case "save-mepw": doSaveMePw(); break;
-
-    /* dialog */
-    case "copy-pw":
-      if (navigator.clipboard) navigator.clipboard.writeText(v).catch(()=>{});
-      toast("임시 비밀번호를 복사했습니다."); break;
-    case "dialog-ok": {
-      const d = state.dialog; state.dialog=null;
-      if (d.after==="list"){ state.view="list"; state.form={}; toast(d.msg||"계정이 생성되었습니다."); }
-      else render();
-      break; }
+    case "signup": openRangers("signup"); break;
+    case "logout": state.session=null; state.view="login"; state.loginId=""; state.loginPw=""; state.loginErr=false; render(); break;
+    case "go-home": state.view="home"; render(); break;
+    case "go-settings": state.view="settings"; loadBranchForm(); render(); break;
+    case "change-pw": openRangers("detail", state.session.id); break;
+    case "save-branch": doSaveBranch(); break;
   }
 });
 
-function renderListBodyOnly(){
-  // 검색은 포커스를 지키려고 표만 다시 그린다
-  const wrap = document.querySelector(".card table");
-  if (!wrap) { render(); return; }
-  const tmp = document.createElement("div");
-  tmp.innerHTML = viewList();
-  const nt = tmp.querySelector("table"), nc = tmp.querySelector(".count");
-  if (nt) wrap.innerHTML = nt.innerHTML;
-  const cnt = document.querySelector(".card .count");
-  if (cnt && nc) cnt.textContent = nc.textContent;
+function doLogin(){
+  if (state.loggingIn) return;
+  state.loggingIn = true; state.loginErr = false; render();
+  setTimeout(()=>{
+    state.loggingIn = false;
+    const a = acct(state.loginId.trim());
+    // 틀린 입력·승인 전·사용 중지 모두 같은 안내 (2026-09-17 결정)
+    if (!a || a.pw!==state.loginPw || !a.approved || !a.active){ state.loginErr = true; render(); return; }
+    state.session = a;
+    state.branch = myBranches(a)[0];
+    state.greet = info(state.branch).mgr || a.name;
+    state.view = "home";
+    render();
+  }, 600);
+}
+function loadBranchForm(){
+  const i = info(state.branch);
+  state.form = {mgr:i.mgr, tel:i.tel, cs:i.cs};
+}
+function doSaveBranch(){
+  Object.assign(info(state.branch), {mgr:state.form.mgr||"", tel:state.form.tel||"", cs:state.form.cs||""});
+  toast("저장되었습니다.");
 }
 
-/* ---------- actions ---------- */
-function doLogin(){
-  const id = (state.form.loginId||"").trim(), pw = state.form.loginPw||"";
-  state.loginMsg = null;
-  const req = state.requests.find(r=>r.id===id);
-  if (req && req.pw===pw){ state.loginMsg={kind:"wait", text:"승인 대기 중인 계정입니다. 본사 확인 후 이용할 수 있습니다."}; render(); return; }
-  const a = acct(id);
-  if (!a || a.pw!==pw){ state.loginMsg={kind:"err", text:"아이디 또는 비밀번호가 올바르지 않습니다."}; render(); return; }
-  if (a.status==="inactive"){ state.loginMsg={kind:"err", text:"사용이 중지된 계정입니다. 본사 관리자에게 문의하세요."}; render(); return; }
-  state.session = a;
-  if (a.temp){ state.view="firstPw"; state.form={}; state.errors={}; render(); return; }
-  enterHome();
+/* ============================================================
+   통합계정관리 흉내 화면 (새 탭)
+   로그인 기록을 탭마다 따로 두는 실제 동작을 따라, 새 탭은 늘 로그인부터 시작하고
+   로그인 뒤에는 원래 가려던 화면이 아니라 홈으로 간다.
+   ============================================================ */
+const rg = { page: RG_PAGE==="signup" ? "signup" : "login", me: null, id:"", pw:"", err:"", pw1:"", pw2:"", msg:"", msgKind:"" };
+
+function rgFrame(inner, withShell){
+  const stub = `<div class="rg-stub">프로토타입용 흉내 화면입니다 — 실제 통합계정관리와 연결되지 않습니다.</div>`;
+  if (!withShell) return `<div class="rg">${stub}${inner}</div>`;
+  return `<div class="rg">${stub}
+    <div class="rg-head"><span class="brand">통합계정관리시스템</span>
+      <a href="#" data-rg="detail">${esc(rg.me.name)}</a>
+      <button data-rg="logout">로그아웃</button></div>
+    <div class="rg-body">
+      <nav class="rg-nav"><span>홈</span><span>회원 목록</span></nav>
+      <main class="rg-main">${inner}</main>
+    </div></div>`;
 }
-function enterHome(){
-  state.form={}; state.errors={};
-  state.view = state.session.role==="hq" ? "list" : "blocked";
-  render();
+
+function renderRangers(){
+  document.title = "통합계정관리시스템 (흉내)";
+  const el = document.getElementById("app");
+  if (rg.page==="signup"){
+    const f = ["아이디 *","구분 *","이름 *","비밀번호 *","비밀번호 확인 *","닉네임","휴대폰","이메일","홈페이지","주소","권한그룹"];
+    el.innerHTML = rgFrame(`<div class="rg-login"><div class="rg-card"><h1>회원가입 신청</h1>
+      ${f.map(l=>`<label>${esc(l)}</label><input disabled>`).join("")}
+      <p class="rg-ok" style="color:#6B7280">실제 가입은 통합계정관리에서 합니다. 신청한 계정은 관리자가 승인한 뒤에 바리스온에 로그인할 수 있습니다.</p>
+    </div></div>`, false);
+    return;
+  }
+  if (rg.page==="login"){
+    el.innerHTML = rgFrame(`<div class="rg-login"><div class="rg-card"><h1>통합계정관리시스템</h1>
+      <label>아이디</label><input data-rgf="id" value="${esc(rg.id)}">
+      <label>비밀번호</label><input type="password" data-rgf="pw" value="${esc(rg.pw)}">
+      ${rg.err?`<div class="rg-err">${esc(rg.err)}</div>`:""}
+      <button class="rg-btn" data-rg="login">로그인</button>
+    </div></div>`, false);
+    return;
+  }
+  if (rg.page==="home"){
+    el.innerHTML = rgFrame(`<h1>홈</h1><div class="rg-card"><h1>${esc(rg.me.name)}님, 반갑습니다.</h1>
+      <p style="color:#6b7280;font-size:14px">왼쪽 메뉴에서 회원 목록, 가입 승인, 권한그룹 관리 기능을 이용할 수 있습니다.</p></div>`, true);
+    return;
+  }
+  if (rg.page==="detail"){
+    const m = rg.me;
+    el.innerHTML = rgFrame(`<h1>회원 상세</h1><div class="rg-card">
+      <label>아이디</label><input disabled value="${esc(m.id)}">
+      <label>이름</label><input disabled value="${esc(m.name)}">
+      <label>이메일</label><input disabled value="${esc(m.email)}">
+      <label>비밀번호 변경</label><input type="password" data-rgf="pw1" placeholder="변경할 때만 입력" value="${esc(rg.pw1)}">
+      <label>비밀번호 확인</label><input type="password" data-rgf="pw2" placeholder="변경할 때만 입력" value="${esc(rg.pw2)}">
+      ${rg.msg?`<div class="${rg.msgKind}">${esc(rg.msg)}</div>`:""}
+      <button class="rg-btn" data-rg="save">기본 정보 저장</button>
+    </div>`, true);
+  }
 }
-function doSignup(){
-  const f = state.form, e = validateAccount({...f, role:"owner", branches:["-"]}, {});
-  delete e.role; delete e.branches;
-  if (!f.store) e.store = "매장을 선택해주세요.";
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  state.requests.unshift({rid:++seq, date:today(), id:f.id, name:f.name, email:f.email, tel:f.tel, store:f.store, pw:"baris1234!"});
-  state.view="signupDone"; state.form={}; render();
-}
-function doFirstPw(){
-  const f = state.form, e = {};
-  const msg = validatePw(f.pw, f.pw2, state.session.id);
-  if (msg) e.pw = msg;
-  else if (f.pw!==f.pw2) e.pw2 = "두 값이 다릅니다.";
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  state.session.pw = f.pw; state.session.temp = false;
-  enterHome(); toast("비밀번호를 변경했습니다.");
-}
-function doAdd(){
-  const f = state.form;
-  const e = validateAccount(f, {});
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  const pw = genPw();
-  state.accounts.unshift({
-    id:f.id, name:f.name, email:f.email, tel:f.tel, role:f.role,
-    all: f.role==="hq" ? !!f.all : false,
-    branches: (f.role==="hq" && f.all) ? [] : (f.branches||[]),
-    status:"active", created:today(), pw, temp:true,
+
+if (RG_PAGE){
+  app.addEventListener("input", ev=>{
+    const f = ev.target.closest("[data-rgf]"); if (f) rg[f.dataset.rgf] = f.value;
   });
-  state.dialog = {kind:"temppw", pw, after:"list", msg:"계정이 생성되었습니다."};
-  render();
-}
-function openDetail(id){
-  const a = acct(id); if (!a) return;
-  state.editing = id;
-  state.form = {...a, branches:[...a.branches]};
-  state.errors={}; state.branchOpen=false; state.view="detail"; render();
-}
-function doSaveDetail(){
-  const f = state.form;
-  const e = validateAccount(f, {skipDup:true, skipFormat:true, self:f.id});
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  const a = acct(state.editing);
-  Object.assign(a, {name:f.name, email:f.email, tel:f.tel, role:f.role,
-    all: f.role==="hq" ? !!f.all : false,
-    branches: (f.role==="hq" && f.all) ? [] : (f.branches||[]),
-    status:f.status});
-  state.view="list"; render(); toast("변경 사항을 저장했습니다.");
-}
-function doResetPw(){
-  const pw = genPw();
-  const a = acct(state.editing);
-  if (a){ a.pw = pw; a.temp = true; }
-  state.dialog = {kind:"temppw", pw, after:"stay"};
-  render();
-}
-function openRequest(rid){
-  const r = state.requests.find(x=>x.rid===rid); if (!r) return;
-  state.editing = rid;
-  state.form = {...r, role:"owner", all:false, branches: BRANCHES.some(b=>b.name===r.store) ? [r.store] : []};
-  state.errors={}; state.branchOpen=false; state.view="pendingDetail"; render();
-}
-function doApprove(){
-  const f = state.form, e = {};
-  if (!(f.branches||[]).length && !(f.role==="hq" && f.all)) e.branches = "관리지점을 지정해주세요.";
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  const pw = genPw();
-  state.accounts.unshift({
-    id:f.id, name:f.name, email:f.email, tel:f.tel, role:f.role,
-    all: f.role==="hq" ? !!f.all : false, branches:f.branches||[],
-    status:"active", created:today(), pw, temp:true,
+  app.addEventListener("click", ev=>{
+    const t = ev.target.closest("[data-rg]"); if (!t) return;
+    ev.preventDefault();
+    const a = t.dataset.rg;
+    if (a==="login"){
+      const m = acct(rg.id.trim());
+      if (!m || m.pw!==rg.pw || !m.approved){ rg.err = "로그인에 실패했습니다."; renderRangers(); return; }
+      rg.me = m; rg.err = ""; rg.page = "home"; renderRangers(); return;
+    }
+    if (a==="logout"){ rg.me=null; rg.id=""; rg.pw=""; rg.page="login"; renderRangers(); return; }
+    if (a==="detail"){ rg.page="detail"; rg.msg=""; renderRangers(); return; }
+    if (a==="save"){
+      if (rg.pw1 && rg.pw1!==rg.pw2){ rg.msg="비밀번호가 서로 일치하지 않습니다."; rg.msgKind="rg-err"; renderRangers(); return; }
+      if (rg.pw1) rg.me.pw = rg.pw1;
+      rg.pw1=""; rg.pw2=""; rg.msg="저장되었습니다."; rg.msgKind="rg-ok"; renderRangers();
+    }
   });
-  state.requests = state.requests.filter(x=>x.rid!==state.editing);
-  state.dialog = {kind:"temppw", pw, after:"list", msg:"승인했습니다. 임시 비밀번호를 신청자에게 직접 전달하세요."};
-  render();
-}
-function doReject(){
-  state.requests = state.requests.filter(x=>x.rid!==state.editing);
-  state.view="pending"; render();
-  toast("반려했습니다. 신청자에게는 통보되지 않으니 직접 알려주세요.");
-}
-function openMe(){
-  const a = state.session;
-  state.form = {...a, branches:[...a.branches]};
-  state.errors={}; state.view="me"; render();
-}
-function doSaveMe(){
-  const f = state.form, e = {};
-  if (!f.name) e.name = "이름을 입력해주세요.";
-  if (!f.email) e.email = "이메일을 입력해주세요.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "이메일 형식이 올바르지 않습니다.";
-  else if (state.accounts.some(x=>x.email===f.email && x.id!==f.id)) e.email = "이미 쓰이고 있는 이메일입니다.";
-  if (!f.tel) e.tel = "연락처를 입력해주세요.";
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  Object.assign(state.session, {name:f.name, email:f.email, tel:f.tel});
-  render(); toast("내 정보를 저장했습니다.");
-}
-function doSaveMePw(){
-  const f = state.form, e = {};
-  if (f.cur !== state.session.pw) e.cur = "현재 비밀번호가 맞지 않습니다.";
-  const msg = validatePw(f.pw, f.pw2, state.session.id);
-  if (msg) e.pw = msg;
-  else if (f.pw === state.session.pw) e.pw = "현재 비밀번호와 같은 값은 쓸 수 없습니다.";
-  else if (f.pw !== f.pw2) e.pw2 = "두 값이 다릅니다.";
-  state.errors = e;
-  if (Object.keys(e).length){ render(); return; }
-  state.session.pw = f.pw; state.session.temp = false;
-  state.view="me"; state.form={...state.session, branches:[...state.session.branches]};
-  render(); toast("비밀번호를 변경했습니다.");
 }
 
 render();
