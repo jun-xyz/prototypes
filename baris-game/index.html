@@ -36,7 +36,7 @@
   .ocard .r1{display:flex;align-items:center;gap:5px;margin-top:3px}
   .ocard .r1 canvas{image-rendering:pixelated;display:block}
   .ocard .nm{font-size:15px;white-space:nowrap;overflow:hidden}
-  .ocard .pr{font-size:12px;color:#6b655a}
+  .ocard .pr{font-size:12px;color:#6b655a;white-space:nowrap;overflow:hidden} .ocard .pr b{font-weight:400;color:var(--ink)}
   .ocard .bar{height:5px;background:#e3dfd4;border:1px solid #000}
   .ocard .bar i{display:block;height:100%;background:var(--ok);transition:width .2s linear}
   .ocard.w .bar i{background:var(--warn)} .ocard.d .bar i{background:var(--bad)}
@@ -247,7 +247,7 @@
 <canvas id="cv" width="1080" height="1350" style="display:none"></canvas>
 
 <script type="module">
-import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation, isBusy, matchRecipe, compatible, nextStep, patienceRatio, grade, gradeOf, couponCode, remark, ROBOT_PER_DAY, ROBOT_PER_HOUR, STATIONS, STATION_X, STATION_LABEL, INGREDIENTS, ING_KEYS, TIMES, newCup, isIngStation, DIFFICULTY } from './game.js?v=20261009e';
+import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation, isBusy, matchRecipe, compatible, nextStep, patienceRatio, grade, gradeOf, couponCode, remark, ROBOT_PER_DAY, ROBOT_PER_HOUR, STATIONS, STATION_X, STATION_LABEL, INGREDIENTS, ING_KEYS, TIMES, newCup, isIngStation, DIFFICULTY, nameHash } from './game.js?v=20261009f';
 
 const $ = (id) => document.getElementById(id);
 const isPC = matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -303,7 +303,8 @@ const FACE = ['..HHHHHH..','.HHHHHHHH.','.HSSSSSSH.','.SSSSSSSS.','.SSSSSSSS.','
 const HAIRS = [{ H: P.H, E: P.E }, { H: P.h, E: P.N }, { H: '#e6c85a', E: P.e }, { H: '#8f8f9a', E: P.O }, { H: '#5a2d82', E: P.B }];
 
 function drawFace(x, y, variant, mood) {
-  blit(FACE, x, y, { ...P, ...HAIRS[variant % HAIRS.length] });
+  const v = typeof variant === 'string' ? nameHash(variant) : variant;
+  blit(FACE, x, y, { ...P, ...HAIRS[v % HAIRS.length] });
   px(P.K, x + 3, y + 4); px(P.K, x + 6, y + 4);
   if (mood === 'angry') { px(P.R, x + 2, y + 6); px(P.R, x + 7, y + 6); px(P.K, x + 2, y + 3); px(P.K, x + 7, y + 3); px(P.K, x + 4, y + 7, 2, 1); }
   else if (mood === 'worried') { px(P.K, x + 3, y + 3); px(P.K, x + 6, y + 3); px(P.K, x + 4, y + 7); }
@@ -421,7 +422,7 @@ function drawCustomers(g) {
   g.orders.slice(0, 7).forEach((o, i) => {
     const p = patienceRatio(g, o), mood = p < .25 ? 'angry' : p < .5 ? 'worried' : 'neutral';
     const x = 10 + i * 24 + (mood === 'angry' ? (Math.floor(g.t * 8) % 2) : 0);
-    drawFace(x, y, o.id, mood);
+    drawFace(x, y, o.name, mood);
     if (mood === 'angry' && Math.floor(g.t * 4) % 2) { px(P.R, x + 11, y - 3, 1, 3); px(P.R, x + 11, y + 1); }
   });
   if (g.orders.length > 7) text('+' + (g.orders.length - 7), 10 + 7 * 24, y, P.A, 'left');
@@ -660,8 +661,8 @@ function doServe() {
   const cupOf = (rc) => rc ? { ice: rc.ice, shot: rc.shot, ings: rc.ings } : newCup();
   if (r.did === 'served') {
     const ev = g.events[g.events.length - 1]; const qi = Math.max(0, Math.min(6, ev && ev.idx != null ? ev.idx : 0));
-    SFX.serve(); fx.push({ text: '+' + r.price.toLocaleString(), x: ax, y: 150, ttl: 1.2, color: P.y }); toast(`+${r.price.toLocaleString()}원 · ${r.recipe.name}`, 'good');
-    pick.push({ kind: 'served', id: ev && ev.order ? ev.order.id : 0, qi, cup: cupOf(r.recipe), x: ax, t0: g.t });
+    SFX.serve(); fx.push({ text: '+' + r.price.toLocaleString(), x: ax, y: 150, ttl: 1.2, color: P.y }); toast(`+${r.price.toLocaleString()}원 · ${ev && ev.order ? ev.order.name + ' 손님 · ' : ''}${r.recipe.name}`, 'good');
+    pick.push({ kind: 'served', id: ev && ev.order ? ev.order.name : 0, qi, cup: cupOf(r.recipe), x: ax, t0: g.t });
   }
   else { SFX.waste(); fx.push({ text: '폐기', x: ax, y: 150, ttl: 1, color: P.R }); toast('주문에 없는 음료… 폐기', 'bad'); pick.push({ kind: 'waste', cup: cupOf(r.recipe), x: ax, t0: g.t }); }
 }
@@ -678,7 +679,7 @@ function renderOrders(g) {
     let el = cardEls.get(o.id);
     if (!el) {
       el = document.createElement('div'); el.className = 'ocard';
-      el.innerHTML = `<div class="tag" style="background:${o.recipe.ice ? P.b : P.O}"></div><div class="r1"></div><div class="pr">${o.recipe.price.toLocaleString()}원</div><div class="bar"><i></i></div><div class="chain"></div>`;
+      el.innerHTML = `<div class="tag" style="background:${o.recipe.ice ? P.b : P.O}"></div><div class="r1"></div><div class="pr"><b>${o.name}</b> · ${o.recipe.price.toLocaleString()}원</div><div class="bar"><i></i></div><div class="chain"></div>`;
       const r1 = el.querySelector('.r1'); const fc = document.createElement('canvas'); fc.width = 10; fc.height = 10; fc.style.width = '20px'; fc.style.height = '20px'; r1.appendChild(fc);
       const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = o.recipe.short; r1.appendChild(nm);
       const ch = el.querySelector('.chain'); stepsOf(o.recipe).forEach(k => { const c = iconCanvas(k, 2); c.dataset.k = k; ch.appendChild(c); });
@@ -688,7 +689,7 @@ function renderOrders(g) {
     const p = patienceRatio(g, o), mood = p < .25 ? 'angry' : p < .5 ? 'worried' : 'neutral';
     el.querySelector('.bar i').style.width = (p * 100).toFixed(0) + '%';
     el.classList.toggle('w', mood === 'worried'); el.classList.toggle('d', mood === 'angry');
-    if (el._mood !== mood) { const prev = sx; sx = el._face.getContext('2d'); sx.clearRect(0, 0, 10, 10); drawFace(0, 0, o.id, mood); sx = prev; el._mood = mood; }
+    if (el._mood !== mood) { const prev = sx; sx = el._face.getContext('2d'); sx.clearRect(0, 0, 10, 10); drawFace(0, 0, o.name, mood); sx = prev; el._mood = mood; }
     const ok = g.hand ? compatible(g.hand, o.recipe) : null;
     el.classList.toggle('ok', ok === true); el.classList.toggle('no', ok === false);
     const next = ok ? nextStep(g.hand, o.recipe) : null;
@@ -721,7 +722,7 @@ function render() {
     stepsOf({ ice: g.hand.ice, shot: g.hand.shot, ings: g.hand.ings }).forEach(k => ic.appendChild(iconCanvas(k)));
     h.appendChild(ic);
     const target = g.orders.find(o => compatible(g.hand, o.recipe));
-    if (target) { const n = document.createElement('span'); n.className = 'next'; const step = nextStep(g.hand, target.recipe); n.innerHTML = `${target.recipe.name} → 다음 <b>${STEP_KO(step)}</b>`; if (step !== 'serve') n.appendChild(iconCanvas(step)); h.appendChild(n); }
+    if (target) { const n = document.createElement('span'); n.className = 'next'; const step = nextStep(g.hand, target.recipe); n.innerHTML = `${target.name} 손님 ${target.recipe.name} → 다음 <b>${STEP_KO(step)}</b>`; if (step !== 'serve') n.appendChild(iconCanvas(step)); h.appendChild(n); }
     else { const n = document.createElement('span'); n.className = 'none'; n.textContent = '맞는 주문이 없습니다'; h.appendChild(n); }
   }
   // 동작 버튼 상태
@@ -742,7 +743,7 @@ function render() {
 
   for (; lastEvent < g.events.length; lastEvent++) {
     const e = g.events[lastEvent];
-    if (e.type === 'angry') { SFX.angry(); toast(`${e.recipe.short} 손님이 화나서 돌아갔습니다`, 'bad'); pick.push({ kind: 'angry', id: e.order ? e.order.id : 0, qi: Math.min(6, e.idx || 0), t0: g.t }); }
+    if (e.type === 'angry') { SFX.angry(); toast(`${e.order ? e.order.name : ''} 손님이 ${e.recipe.short} 못 받고 화나서 돌아갔습니다`, 'bad'); pick.push({ kind: 'angry', id: e.order ? e.order.name : 0, qi: Math.min(6, e.idx || 0), t0: g.t }); }
     else if (e.type === 'order') SFX.order();
     else if (e.type === 'ready') SFX.ready();
   }

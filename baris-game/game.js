@@ -55,6 +55,9 @@ export const DIFFICULTY = {
 };
 // 실제 바리스브루: 시간당 최대 100잔(헬로티 2026-05-24) × 영업 12시간 = 하루 1,200잔. 결과 비교에 쓴다
 export const ROBOT_PER_HOUR = 100, BUSINESS_HOURS = 12, ROBOT_PER_DAY = ROBOT_PER_HOUR * BUSINESS_HOURS;
+// 손님 이름 — XYZ 구성원 이름(성 제외). 2026-10-09 사용자 결정(노션 멤버 목록에서 추림, 게스트·봇·2자 이름 제외)
+export const CUSTOMER_NAMES = ['미종','민지','준호','대광','민서','병수','병조','연준','재현','정현','준영','지윤','진오','현국','민규','송현','주철','정욱','원호','원희','호진','수진','소나','형욱','수열','신영','희동','한나','정우','우석','희수','창영','용성','혁수','태연','성재'];
+export function nameHash(name) { let h = 7; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; }
 export const DEFAULTS = {
   duration: 100,
   firstOrderAt: 0.5,
@@ -210,7 +213,10 @@ export function tick(s, dt) {
   while (s.t >= s.nextOrderAt && s.t < s.cfg.duration) {
     if (s.orders.length < s.cfg.maxOrders) {
       const r = pickRecipe(s);
-      s.orders.push({ id: ++s.orderSeq, recipe: r, createdAt: s.nextOrderAt, expiresAt: s.nextOrderAt + s.cfg.patience });
+      const inQueue = new Set(s.orders.map(o => o.name));
+      const free = CUSTOMER_NAMES.filter(n => !inQueue.has(n));
+      const name = free[Math.floor(s.rng() * free.length)] || CUSTOMER_NAMES[0];
+      s.orders.push({ id: ++s.orderSeq, name, recipe: r, createdAt: s.nextOrderAt, expiresAt: s.nextOrderAt + s.cfg.patience });
       emit(s, 'order', { recipe: r });
     }
     const gap = s.t < s.cfg.duration / 2 ? s.cfg.orderGap : s.cfg.orderGapLate;

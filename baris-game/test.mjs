@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createGame, tick, moveTo, moveRight, action, serve, atStation, matchRecipe, compatible, nextStep, grade, couponCode, ROBOT_PER_DAY, TIMES, STATIONS, STATION_X, RECIPES, newCup } from './game.js';
+import { createGame, tick, moveTo, moveRight, action, serve, atStation, matchRecipe, compatible, nextStep, grade, couponCode, ROBOT_PER_DAY, CUSTOMER_NAMES, TIMES, STATIONS, STATION_X, RECIPES, newCup } from './game.js';
 
 const seq = (vals) => { let i = 0; return () => vals[i++ % vals.length]; };
 const run = (s, sec, dt = 0.05) => { for (let i = 0; i < Math.round(sec / dt); i++) tick(s, dt); return s; };
@@ -112,6 +112,9 @@ const rec = (id) => RECIPES.find(r => r.id === id);
   assert.equal(grade(0), '견습 바리스타'); assert.equal(grade(60000), '바리스급'); assert.equal(grade(39999), '숙련 바리스타');
   assert.equal(couponCode(41000, new Date(2026, 9, 9)), couponCode(41000, new Date(2026, 9, 9))); assert.match(couponCode(41000), /^BARIS-[A-Z2-9]{6}$/);
   assert.equal(ROBOT_PER_DAY, 1200);
+  const n = createGame({ orderGap: [1, 1], orderGapLate: [1, 1], maxOrders: 6 }, seq([0.3, 0.7])); run(n, 8);
+  assert.ok(n.orders.every(o => CUSTOMER_NAMES.includes(o.name)));
+  assert.equal(new Set(n.orders.map(o => o.name)).size, n.orders.length); // 대기열 안 이름은 안 겹침
 }
 
 console.log('all tests passed');
