@@ -5,15 +5,15 @@
 export const TIMES = { cup: 0.5, ice: 1.5, coffee: 4, drink: 2.5, handle: 0.4, serve: 1.0, speed: 90 }; // speed: 레일 px/초
 
 // 음료DP = 파우더 4 + 시럽 4 (바리스브루 Beverage v2.0 DP 구조)
-export const INGREDIENTS = {
-  milk:    { name: '밀크',   kind: 'powder', color: '#f1e3c6' },
-  choco:   { name: '초코',   kind: 'powder', color: '#4a2c1a' },
-  icetea:  { name: '아이스티', kind: 'powder', color: '#e9a24a' },
-  grape:   { name: '자몽',   kind: 'powder', color: '#ef6a7a' },
-  vanilla: { name: '바닐라', kind: 'syrup',  color: '#ffd76a' },
-  blacktea:{ name: '홍차',   kind: 'syrup',  color: '#a2442c' },
-  orange:  { name: '오렌지', kind: 'syrup',  color: '#ff8c2e' },
-  brownsugar:{ name: '흑당', kind: 'syrup',  color: '#2d1a10' },
+export const INGREDIENTS = { // num: 화면·키보드에 쓰는 번호(1~8)
+  milk:    { name: '밀크',   kind: 'powder', color: '#f1e3c6', num: 1 },
+  choco:   { name: '초코',   kind: 'powder', color: '#4a2c1a', num: 2 },
+  icetea:  { name: '아이스티', kind: 'powder', color: '#e9a24a', num: 3 },
+  grape:   { name: '자몽',   kind: 'powder', color: '#ef6a7a', num: 4 },
+  vanilla: { name: '바닐라', kind: 'syrup',  color: '#ffd76a', num: 5 },
+  blacktea:{ name: '홍차',   kind: 'syrup',  color: '#a2442c', num: 6 },
+  orange:  { name: '오렌지', kind: 'syrup',  color: '#ff8c2e', num: 7 },
+  brownsugar:{ name: '흑당', kind: 'syrup',  color: '#2d1a10', num: 8 },
 };
 export const ING_KEYS = Object.keys(INGREDIENTS);
 export const MAX_INGS = 2;
@@ -47,17 +47,23 @@ export const RECIPES = [
   R('ice_bsl',   '아이스 흑당라떼',   '흑당', 4300, true,  false, ['milk', 'brownsugar']),
 ];
 
+// 난이도: 사용자 플레이 기준으로 기존 값(32초·5.5~7.5)이 「어려움」 수준이었다 (2026-10-09)
+export const DIFFICULTY = {
+  easy:   { label: '쉬움',   patience: 50, orderGap: [9, 11],   orderGapLate: [7, 9],     easyUntil: 20 },
+  normal: { label: '보통',   patience: 40, orderGap: [7, 9],    orderGapLate: [5.5, 7.5], easyUntil: 12 },
+  hard:   { label: '어려움', patience: 32, orderGap: [5.5, 7.5], orderGapLate: [4.5, 6],  easyUntil: 10 },
+};
 export const DEFAULTS = {
   duration: 60,
-  patience: 32,
   firstOrderAt: 0.5,
-  orderGap: [5.5, 7.5],
-  orderGapLate: [4.5, 6],
   maxOrders: 6,
+  difficulty: 'normal',
+  ...DIFFICULTY.normal,
 };
 
 export function createGame(opts = {}, rng = Math.random) {
-  const cfg = { ...DEFAULTS, ...opts };
+  const diff = DIFFICULTY[opts.difficulty] || DIFFICULTY[DEFAULTS.difficulty];
+  const cfg = { ...DEFAULTS, ...diff, ...opts };
   return {
     cfg, rng,
     t: 0, ended: false,
@@ -92,7 +98,7 @@ export function moveLeft(s) { return moveTo(s, s.armTarget - 1); }
 export function moveRight(s) { return moveTo(s, s.armTarget + 1); }
 
 function pickRecipe(s) {
-  const pool = s.t < 10 ? RECIPES.filter(r => r.id.includes('ame')) : RECIPES;
+  const pool = s.t < s.cfg.easyUntil ? RECIPES.filter(r => r.id.includes('ame')) : RECIPES;
   const total = pool.reduce((a, r) => a + r.w, 0); let x = s.rng() * total;
   for (const r of pool) { x -= r.w; if (x <= 0) return r; }
   return pool[pool.length - 1];

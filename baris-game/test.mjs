@@ -105,6 +105,9 @@ const rec = (id) => RECIPES.find(r => r.id === id);
   run(s, 1); assert.equal(s.orders.length, 1);
   run(s, 24.1); assert.equal(s.orders.length, 0); assert.equal(s.angry, 1);
   const e = createGame({ orderGap: [5, 5], orderGapLate: [5, 5] }, seq([0.5])); run(e, 61);
+  const hard = createGame({ difficulty: 'hard' }); assert.equal(hard.cfg.patience, 32);
+  const easy = createGame({ difficulty: 'easy' }); assert.equal(easy.cfg.patience, 50); assert.equal(easy.cfg.easyUntil, 20);
+  assert.equal(createGame().cfg.patience, 40);
   assert.equal(e.ended, true); assert.ok(e.orders.length <= 6); assert.equal(action(e).reason, 'busy');
   assert.equal(grade(0), '견습 바리스타'); assert.equal(grade(36000), '바리스급');
 }
