@@ -45,6 +45,18 @@
   .act.serve{background:#3fb36b} .act.serve[disabled]{background:#8f8a99}
   .app > .row{display:flex;gap:8px} .app > .row .act{flex:1;width:auto}
   .pc .row.btns{display:none}
+  .stations{display:flex;flex-direction:column;gap:5px}
+  .pc .stations{display:none}
+  .stations .srow{display:flex;gap:5px}
+  .stations button{flex:1;min-width:0;height:46px;border:3px solid #000;background:#fff;box-shadow:0 3px 0 #000;font-size:13px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 2px;color:var(--ink)}
+  .stations button canvas{image-rendering:pixelated;flex:0 0 auto}
+  .stations button span{white-space:nowrap;overflow:hidden;text-overflow:clip}
+  .stations .srow.ing button{font-size:11px;flex-direction:column;gap:1px;height:50px}
+  .stations button.target{border-color:var(--accent);background:#ffe9e1}
+  .stations button.here{background:var(--accent);color:#fff;border-color:#000}
+  .stations button.busy{opacity:.9}
+  .stations button .dot{position:absolute}
+  .stations button:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
   .hint{font-size:13px;color:#9b96a8;text-align:center}
   .hint kbd{font:inherit;border:1px solid #6d6880;padding:0 4px;background:#3a3947;color:#fff}
 
@@ -91,6 +103,7 @@
     </div>
   </div>
   <canvas class="stage" id="stage"></canvas>
+  <div class="stations" id="stations"></div>
   <div class="panel" id="hand"></div>
   <div class="toast" id="toast"></div>
   <div class="row btns"><button class="act" id="act">동작</button><button class="act serve" id="serveBtn">픽업존에 놓기</button></div>
@@ -131,8 +144,8 @@ import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation
 const $ = (id) => document.getElementById(id);
 const isPC = matchMedia('(hover:hover) and (pointer:fine)').matches;
 if (isPC) document.body.classList.add('pc');
-$('startHint').innerHTML = isPC ? '<kbd>←</kbd> <kbd>→</kbd> 한 칸 이동 · <kbd>1</kbd>~<kbd>8</kbd> 재료 노즐로 바로 · <kbd>스페이스</kbd> 동작 · <kbd>↓</kbd> 픽업존에 놓기' : '기계·노즐을 눌러 이동 · <b>동작</b> 버튼 · 다 만든 컵은 <b>픽업존에 놓기</b>';
-$('hint').innerHTML = isPC ? '<kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>1</kbd>~<kbd>8</kbd> 노즐 &nbsp; <kbd>스페이스</kbd> 동작 &nbsp; <kbd>↓</kbd> 픽업존' : '기계·노즐을 눌러 이동 · 앞 카운터를 누르면 픽업존에 놓기';
+$('startHint').innerHTML = isPC ? '<kbd>←</kbd> <kbd>→</kbd> 한 칸 이동 · <kbd>1</kbd>~<kbd>8</kbd> 재료 노즐로 바로 · <kbd>스페이스</kbd> 동작 · <kbd>↓</kbd> 픽업존에 놓기' : '화면 아래 정거장 버튼으로 이동 · <b>동작</b> 버튼 · 다 만든 컵은 <b>픽업존에 놓기</b>';
+$('hint').innerHTML = isPC ? '<kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>1</kbd>~<kbd>8</kbd> 노즐 &nbsp; <kbd>스페이스</kbd> 동작 &nbsp; <kbd>↓</kbd> 픽업존' : '아래 버튼이나 화면의 기계를 눌러 이동 · 앞 카운터를 누르면 픽업존에 놓기';
 const STATION_KO = { cup: '컵', ice: '얼음', coffee: '샷', ...Object.fromEntries(ING_KEYS.map(k => [k, INGREDIENTS[k].name])) };
 const STEP_KO = (k) => k === 'ice' ? '얼음' : k === 'shot' ? '샷' : k === 'serve' ? '픽업존에 놓기' : INGREDIENTS[k].name;
 
@@ -400,8 +413,20 @@ function buildLegend() {
 }
 function stationAtX(x) { let best = 0; STATION_X.forEach((sx0, i) => { if (Math.abs(x - sx0) < Math.abs(x - STATION_X[best])) best = i; }); return best; }
 
+function buildStations() {
+  const S = $('stations'); S.innerHTML = '';
+  const row1 = document.createElement('div'); row1.className = 'srow';
+  const row2 = document.createElement('div'); row2.className = 'srow ing';
+  STATIONS.forEach((st, i) => {
+    const b = document.createElement('button'); b.dataset.i = i;
+    if (isIngStation(st)) { b.appendChild(iconCanvas(st, 2)); const n = document.createElement('span'); n.textContent = INGREDIENTS[st].name; b.appendChild(n); row2.appendChild(b); }
+    else { const n = document.createElement('span'); n.textContent = STATION_KO[st]; b.appendChild(n); row1.appendChild(b); }
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!g || g.ended) return; if (moveTo(g, i)) SFX.move(); });
+  });
+  S.appendChild(row1); S.appendChild(row2);
+}
 function build() {
-  buildLegend();
+  buildLegend(); buildStations();
   stage.addEventListener('pointerdown', (e) => {
     e.preventDefault(); if (!g || g.ended) return;
     const r = stage.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * STAGE_W, y = (e.clientY - r.top) / r.height * STAGE_H;
@@ -485,6 +510,7 @@ function render() {
   else label = g.hand ? `${STATION_KO[here]}에 걸기` : '컵 없음';
   $('act').textContent = label; $('act').disabled = dis;
   $('serveBtn').disabled = isBusy(g) || !here || !g.hand;
+  $('stations').querySelectorAll('button').forEach(b => { const i = +b.dataset.i; b.classList.toggle('here', STATIONS[i] === here); b.classList.toggle('target', i === g.armTarget && STATIONS[i] !== here); });
 
   for (; lastEvent < g.events.length; lastEvent++) {
     const e = g.events[lastEvent];
