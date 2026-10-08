@@ -244,7 +244,7 @@
 <canvas id="cv" width="1080" height="1350" style="display:none"></canvas>
 
 <script type="module">
-import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation, isBusy, matchRecipe, compatible, nextStep, patienceRatio, grade, remark, STATIONS, STATION_X, STATION_LABEL, INGREDIENTS, ING_KEYS, TIMES, newCup, isIngStation, DIFFICULTY } from './game.js?v=20261009c';
+import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation, isBusy, matchRecipe, compatible, nextStep, patienceRatio, grade, remark, STATIONS, STATION_X, STATION_LABEL, INGREDIENTS, ING_KEYS, TIMES, newCup, isIngStation, DIFFICULTY } from './game.js?v=20261009d';
 
 const $ = (id) => document.getElementById(id);
 const isPC = matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -257,7 +257,7 @@ const STEP_KO = (k) => k === 'ice' ? '얼음' : k === 'shot' ? '커피' : k === 
 
 /* ---------- 팔레트 · 픽셀 그리기 ---------- */
 const P = { K:'#14131a', D:'#3b3a48', G:'#6d6c7e', L:'#b9b7c6', W:'#f4f3f7', O:'#ff6a3d', o:'#ffb08f', B:'#3a6ea5', b:'#9fd0ff', Y:'#e8d2a6', y:'#ffd166', C:'#6b4a2b', c:'#3e2616', R:'#e2493b', N:'#3fb36b', S:'#f3c9a0', H:'#2b2118', h:'#c76b3c', E:'#4a5a9c', e:'#7d4c9c', T:'#2a2b36', t:'#45465a', X:'#dfe6f2', A:'#f2b63a' };
-const STAGE_W = 240, STAGE_H = 200, CW = 48, COUNTER_Y = 156, MY = 68; // MY: 기계 윗선
+const STAGE_W = 240, STAGE_H = 212, CW = 48, MY = 48, RAIL_Y = 138, COUNTER_Y = 164; // 기계 48~112 · 팔 위로 뻗는 틈 · 레일 138 · 팔 아래로 뻗는 틈 · 픽업존 164~
 const stage = $('stage');
 let sx = stage.getContext('2d');
 const px = (c, x, y, w = 1, h = 1) => { sx.fillStyle = c; sx.fillRect(x | 0, y | 0, w, h); };
@@ -266,6 +266,7 @@ function blit(map, ox, oy, pal = P) {
     const ch = map[y][x]; if (ch === '.') continue; const col = pal[ch] || P[ch]; if (col) px(col, ox + x, oy + y);
   }
 }
+function blitFlipY(map, ox, oy, pal = P) { blit([...map].reverse(), ox, oy, pal); }
 function text(str, x, y, color = P.W, align = 'left', size = 11) {
   sx.font = `${size}px Galmuri11`; sx.textBaseline = 'top'; sx.textAlign = align; sx.fillStyle = color; sx.fillText(str, x | 0, y | 0);
 }
@@ -429,11 +430,11 @@ const fx = [];
 const POWDERS = ING_KEYS.filter(k => INGREDIENTS[k].kind === 'powder'), SYRUPS = ING_KEYS.filter(k => INGREDIENTS[k].kind === 'syrup');
 function drawScene(g) {
   px('#1e1f27', 0, 0, STAGE_W, STAGE_H);
-  px('#262734', 0, 48, STAGE_W, 86);
-  for (let i = 0; i < STAGE_W; i += 12) px('#2d2e3c', i, 48, 1, 86);
-  px(P.K, 0, 134, STAGE_W, 1);
-  px(P.G, 2, 136, STAGE_W - 4, 5); px(P.L, 2, 136, STAGE_W - 4, 1); px(P.D, 2, 140, STAGE_W - 4, 1);
-  for (let i = 0; i < STAGE_W; i += 12) px(P.D, i + 4, 137, 2, 3);
+  px('#262734', 0, 48, STAGE_W, 80);
+  for (let i = 0; i < STAGE_W; i += 12) px('#2d2e3c', i, 48, 1, 80);
+  px(P.K, 0, 128, STAGE_W, 1); px('#1a1b22', 0, 129, STAGE_W, COUNTER_Y - 129);
+  px(P.G, 2, RAIL_Y, STAGE_W - 4, 5); px(P.L, 2, RAIL_Y, STAGE_W - 4, 1); px(P.D, 2, RAIL_Y + 4, STAGE_W - 4, 1);
+  for (let i = 0; i < STAGE_W; i += 12) px(P.D, i + 4, RAIL_Y + 1, 2, 3);
 
   const here = atStation(g);
   drawCupDP(0, MY, here === 'cup');
@@ -445,20 +446,24 @@ function drawScene(g) {
   drawCustomers(g);
   // 현재 칸·목표 표시
   const tx = STATION_X[g.armTarget], tw = g.armTarget < 3 ? 36 : 16;
-  if (here) px(P.O, tx - tw / 2, 133, tw, 1);
-  else { px(P.O, tx - 3, 128, 7, 1); px(P.O, tx - 2, 129, 5, 1); px(P.O, tx - 1, 130, 3, 1); px(P.O, tx, 131); }
+  if (here) px(P.O, tx - tw / 2, RAIL_Y + 6, tw, 1);
+  else { px(P.O, tx, RAIL_Y + 7); px(P.O, tx - 1, RAIL_Y + 8, 3, 1); px(P.O, tx - 2, RAIL_Y + 9, 5, 1); px(P.O, tx - 3, RAIL_Y + 10, 7, 1); }
 
   const ax = Math.round(g.armPos);
   const busy = isBusy(g), serving = busy && g.busyWith === 'serve';
   const bob = busy && !serving ? (Math.floor(g.t * 10) % 2) : 0;
-  const armLen = serving ? 12 : 5 + (busy ? 4 : 0);
-  blit(CAR, ax - 8, 131);
-  // 팔: 어깨 관절 → 상완(흰) → 팔꿈치 관절
-  px(P.K, ax - 3, 141, 7, 3); px(P.D, ax - 2, 141, 5, 2);
-  px(P.K, ax - 3, 144, 7, armLen); px(P.W, ax - 2, 144, 5, armLen); px(P.L, ax + 1, 144, 2, armLen);
-  const gy = 144 + armLen;
-  if (serving) { px(P.K, ax - 3, gy, 7, 3); px(P.D, ax - 2, gy, 5, 2); px(P.K, ax - 3, gy + 3, 7, 8); px(P.W, ax - 2, gy + 3, 5, 8); px(P.L, ax + 1, gy + 3, 2, 8); blit(GRIP, ax - 8, gy + 11); }
-  else { blit(GRIP, ax - 8, gy + bob); if (g.hand) drawCup(ax - 4, gy + 4 + bob, g.hand); }
+  // 팔: 기계 작업·대기 땐 위(뒤쪽 기계)로, 서빙 땐 아래(앞 픽업존)로 뻗는다
+  blit(CAR, ax - 8, RAIL_Y - 8);
+  const seg = (y0, len) => { px(P.K, ax - 3, y0, 7, len); px(P.W, ax - 2, y0, 5, len); px(P.L, ax + 1, y0, 2, len); };
+  const joint = (y0) => { px(P.K, ax - 3, y0, 7, 3); px(P.D, ax - 2, y0, 5, 2); };
+  if (serving) {
+    const len = 12; joint(RAIL_Y + 2); seg(RAIL_Y + 5, len); const gy = RAIL_Y + 5 + len;
+    blit(GRIP, ax - 8, gy); // 손가락 아래, 컵을 카운터에 내려놓는 중
+  } else {
+    const len = 3 + (busy ? 6 : 0) + bob; const top = RAIL_Y - 10 - len;
+    joint(RAIL_Y - 11); seg(top, len); blitFlipY(GRIP, ax - 8, top - 10); // 손가락 위
+    if (g.hand) drawCup(ax - 4, top - 11, g.hand);
+  }
 
   for (let i = fx.length - 1; i >= 0; i--) { const f = fx[i]; f.y -= 0.3; f.ttl -= 1 / 60; if (f.ttl <= 0) { fx.splice(i, 1); continue; } text(f.text, f.x, f.y, f.color, 'center'); }
 }
@@ -523,7 +528,7 @@ const STAGE_TOP = 48; // 주문 카드는 HTML로 빠졌으니 캔버스는 그 
 function fitStage() {
   sx = setupCanvas(stage, STAGE_W, STAGE_H - STAGE_TOP); sx.translate(0, -STAGE_TOP);
   drawScene(g || createGame({ firstOrderAt: 999 }));
-  if (titleTimer) { const bg = $('tbg'); if (bg.clientWidth) setupCanvas(bg, STAGE_W, 110); }
+  if (titleTimer) { const bg = $('tbg'); if (bg.clientWidth) setupCanvas(bg, STAGE_W, 150); }
 }
 function iconCanvas(kind, scale = 2) { const c = document.createElement('canvas'); c.width = ICON_W; c.height = 10; c.style.width = ICON_W * scale + 'px'; c.style.height = 10 * scale + 'px'; stepIcon(c.getContext('2d'), kind, 0, 0, ''); return c; }
 function buildLegend() {
@@ -552,7 +557,7 @@ let titleTimer = null, menuSel = 0;
 function showScreen(id) { ['tMain', 'tHow', 'tSettings', 'tCredits'].forEach(k => $(k).classList.toggle('on', k === id)); if (id === 'tSettings') renderSettings(); }
 function titleOn() {
   $('start').classList.add('on'); $('end').classList.remove('on'); showScreen('tMain'); setMenu(0);
-  const bg = $('tbg'); const bc = setupCanvas(bg, STAGE_W, 110);
+  const bg = $('tbg'); const bc = setupCanvas(bg, STAGE_W, 150);
   const g0 = createGame({ firstOrderAt: 999 }); g0.t = 0; g0.cfg.patience = 25;
   g0.slots.ice = { cup: { ice: true, shot: false, ings: [] }, readyAt: 1.5 }; g0.slots.coffee = { cup: newCup(), readyAt: 4 }; g0.slots.milk = { cup: { ice: false, shot: false, ings: ['milk'] }, readyAt: 2.5 };
   g0.trail = [{ kind: 'served', recipe: { ice: false, shot: true, ings: [] } }, { kind: 'served', recipe: { ice: true, shot: false, ings: ['grape'] } }, { kind: 'served', recipe: { ice: true, shot: true, ings: ['milk'] } }];
@@ -560,11 +565,11 @@ function titleOn() {
   clearInterval(titleTimer);
   titleTimer = setInterval(() => {
     g0.t += 1 / 30;
-    g0.armTarget = tgt; const tx = STATION_X[tgt]; const d = tx - g0.armPos; const step = 25 / 30;
+    g0.armTarget = tgt; const tx = STATION_X[tgt]; const d = tx - g0.armPos; const step = 25 / 30; g0.busyUntil = (Math.floor(g0.t) % 4 === 1) ? g0.t + 1 : 0; g0.busyWith = (Math.floor(g0.t) % 8 === 5) ? 'serve' : 'put';
     if (Math.abs(d) <= step) { g0.armPos = tx; if (Math.random() < 0.02) { tgt = Math.floor(Math.random() * STATIONS.length); } }
     else g0.armPos += Math.sign(d) * step;
     for (const k of ['ice', 'coffee', 'milk']) { const sl = g0.slots[k]; if (sl && g0.t > sl.readyAt + 3) sl.readyAt = g0.t + (k === 'coffee' ? 4 : 2.5); }
-    const prev = sx; sx = bc; bc.save(); bc.clearRect(0, 0, STAGE_W, 200); bc.translate(0, -62); drawScene(g0); bc.restore(); sx = prev;
+    const prev = sx; sx = bc; bc.save(); bc.clearRect(0, 0, STAGE_W, 212); bc.translate(0, -48); drawScene(g0); bc.restore(); sx = prev;
   }, 1000 / 30);
 }
 function titleOff() { clearInterval(titleTimer); titleTimer = null; $('start').classList.remove('on'); }
