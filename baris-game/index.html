@@ -71,12 +71,10 @@
   .app > .row{display:flex;gap:8px} .app > .row .act{flex:1;width:auto}
   .pc .row.btns{display:none}
   .moverow{display:flex;gap:8px;align-items:stretch}
+  .moverow .act{flex:2;width:auto;height:64px;font-size:19px}
   .pc .moverow{display:none}
-  .mv{flex:1;height:54px;border:3px solid #000;background:#fff;box-shadow:0 4px 0 #000;font-size:17px}
+  .mv{flex:0 0 64px;height:64px;border:3px solid #000;background:#fff;box-shadow:0 4px 0 #000;font-size:24px}
   .mv:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
-  .where{flex:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f6ecd3;border:3px solid #000;box-shadow:0 4px 0 #000;font-size:15px;line-height:1.1;gap:2px}
-  .where small{font-size:11px;color:var(--mute)}
-  .where canvas{image-rendering:pixelated}
   .stations{display:none}
   .stations .srow{display:flex;gap:5px}
   .stations button{flex:1;min-width:0;height:46px;border:3px solid #000;background:#fff;box-shadow:0 3px 0 #000;font-size:13px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 2px;color:var(--ink)}
@@ -160,10 +158,10 @@
   </div>
   <div class="orders" id="orders"></div>
   <canvas class="stage" id="stage"></canvas>
-  <div class="moverow" id="moverow"><button class="mv" id="mvL">◀ 왼쪽</button><div class="where" id="where"></div><button class="mv" id="mvR">오른쪽 ▶</button></div>
+  <div class="moverow" id="moverow"><button class="mv" id="mvL">◀</button><button class="act" id="act">동작</button><button class="mv" id="mvR">▶</button></div>
   <div class="panel" id="hand"></div>
   <div class="toast" id="toast"></div>
-  <div class="row btns"><button class="act" id="act">동작</button><button class="act serve" id="serveBtn">픽업존에 놓기</button></div>
+  <div class="row btns"><button class="act serve" id="serveBtn">픽업존에 놓기</button></div>
   <div class="hint" id="hint"></div>
 </div>
 
@@ -253,8 +251,8 @@ const $ = (id) => document.getElementById(id);
 const isPC = matchMedia('(hover:hover) and (pointer:fine)').matches;
 if (isPC) document.body.classList.add('pc');
 $('tfoot').innerHTML = isPC ? '<kbd>↑</kbd><kbd>↓</kbd> 고르기 · <kbd>스페이스</kbd> 선택' : '메뉴를 눌러 선택';
-$('startHint').innerHTML = isPC ? '<kbd>←</kbd> <kbd>→</kbd> 한 칸 이동 · <kbd>1</kbd>~<kbd>8</kbd> 재료 번호 노즐로 바로 · <kbd>스페이스</kbd> 동작 · <kbd>↓</kbd> 픽업존에 놓기' : '◀ ▶ 버튼으로 한 칸씩 이동 · <b>동작</b> 버튼 · 다 만든 컵은 <b>픽업존에 놓기</b>';
-$('hint').innerHTML = isPC ? '<kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>1</kbd>~<kbd>8</kbd> 재료 번호로 바로 &nbsp; <kbd>스페이스</kbd> 동작 &nbsp; <kbd>↓</kbd> 픽업존' : '◀ ▶로 한 칸씩 이동 · 화면의 기계를 눌러도 됨 · 앞 카운터 탭 = 픽업존';
+$('startHint').innerHTML = isPC ? '<kbd>←</kbd> <kbd>→</kbd> 한 칸 이동 · <kbd>1</kbd>~<kbd>8</kbd> 재료 번호 노즐로 바로 · <kbd>스페이스</kbd> 동작 · <kbd>↓</kbd> 픽업존에 놓기' : '◀ ▶ 로 한 칸씩 이동, 가운데 <b>동작</b> · 다 만든 컵은 맨 아래 <b>픽업존에 놓기</b>';
+$('hint').innerHTML = isPC ? '<kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>1</kbd>~<kbd>8</kbd> 재료 번호로 바로 &nbsp; <kbd>스페이스</kbd> 동작 &nbsp; <kbd>↓</kbd> 픽업존' : '◀ ▶ 한 칸 이동 · 가운데가 동작 · 아래가 픽업존';
 const STATION_KO = { cup: '컵', ice: '얼음', coffee: '커피', ...Object.fromEntries(ING_KEYS.map(k => [k, INGREDIENTS[k].name])) };
 const STEP_KO = (k) => k === 'ice' ? '얼음' : k === 'shot' ? '커피' : k === 'serve' ? '픽업존에 놓기' : INGREDIENTS[k].name;
 
@@ -623,7 +621,7 @@ function start() {
   soundOn = settings.sound; $('snd').classList.toggle('off', !soundOn); $('snd').textContent = soundOn ? '♪ 소리' : '♪ 꺼짐';
   g = createGame({ difficulty: settings.difficulty }); window.__game = g;
   titleOff(); $('end').classList.remove('on');
-  last = performance.now(); lastEvent = 0; lastTickSec = -1; fx.length = 0; pick.length = 0; cardEls.clear(); $('orders').innerHTML = ''; $('where').dataset.k = '';
+  last = performance.now(); lastEvent = 0; lastTickSec = -1; fx.length = 0; pick.length = 0; cardEls.clear(); $('orders').innerHTML = '';
   toast('컵 기계에서 컵을 집으세요');
   if (!isPC) $('hint').style.display = 'none';
   clearInterval(timer); timer = setInterval(loop, 16);
@@ -728,18 +726,17 @@ function render() {
   // 동작 버튼 상태
   const slot = here && here !== 'cup' ? g.slots[here] : null;
   const slotReady = slot && g.t >= slot.readyAt;
+  const stName = here ? (isIngStation(here) ? `${INGREDIENTS[here].num} ${STATION_KO[here]}` : STATION_KO[here]) : '';
+  const tgtName = (() => { const t = STATIONS[g.armTarget]; return isIngStation(t) ? `${INGREDIENTS[t].num} ${STATION_KO[t]}` : STATION_KO[t]; })();
   let label = '동작', dis = isBusy(g) || !here;
-  if (!here) label = '이동 중';
-  else if (here === 'cup') { label = g.hand ? '손이 찼음' : '컵 집기'; dis = dis || !!g.hand; }
-  else if (slot && !slotReady) { label = `${STATION_KO[here]} 작업 중 ${Math.ceil(slot.readyAt - g.t)}초`; dis = true; }
-  else if (slot && slotReady) label = g.hand ? '교체' : '꺼내기';
-  else label = g.hand ? `${STATION_KO[here]}에 걸기` : '컵 없음';
+  if (!here) label = `이동 중 → ${tgtName}`;
+  else if (here === 'cup') { label = g.hand ? '컵 · 손이 찼음' : '컵 집기'; dis = dis || !!g.hand; }
+  else if (slot && !slotReady) { label = `${stName} 작업 중 ${Math.ceil(slot.readyAt - g.t)}초`; dis = true; }
+  else if (slot && slotReady) label = g.hand ? `${stName} 교체` : `${stName} 꺼내기`;
+  else label = g.hand ? `${stName}에 걸기` : `${stName} · 컵 없음`;
   $('act').textContent = label; $('act').disabled = dis;
   $('serveBtn').disabled = isBusy(g) || !here || !g.hand;
-  // 모바일 가운데 칸: 지금 어디(또는 어디로 가는 중)
-  const tgtSt = STATIONS[g.armTarget]; const W = $('where');
-  const wkey = tgtSt + (here ? '' : '>');
-  if (W.dataset.k !== wkey) { W.dataset.k = wkey; W.innerHTML = ''; if (isIngStation(tgtSt)) W.appendChild(iconCanvas(tgtSt, 2)); const n = document.createElement('span'); n.textContent = (isIngStation(tgtSt) ? INGREDIENTS[tgtSt].num + ' ' : '') + STATION_KO[tgtSt]; W.appendChild(n); const sm = document.createElement('small'); sm.textContent = here ? '여기' : '이동 중…'; W.appendChild(sm); }
+
 
   for (; lastEvent < g.events.length; lastEvent++) {
     const e = g.events[lastEvent];
