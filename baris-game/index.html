@@ -68,6 +68,11 @@
   .box canvas.hero{display:block;width:100%;border:3px solid #000}
   .how{display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
   .how div{display:flex;gap:10px} .how b{flex:0 0 22px;height:22px;background:#000;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:400}
+  details.more{border-top:2px dashed #cfc7b4;padding-top:10px}
+  details.more summary{cursor:pointer;font-size:14px;color:var(--mute);list-style:none;display:flex;align-items:center;gap:6px}
+  details.more summary::before{content:"▸";font-size:12px} details.more[open] summary::before{content:"▾"}
+  details.more > *:not(summary){margin-top:10px}
+  details.more .hint{text-align:left}
   .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--mute);align-items:center}
   .legend canvas{display:block;image-rendering:pixelated}
   .legend span{display:flex;align-items:center;gap:5px}
@@ -115,14 +120,19 @@
     <h1>바리스 되기 60초<small>바리스브루 로봇 바리스타의 하루 영업 · 08:00 → 20:00</small></h1>
     <canvas class="hero" id="hero"></canvas>
     <div class="how">
-      <div><b>1</b><span>손님 카드의 <u>레시피 아이콘</u>과 같은 자리로 팔을 옮겨 컵을 걸고, 다 되면 앞 카운터(픽업존)에 놓으면 매출.</span></div>
-      <div><b>2</b><span>기계·노즐에 컵을 <u>걸어 두면</u> 혼자 일합니다. 그 사이 다음 컵을 집으세요. 다 되면 꺼내거나 새 컵과 바꿔 끼웁니다.</span></div>
-      <div><b>3</b><span>도착만 하면 아무 일도 없습니다. <u>동작</u>을 눌러야 움직입니다.</span></div>
-      <div><b>4</b><span>오래 기다린 손님은 화나서 돌아갑니다.</span></div>
+      <div><b>1</b><span>손님 카드의 아이콘과 같은 자리로 가서 컵을 걸고, 다 되면 앞 픽업존에 놓으면 매출.</span></div>
+      <div><b>2</b><span>걸어 둔 컵은 혼자 됩니다. 그 사이 다음 컵을 집으세요.</span></div>
     </div>
-    <div class="legend" id="legend"></div>
-    <div class="hint" id="startHint"></div>
     <button class="btn hot" id="go">영업 시작</button>
+    <details class="more">
+      <summary>조작법 · 아이콘 보기</summary>
+      <div class="how">
+        <div><b>·</b><span>도착만 하면 아무 일도 없습니다. <u>동작</u>을 눌러야 움직입니다. 다 된 컵은 꺼내거나 새 컵과 바꿔 끼웁니다.</span></div>
+        <div><b>·</b><span>오래 기다린 손님은 화나서 돌아갑니다. 60초 = 영업시간 하루.</span></div>
+      </div>
+      <div class="hint" id="startHint"></div>
+      <div class="legend" id="legend"></div>
+    </details>
   </div>
 </div>
 
@@ -442,6 +452,7 @@ function start() {
   $('start').classList.remove('on'); $('end').classList.remove('on');
   last = performance.now(); lastEvent = 0; lastTickSec = -1; fx.length = 0;
   toast('컵 기계에서 컵을 집으세요');
+  if (!isPC) $('hint').style.display = 'none';
   clearInterval(timer); timer = setInterval(loop, 16);
   BGM.start();
   window.__step = (sec) => { tick(g, sec); render(); if (g.ended) { clearInterval(timer); finish(); } };
