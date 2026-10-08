@@ -65,6 +65,10 @@
   .btn.ghost{background:#fff;color:#000}
   .btn.hot{background:var(--accent)}
   .row{display:flex;gap:8px} .row .btn{flex:1}
+  a.btn.cta{display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;height:64px;line-height:1.15}
+  a.btn.cta small{font-size:12px;color:#ffe0d4}
+  .links{display:flex;justify-content:center;gap:8px;font-size:13px;color:var(--mute);flex-wrap:wrap}
+  .links a{color:var(--ink);text-decoration:underline}
 
   .card{background:#fff;border:3px solid #000;padding:16px 16px 12px;display:flex;flex-direction:column;gap:8px}
   .card .top{display:flex;justify-content:space-between;align-items:center} .card .top img{height:13px} .card .top span{font-size:12px;color:var(--mute)}
@@ -113,6 +117,8 @@
   <div class="box">
     <div class="card" id="card"></div>
     <div class="row"><button class="btn" id="share">공유하기</button><button class="btn ghost" id="save">이미지 저장</button></div>
+    <a class="btn hot cta" href="https://map.naver.com/p/search/%EB%9D%BC%EC%9A%B4%EC%A7%80%EC%97%91%EC%8A%A4" target="_blank" rel="noopener">바리스브루가 일하는 매장 찾기<small>라운지엑스 · 네이버 지도</small></a>
+    <div class="links"><a href="https://kr.xyzcorp.ai/baris" target="_blank" rel="noopener">바리스브루 알아보기</a><span>·</span><a href="https://apps.apple.com/kr/app/id1660500008" target="_blank" rel="noopener">라운지엑스 앱 iOS</a><span>·</span><a href="https://play.google.com/store/apps/details?id=io.xyz.xexpressapp&hl=ko" target="_blank" rel="noopener">Android</a></div>
     <button class="btn ghost" id="again">다시 하기</button>
     <div class="hint" id="endHint"></div>
   </div>
@@ -512,7 +518,7 @@ function finish() {
     <div id="trailSlot"></div>
     <div class="grade">등급<b>${gr}</b></div>
     <div class="say">“${say}”</div>
-    <div class="fact">실제 바리스브루는 시간당 최대 100잔을 만듭니다.</div>`;
+    <div class="fact">실제 바리스브루는 시간당 최대 100잔, 한 잔 평균 4분 안에 만듭니다.</div>`;
   const tc = trailCanvas(2); tc.style.width = tc.width + 'px'; $('trailSlot').appendChild(tc);
   $('end').classList.add('on'); $('endHint').textContent = '';
 }
@@ -551,7 +557,7 @@ async function cardBlob() {
   c.fillStyle = '#7a7366'; font(36); c.fillText('등급', x + 54, y); c.fillStyle = '#1b1a21'; font(48); c.fillText(grade(g.revenue), x + 54 + 110, y + 4);
   y += 100; c.fillStyle = '#ff6a3d'; c.fillRect(x + 54, y - 40, 10, 110);
   c.fillStyle = '#1b1a21'; font(38); wrap(c, '“' + remark(g) + '”', x + 86, y, cw - 150, 54);
-  c.fillStyle = '#7a7366'; font(28); c.fillText('실제 바리스브루는 시간당 최대 100잔을 만듭니다.', x + 54, y0 + ch - 60);
+  c.fillStyle = '#7a7366'; font(28); c.fillText('실제 바리스브루는 시간당 최대 100잔, 한 잔 평균 4분 안에 만듭니다.', x + 54, y0 + ch - 60);
   c.fillStyle = '#b9b4c6'; font(28); c.textAlign = 'center'; c.fillText(pageUrl().replace(/^https?:\/\//, ''), W / 2, H - 70); c.textAlign = 'left';
   return new Promise(res => cv.toBlob(res, 'image/png'));
 }
