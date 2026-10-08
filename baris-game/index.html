@@ -61,6 +61,27 @@
   .hint kbd{font:inherit;border:1px solid #6d6880;padding:0 4px;background:#3a3947;color:#fff}
 
   .ov{position:fixed;inset:0;background:rgba(20,19,28,.88);display:none;align-items:center;justify-content:center;padding:14px;z-index:10;overflow:auto}
+  .ov.title{background:#14131a;padding:0;align-items:stretch}
+  .tscreen{position:relative;width:100%;min-height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px 16px}
+  .tscreen.on{display:flex}
+  canvas.tbg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,760px);opacity:.35;pointer-events:none;image-rendering:pixelated}
+  .tlogo{position:relative;text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .tlogo img{height:18px}
+  .tlogo h1{margin:0;font-size:clamp(40px,11vw,64px);line-height:1;font-weight:400;text-shadow:4px 4px 0 #000,0 0 0 #000;letter-spacing:-1px}
+  .tlogo p{margin:0;font-size:14px;color:#b9b4c6;text-shadow:2px 2px 0 #000}
+  .menu{position:relative;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:min(100%,320px)}
+  .menu li{position:relative;height:54px;display:flex;align-items:center;justify-content:center;background:#f6ecd3;border:3px solid #000;box-shadow:4px 4px 0 #000;font-size:20px;cursor:pointer;user-select:none}
+  .menu li::before{content:"▶";position:absolute;left:16px;font-size:16px;color:var(--accent);visibility:hidden}
+  .menu li.sel{background:#fff}
+  .menu li.sel::before{visibility:visible;animation:cur .5s steps(1) infinite}
+  @keyframes cur{50%{visibility:hidden}}
+  .tfoot{position:relative;font-size:12px;color:#8a85a0;text-align:center}
+  .tscreen.sub{justify-content:flex-start;padding-top:28px}
+  .sbox{width:100%;max-width:480px;background:var(--paper);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:20px 18px 16px;display:flex;flex-direction:column;gap:14px}
+  .sbox h2{margin:0;font-weight:400;font-size:26px;line-height:1}
+  .credits{display:flex;flex-direction:column;gap:9px;font-size:14px}
+  .credits div{display:flex;gap:10px;align-items:baseline}
+  .credits .k{flex:0 0 118px;color:var(--mute);font-size:12px}
   .ov.on{display:flex}
   .box{width:100%;max-width:480px;background:var(--paper);border:3px solid #000;box-shadow:6px 6px 0 #000;padding:20px 18px 16px;display:flex;flex-direction:column;gap:14px;margin:auto}
   .box h1{margin:0;font-weight:400;font-size:28px;line-height:1.15}
@@ -68,11 +89,7 @@
   .box canvas.hero{display:block;width:100%;border:3px solid #000}
   .how{display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
   .how div{display:flex;gap:10px} .how b{flex:0 0 22px;height:22px;background:#000;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:400}
-  details.more{border-top:2px dashed #cfc7b4;padding-top:10px}
-  details.more summary{cursor:pointer;font-size:14px;color:var(--mute);list-style:none;display:flex;align-items:center;gap:6px}
-  details.more summary::before{content:"▸";font-size:12px} details.more[open] summary::before{content:"▾"}
-  details.more > *:not(summary){margin-top:10px}
-  details.more .hint{text-align:left}
+  .sbox .hint{text-align:left}
   .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--mute);align-items:center}
   .legend canvas{display:block;image-rendering:pixelated}
   .legend span{display:flex;align-items:center;gap:5px}
@@ -115,24 +132,52 @@
   <div class="hint" id="hint"></div>
 </div>
 
-<div class="ov on" id="start">
-  <div class="box">
-    <h1>바리스 되기 60초<small>바리스브루 로봇 바리스타의 하루 영업 · 08:00 → 20:00</small></h1>
-    <canvas class="hero" id="hero"></canvas>
-    <div class="how">
-      <div><b>1</b><span>손님 카드의 아이콘과 같은 자리로 가서 컵을 걸고, 다 되면 앞 픽업존에 놓으면 매출.</span></div>
-      <div><b>2</b><span>걸어 둔 컵은 혼자 됩니다. 그 사이 다음 컵을 집으세요.</span></div>
+<div class="ov on title" id="start">
+  <div class="tscreen" id="tMain">
+    <canvas class="tbg" id="tbg"></canvas>
+    <div class="tlogo">
+      <img src="assets/logo_barisbrew_white.png" alt="BarisBrew">
+      <h1>바리스 되기<br>60초</h1>
+      <p>로봇 바리스타의 하루 영업</p>
     </div>
-    <button class="btn hot" id="go">영업 시작</button>
-    <details class="more">
-      <summary>조작법 · 아이콘 보기</summary>
+    <ul class="menu" id="menu">
+      <li data-act="start">영업 시작</li>
+      <li data-act="how">사용법</li>
+      <li data-act="credits">만든이</li>
+    </ul>
+    <div class="tfoot" id="tfoot"></div>
+  </div>
+
+  <div class="tscreen sub" id="tHow">
+    <div class="sbox">
+      <h2>사용법</h2>
       <div class="how">
-        <div><b>·</b><span>도착만 하면 아무 일도 없습니다. <u>동작</u>을 눌러야 움직입니다. 다 된 컵은 꺼내거나 새 컵과 바꿔 끼웁니다.</span></div>
-        <div><b>·</b><span>오래 기다린 손님은 화나서 돌아갑니다. 60초 = 영업시간 하루.</span></div>
+        <div><b>1</b><span>손님 카드의 <u>아이콘 순서</u>가 레시피. 같은 아이콘이 붙은 자리(기계·노즐)로 팔을 옮깁니다.</span></div>
+        <div><b>2</b><span>도착해서 <u>동작</u>을 눌러야 컵이 걸립니다. 걸어 둔 컵은 혼자 되니 그 사이 다음 컵을 집으세요.</span></div>
+        <div><b>3</b><span>다 된 컵은 꺼내거나, 그 자리를 아직 안 거친 새 컵과 바꿔 끼웁니다.</span></div>
+        <div><b>4</b><span>완성한 컵은 앞 카운터 <u>픽업존</u>에 놓으면 매출. 맞는 주문이 없으면 폐기.</span></div>
+        <div><b>5</b><span>오래 기다린 손님은 화나서 돌아갑니다. 60초가 영업시간 하루(08:00→20:00).</span></div>
       </div>
       <div class="hint" id="startHint"></div>
       <div class="legend" id="legend"></div>
-    </details>
+      <button class="btn ghost back" data-back>← 돌아가기</button>
+    </div>
+  </div>
+
+  <div class="tscreen sub" id="tCredits">
+    <div class="sbox">
+      <h2>만든이</h2>
+      <div class="credits">
+        <div><span class="k">기획 · 디자인 · 코드</span><span>XYZ UX파트 김준영</span></div>
+        <div><span class="k">함께</span><span>Claude</span></div>
+        <div><span class="k">소재</span><span>바리스브루 — XYZ의 로봇 바리스타 솔루션</span></div>
+        <div><span class="k">글꼴</span><span>갈무리 Galmuri (OFL)</span></div>
+        <div><span class="k">소리</span><span>WebAudio로 직접 만든 효과음·배경음</span></div>
+        <div><span class="k">2026</span><span>토이 프로젝트. 실제 매장은 라운지엑스에서.</span></div>
+      </div>
+      <a class="btn hot" href="https://kr.xyzcorp.ai/baris" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none">바리스브루 알아보기</a>
+      <button class="btn ghost back" data-back>← 돌아가기</button>
+    </div>
   </div>
 </div>
 
@@ -142,7 +187,7 @@
     <div class="row"><button class="btn" id="share">공유하기</button><button class="btn ghost" id="save">이미지 저장</button></div>
     <a class="btn hot cta" href="https://map.naver.com/p/search/%EB%9D%BC%EC%9A%B4%EC%A7%80%EC%97%91%EC%8A%A4" target="_blank" rel="noopener">바리스브루가 일하는 매장 찾기<small>라운지엑스 · 네이버 지도</small></a>
     <div class="links"><a href="https://kr.xyzcorp.ai/baris" target="_blank" rel="noopener">바리스브루 알아보기</a><span>·</span><a href="https://apps.apple.com/kr/app/id1660500008" target="_blank" rel="noopener">라운지엑스 앱 iOS</a><span>·</span><a href="https://play.google.com/store/apps/details?id=io.xyz.xexpressapp&hl=ko" target="_blank" rel="noopener">Android</a></div>
-    <button class="btn ghost" id="again">다시 하기</button>
+    <div class="row"><button class="btn ghost" id="again">다시 하기</button><button class="btn ghost" id="toTitle">메인으로</button></div>
     <div class="hint" id="endHint"></div>
   </div>
 </div>
@@ -154,6 +199,7 @@ import { createGame, tick, moveTo, moveLeft, moveRight, action, serve, atStation
 const $ = (id) => document.getElementById(id);
 const isPC = matchMedia('(hover:hover) and (pointer:fine)').matches;
 if (isPC) document.body.classList.add('pc');
+$('tfoot').innerHTML = isPC ? '<kbd>↑</kbd><kbd>↓</kbd> 고르기 · <kbd>스페이스</kbd> 선택' : '메뉴를 눌러 선택';
 $('startHint').innerHTML = isPC ? '<kbd>←</kbd> <kbd>→</kbd> 한 칸 이동 · <kbd>1</kbd>~<kbd>8</kbd> 재료 노즐로 바로 · <kbd>스페이스</kbd> 동작 · <kbd>↓</kbd> 픽업존에 놓기' : '화면 아래 정거장 버튼으로 이동 · <b>동작</b> 버튼 · 다 만든 컵은 <b>픽업존에 놓기</b>';
 $('hint').innerHTML = isPC ? '<kbd>←</kbd><kbd>→</kbd> 이동 &nbsp; <kbd>1</kbd>~<kbd>8</kbd> 노즐 &nbsp; <kbd>스페이스</kbd> 동작 &nbsp; <kbd>↓</kbd> 픽업존' : '아래 버튼이나 화면의 기계를 눌러 이동 · 앞 카운터를 누르면 픽업존에 놓기';
 const STATION_KO = { cup: '컵', ice: '얼음', coffee: '샷', ...Object.fromEntries(ING_KEYS.map(k => [k, INGREDIENTS[k].name])) };
@@ -402,17 +448,7 @@ function setupCanvas(cv, w, h) {
 function fitStage() {
   sx = setupCanvas(stage, STAGE_W, STAGE_H);
   drawScene(g || createGame({ firstOrderAt: 999 }));
-  drawHero();
-}
-function drawHero() {
-  const hero = $('hero'); if (!hero.clientWidth) return;
-  const hc = setupCanvas(hero, STAGE_W, 140);
-  const g0 = createGame({ firstOrderAt: 999 });
-  g0.hand = { ice: true, shot: true, ings: ['milk'] }; g0.armTarget = 7; g0.armPos = STATION_X[7]; g0.t = 0.5; g0.cfg.patience = 25;
-  g0.slots.coffee = { cup: newCup(), readyAt: 3 }; g0.slots.ice = { cup: { ice: true, shot: false, ings: [] }, readyAt: 0 }; g0.slots.choco = { cup: { ice: false, shot: false, ings: ['choco'] }, readyAt: 2 };
-  g0.trail = [{ kind: 'served', recipe: { ice: false, shot: true, ings: [] } }, { kind: 'served', recipe: { ice: true, shot: false, ings: ['grape'] } }];
-  g0.orders = [{ id: 0, recipe: { short: '라떼', ice: true, shot: true, ings: ['milk'], price: 3900 }, expiresAt: 20 }, { id: 1, recipe: { short: '아메', ice: false, shot: true, ings: [], price: 3200 }, expiresAt: 12 }, { id: 2, recipe: { short: '밀크티', ice: true, shot: false, ings: ['milk', 'blacktea'], price: 4000 }, expiresAt: 25 }];
-  const prev = sx; sx = hc; hc.save(); hc.translate(0, -60); drawScene(g0); hc.restore(); sx = prev;
+  if (titleTimer) { const bg = $('tbg'); if (bg.clientWidth) setupCanvas(bg, STAGE_W, 110); }
 }
 function iconCanvas(kind, scale = 2) { const c = document.createElement('canvas'); c.width = 9; c.height = 10; c.style.width = 9 * scale + 'px'; c.style.height = 10 * scale + 'px'; stepIcon(c.getContext('2d'), kind, 0, 0, ''); return c; }
 function buildLegend() {
@@ -435,8 +471,41 @@ function buildStations() {
   });
   S.appendChild(row1); S.appendChild(row2);
 }
+/* ---------- 타이틀 화면 ---------- */
+let titleTimer = null, menuSel = 0;
+function showScreen(id) { ['tMain', 'tHow', 'tCredits'].forEach(k => $(k).classList.toggle('on', k === id)); }
+function titleOn() {
+  $('start').classList.add('on'); $('end').classList.remove('on'); showScreen('tMain'); setMenu(0);
+  const bg = $('tbg'); const bc = setupCanvas(bg, STAGE_W, 110);
+  const g0 = createGame({ firstOrderAt: 999 }); g0.t = 0; g0.cfg.patience = 25;
+  g0.slots.ice = { cup: { ice: true, shot: false, ings: [] }, readyAt: 1.5 }; g0.slots.coffee = { cup: newCup(), readyAt: 4 }; g0.slots.milk = { cup: { ice: false, shot: false, ings: ['milk'] }, readyAt: 2.5 };
+  g0.trail = [{ kind: 'served', recipe: { ice: false, shot: true, ings: [] } }, { kind: 'served', recipe: { ice: true, shot: false, ings: ['grape'] } }, { kind: 'served', recipe: { ice: true, shot: true, ings: ['milk'] } }];
+  let dir = 1, tgt = 10;
+  clearInterval(titleTimer);
+  titleTimer = setInterval(() => {
+    g0.t += 1 / 30;
+    g0.armTarget = tgt; const tx = STATION_X[tgt]; const d = tx - g0.armPos; const step = 25 / 30;
+    if (Math.abs(d) <= step) { g0.armPos = tx; if (Math.random() < 0.02) { tgt = Math.floor(Math.random() * STATIONS.length); } }
+    else g0.armPos += Math.sign(d) * step;
+    for (const k of ['ice', 'coffee', 'milk']) { const sl = g0.slots[k]; if (sl && g0.t > sl.readyAt + 3) sl.readyAt = g0.t + (k === 'coffee' ? 4 : 2.5); }
+    const prev = sx; sx = bc; bc.save(); bc.clearRect(0, 0, STAGE_W, 200); bc.translate(0, -62); drawScene(g0); bc.restore(); sx = prev;
+  }, 1000 / 30);
+}
+function titleOff() { clearInterval(titleTimer); titleTimer = null; $('start').classList.remove('on'); }
+function setMenu(i) { const items = $('menu').querySelectorAll('li'); menuSel = (i + items.length) % items.length; items.forEach((li, k) => li.classList.toggle('sel', k === menuSel)); }
+function menuAct(act) {
+  if (act === 'start') { titleOff(); start(); }
+  else if (act === 'how') showScreen('tHow');
+  else if (act === 'credits') showScreen('tCredits');
+}
+function buildTitle() {
+  $('menu').querySelectorAll('li').forEach((li, i) => { li.addEventListener('pointerdown', (e) => { e.preventDefault(); setMenu(i); audioOn(); beep(880, .05, 'square', .04); menuAct(li.dataset.act); }); });
+  $('start').querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => { showScreen('tMain'); beep(440, .05, 'square', .04); }));
+  $('toTitle').addEventListener('click', () => titleOn());
+}
+
 function build() {
-  buildLegend(); buildStations();
+  buildLegend(); buildStations(); buildTitle(); titleOn();
   stage.addEventListener('pointerdown', (e) => {
     e.preventDefault(); if (!g || g.ended) return;
     const r = stage.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * STAGE_W, y = (e.clientY - r.top) / r.height * STAGE_H;
@@ -449,7 +518,7 @@ function build() {
 function start() {
   audioOn();
   g = createGame(); window.__game = g;
-  $('start').classList.remove('on'); $('end').classList.remove('on');
+  titleOff(); $('end').classList.remove('on');
   last = performance.now(); lastEvent = 0; lastTickSec = -1; fx.length = 0;
   toast('컵 기계에서 컵을 집으세요');
   if (!isPC) $('hint').style.display = 'none';
@@ -607,13 +676,19 @@ async function save() {
 window.__cardBlob = cardBlob;
 
 /* ---------- 입력 ---------- */
-$('go').addEventListener('click', start); $('again').addEventListener('click', start);
+$('again').addEventListener('click', start);
 $('share').addEventListener('click', share); $('save').addEventListener('click', save);
 $('act').addEventListener('pointerdown', (e) => { e.preventDefault(); doAction(); });
 $('serveBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); doServe(); });
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
-  if ($('start').classList.contains('on')) { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); start(); } return; }
+  if ($('start').classList.contains('on')) {
+    if (!$('tMain').classList.contains('on')) { if (e.code === 'Escape' || e.code === 'Backspace' || e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); showScreen('tMain'); } return; }
+    if (e.code === 'ArrowUp') { e.preventDefault(); setMenu(menuSel - 1); beep(660, .04, 'square', .03); }
+    else if (e.code === 'ArrowDown') { e.preventDefault(); setMenu(menuSel + 1); beep(660, .04, 'square', .03); }
+    else if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); audioOn(); menuAct($('menu').querySelectorAll('li')[menuSel].dataset.act); }
+    return;
+  }
   if ($('end').classList.contains('on')) { if (e.code === 'Enter') start(); return; }
   if (!g) return;
   if (e.code === 'ArrowLeft') { e.preventDefault(); if (moveLeft(g)) SFX.move(); }
