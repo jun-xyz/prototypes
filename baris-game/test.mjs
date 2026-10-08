@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createGame, tick, moveTo, moveRight, action, serve, atStation, matchRecipe, compatible, nextStep, grade, TIMES, STATIONS, STATION_X, RECIPES, newCup } from './game.js';
+import { createGame, tick, moveTo, moveRight, action, serve, atStation, matchRecipe, compatible, nextStep, grade, couponCode, ROBOT_PER_DAY, TIMES, STATIONS, STATION_X, RECIPES, newCup } from './game.js';
 
 const seq = (vals) => { let i = 0; return () => vals[i++ % vals.length]; };
 const run = (s, sec, dt = 0.05) => { for (let i = 0; i < Math.round(sec / dt); i++) tick(s, dt); return s; };
@@ -104,12 +104,14 @@ const rec = (id) => RECIPES.find(r => r.id === id);
   const s = createGame({ firstOrderAt: 0, orderGap: [99, 99], patience: 25 }, seq([0]));
   run(s, 1); assert.equal(s.orders.length, 1);
   run(s, 24.1); assert.equal(s.orders.length, 0); assert.equal(s.angry, 1);
-  const e = createGame({ orderGap: [5, 5], orderGapLate: [5, 5] }, seq([0.5])); run(e, 61);
+  const e = createGame({ orderGap: [5, 5], orderGapLate: [5, 5] }, seq([0.5])); run(e, 101);
   const hard = createGame({ difficulty: 'hard' }); assert.equal(hard.cfg.patience, 32);
   const easy = createGame({ difficulty: 'easy' }); assert.equal(easy.cfg.patience, 50); assert.equal(easy.cfg.easyUntil, 20);
   assert.equal(createGame().cfg.patience, 40);
   assert.equal(e.ended, true); assert.ok(e.orders.length <= 6); assert.equal(action(e).reason, 'busy');
-  assert.equal(grade(0), '견습 바리스타'); assert.equal(grade(36000), '바리스급');
+  assert.equal(grade(0), '견습 바리스타'); assert.equal(grade(60000), '바리스급'); assert.equal(grade(39999), '숙련 바리스타');
+  assert.equal(couponCode(41000, new Date(2026, 9, 9)), couponCode(41000, new Date(2026, 9, 9))); assert.match(couponCode(41000), /^BARIS-[A-Z2-9]{6}$/);
+  assert.equal(ROBOT_PER_DAY, 1200);
 }
 
 console.log('all tests passed');

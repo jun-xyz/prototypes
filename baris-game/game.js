@@ -53,8 +53,10 @@ export const DIFFICULTY = {
   normal: { label: '보통',   patience: 40, orderGap: [7, 9],    orderGapLate: [5.5, 7.5], easyUntil: 12 },
   hard:   { label: '어려움', patience: 32, orderGap: [5.5, 7.5], orderGapLate: [4.5, 6],  easyUntil: 10 },
 };
+// 실제 바리스브루: 시간당 최대 100잔(헬로티 2026-05-24) × 영업 12시간 = 하루 1,200잔. 결과 비교에 쓴다
+export const ROBOT_PER_HOUR = 100, BUSINESS_HOURS = 12, ROBOT_PER_DAY = ROBOT_PER_HOUR * BUSINESS_HOURS;
 export const DEFAULTS = {
-  duration: 60,
+  duration: 100,
   firstOrderAt: 0.5,
   maxOrders: 6,
   difficulty: 'normal',
@@ -189,7 +191,7 @@ export function serve(s) {
   const [o] = s.orders.splice(idx, 1);
   s.revenue += o.recipe.price; s.servedCount++;
   s.trail.push({ kind: 'served', recipe: o.recipe, at: s.t });
-  emit(s, 'served', { recipe: o.recipe, order: o });
+  emit(s, 'served', { recipe: o.recipe, order: o, idx });
   return { ok: true, did: 'served', recipe: o.recipe, price: o.recipe.price };
 }
 
@@ -211,12 +213,12 @@ export function tick(s, dt) {
       s.orders.push({ id: ++s.orderSeq, recipe: r, createdAt: s.nextOrderAt, expiresAt: s.nextOrderAt + s.cfg.patience });
       emit(s, 'order', { recipe: r });
     }
-    const gap = s.t < 30 ? s.cfg.orderGap : s.cfg.orderGapLate;
+    const gap = s.t < s.cfg.duration / 2 ? s.cfg.orderGap : s.cfg.orderGapLate;
     s.nextOrderAt += gap[0] + s.rng() * (gap[1] - gap[0]);
   }
   for (let i = s.orders.length - 1; i >= 0; i--) {
     const o = s.orders[i];
-    if (s.t >= o.expiresAt) { s.orders.splice(i, 1); s.angry++; s.trail.push({ kind: 'angry', recipe: o.recipe, at: s.t }); emit(s, 'angry', { recipe: o.recipe }); }
+    if (s.t >= o.expiresAt) { s.orders.splice(i, 1); s.angry++; s.trail.push({ kind: 'angry', recipe: o.recipe, at: s.t }); emit(s, 'angry', { recipe: o.recipe, order: o, idx: i }); }
   }
   if (s.t >= s.cfg.duration) { s.ended = true; emit(s, 'end'); }
   return s;
@@ -224,13 +226,21 @@ export function tick(s, dt) {
 
 export function patienceRatio(s, o) { return Math.max(0, (o.expiresAt - s.t) / s.cfg.patience); }
 
-export const GRADES = [
-  { min: 0,     name: '견습 바리스타' },
-  { min: 12000, name: '숙련 바리스타' },
-  { min: 24000, name: '마스터 바리스타' },
-  { min: 36000, name: '바리스급' },
+export const GRADES = [ // 100초 기준
+  { min: 0,     name: '견습 바리스타', coupon: false },
+  { min: 20000, name: '숙련 바리스타', coupon: false },
+  { min: 40000, name: '마스터 바리스타', coupon: true },
+  { min: 60000, name: '바리스급', coupon: true },
 ];
-export function grade(revenue) { let g = GRADES[0]; for (const x of GRADES) if (revenue >= x.min) g = x; return g.name; }
+export function gradeOf(revenue) { let g = GRADES[0]; for (const x of GRADES) if (revenue >= x.min) g = x; return g; }
+export function grade(revenue) { return gradeOf(revenue).name; }
+// 체험용 쿠폰 코드 — 실제 쿠폰 시스템과 연결돼 있지 않다(더미). 매출·날짜로 정해지는 6자리
+export function couponCode(revenue, date = new Date()) {
+  const seed = revenue * 31 + date.getFullYear() * 372 + (date.getMonth() + 1) * 31 + date.getDate();
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let x = seed >>> 0, out = '';
+  for (let i = 0; i < 6; i++) { x = (x * 1103515245 + 12345) >>> 0; out += A[(x >>> 16) % A.length]; }
+  return 'BARIS-' + out;
+}
 
 // 바리스 한 줄 평 — 페르소나 1차(gentle·calm·witty) 톤, 검토 중
 export function remark(s) {
@@ -238,8 +248,8 @@ export function remark(s) {
   if (n === 0) return '컵을 드는 것부터 시작입니다. 저도 첫날엔 그랬습니다.';
   if (wasted >= 2) return '주문에 없는 음료가 ' + wasted + '잔. 정성은 알겠지만, 손님은 모릅니다.';
   if (angry >= 3) return '돌아간 손님이 ' + angry + '분. 레일 위에서는 순서가 곧 친절입니다.';
-  if (revenue >= 36000) return '제 레일을 내어드려도 되겠습니다. 다만 제 자리는 아닙니다.';
-  if (revenue >= 24000) return '기계마다 컵을 걸어 두고 다음 컵을 집는 손. 그게 병렬입니다. 보셨죠.';
-  if (revenue >= 12000) return '나쁘지 않습니다. 샷 기계가 비는 시간이 아깝긴 했습니다만.';
+  if (revenue >= 60000) return '제 레일을 내어드려도 되겠습니다. 다만 제 자리는 아닙니다.';
+  if (revenue >= 40000) return '기계마다 컵을 걸어 두고 다음 컵을 집는 손. 그게 병렬입니다. 보셨죠.';
+  if (revenue >= 20000) return '나쁘지 않습니다. 샷 기계가 비는 시간이 아깝긴 했습니다만.';
   return '서두르면 흘립니다. 저는 안 흘립니다.';
 }
