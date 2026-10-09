@@ -29,9 +29,10 @@
   .snd.off{color:#9b96a8;text-decoration:line-through}
 
   canvas.stage{display:block;width:100%;border:3px solid #000;box-shadow:4px 4px 0 #000;background:#1e1f27;touch-action:none}
-  .orders{display:flex;gap:6px;min-height:84px;overflow:hidden;align-items:stretch}
+  .orders{display:flex;gap:6px;min-height:84px;overflow-x:auto;overflow-y:hidden;align-items:stretch;padding:0 4px 6px 0;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .orders::-webkit-scrollbar{display:none}
   .orders .empty{color:#8a85a0;font-size:14px;align-self:center;padding-left:4px}
-  .ocard{flex:0 0 auto;width:calc((100% - 24px) / 5);min-width:92px;background:#fff;border:3px solid #000;box-shadow:3px 3px 0 #000;padding:5px 6px 6px;display:flex;flex-direction:column;gap:3px;position:relative;animation:pop .18s ease-out}
+  .ocard{flex:0 0 112px;width:112px;scroll-snap-align:start;background:#fff;border:3px solid #000;box-shadow:3px 3px 0 #000;padding:5px 6px 6px;display:flex;flex-direction:column;gap:3px;position:relative;animation:pop .18s ease-out}
   .ocard .tag{position:absolute;left:0;top:0;right:0;height:4px}
   .ocard .r1{display:flex;align-items:center;gap:5px;margin-top:3px}
   .ocard .r1 canvas{image-rendering:pixelated;display:block}
@@ -41,7 +42,7 @@
   .ocard .bar i{display:block;height:100%;background:var(--ok);transition:width .2s linear}
   .ocard.w .bar i{background:var(--warn)} .ocard.d .bar i{background:var(--bad)}
   .ocard.d{animation:shake .4s infinite}
-  .ocard .chain{display:flex;gap:3px;margin-top:2px}
+  .ocard .chain{display:flex;gap:2px;margin-top:2px}
   .ocard .chain canvas{image-rendering:pixelated;display:block}
   .ocard.ok{border-color:var(--ok);box-shadow:3px 3px 0 var(--ok)}
   .ocard.no{opacity:.45}
@@ -672,7 +673,7 @@ function renderOrders(g) {
   if (!g.orders.length) { if (!O.querySelector('.empty')) { O.innerHTML = `<div class="empty">${g.t < 1 ? '곧 손님이 옵니다' : '주문 대기 중…'}</div>`; cardEls.clear(); } return; }
   const empty = O.querySelector('.empty'); if (empty) empty.remove();
   const ids = new Set();
-  g.orders.slice(0, 5).forEach((o, i) => {
+  g.orders.forEach((o, i) => {
     ids.add(o.id);
     let el = cardEls.get(o.id);
     if (!el) {
@@ -698,9 +699,7 @@ function renderOrders(g) {
     });
   });
   for (const [id, el] of cardEls) if (!ids.has(id)) { el.remove(); cardEls.delete(id); }
-  let more = O.querySelector('.ocard.more');
-  if (g.orders.length > 5) { if (!more) { more = document.createElement('div'); more.className = 'ocard more'; O.appendChild(more); } more.textContent = '+' + (g.orders.length - 5); O.appendChild(more); }
-  else if (more) more.remove();
+
 }
 function render() {
   $('rev').textContent = g.revenue.toLocaleString();
